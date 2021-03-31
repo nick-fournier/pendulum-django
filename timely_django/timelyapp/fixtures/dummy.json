@@ -1,0 +1,85 @@
+[
+  {
+    "model": "timelyapp.business",
+    "pk": 1,
+    "fields": {
+      "managers": [2],
+      "owner": 2,
+      "business_name": "Business A",
+      "address": "123 fake st",
+      "date_joined": "2021-03-01"
+    }
+  },
+  {
+    "model": "timelyapp.business",
+    "pk": 2,
+    "fields": {
+      "managers": [3],
+      "owner": 3,
+      "business_name": "Business B",
+      "address": "321 blahblahblah ave",
+      "date_joined": "2021-03-01"
+    }
+  },
+  {
+    "model": "timelyapp.inventory",
+    "pk": 1,
+    "fields": {
+      "last_updated": "2021-03-03",
+      "description": "Some Widget",
+      "quantity_in_stock": 1000,
+      "unit": "pc",
+      "unit_price": 10,
+      "currency": "dollar"
+    }
+  },
+  {
+    "model": "timelyapp.inventory",
+    "pk": 2,
+    "fields": {
+      "last_updated": "2021-03-03",
+      "description": "A Different Widget",
+      "quantity_in_stock": 1000,
+      "unit": "pc",
+      "unit_price": 20,
+      "currency": "dollar"
+    }
+  },
+  {
+    "model": "timelyapp.purchaseorder",
+    "pk": 1,
+    "fields": {
+      "invoice": 1,
+      "discount_code": null,
+      "item": 1,
+      "quantity_purchased": 4,
+      "item_price": 40
+    }
+  },
+  {
+    "model": "timelyapp.purchaseorder",
+    "pk": 2,
+    "fields": {
+      "invoice": 1,
+      "discount_code": null,
+      "item": 2,
+      "quantity_purchased": 3,
+      "item_price": 60
+    }
+  },
+  {
+    "model": "timelyapp.invoice",
+    "pk": 1,
+    "fields": {
+      "date_sent": "2021-03-30",
+      "date_due": "2021-04-30",
+      "bill_from": 1,
+      "bill_to": 2,
+      "is_from_member": true,
+      "is_to_member": true,
+      "terms": "NET30",
+      "total_price": 100,
+      "currency": "dollar"
+    }
+  }
+]

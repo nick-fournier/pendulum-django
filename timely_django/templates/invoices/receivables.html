@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container">
+    <h4>Receivables</h4><br>
+    <table class="table table-sm">
+        <thead class="thead-dark">
+        <tr>
+            <th>Invoice ID</th>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Terms</th>
+            <th>Billed on</th>
+            <th>date</th>
+            <th>Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- jinja2 Technique -->
+        {% if receivables %}
+        {% for i in receivables %}
+        <tr>
+            <td>{{i.invoice_id}}</td>
+            <td>{{i.business_name}}</td>
+            <td>{{i.address}}</td>
+            <td>{{i.terms}}</td>
+            <td>{{i.date_sent}}</td>
+            <td>{{i.date_due}}</td>
+            <td>{{i.total_price}}</td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+            <td>No invoices</td>
+        </tr>
+        {% endif %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

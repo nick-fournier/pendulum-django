@@ -6,6 +6,17 @@ from django.utils import timezone
 
 from .managers import CustomUserManager
 
+TERM_CHOICES = [
+    ('COD', 'Cash on delivery'),
+    ('CIA', 'Cash in advance'),
+    ('NET7', 'Net 7 days'),
+    ('NET10', 'Net 10 days'),
+    ('NET30', 'Net 30 days'),
+    ('NET60', 'Net 60 days'),
+    ('NET90', 'Net 90 days'),
+    ('NET120', 'Net 120 days'),
+]
+
 # Create your models here.
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(_('email address'), unique=True)
@@ -20,3 +31,41 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+class Business(models.Model):
+    is_member = models.BooleanField(default=False)
+    owner = models.ForeignKey(CustomUser, default=None, null=True, on_delete=models.CASCADE)
+    managers = models.ManyToManyField(CustomUser, related_name='managers')
+    business_name = models.CharField(default=None, max_length=64)
+    address = models.CharField(default=None, max_length=64)
+    date_joined = models.DateTimeField(default=timezone.now)
+
+class Discount(models.Model):
+    discount_code = models.CharField(default=None, null=True, max_length=100)
+    description = models.CharField(default=None, null=True, max_length=100)
+    discount_ratio = models.DecimalField(default=1, max_digits=10, decimal_places=6)
+
+class Inventory(models.Model):
+    last_updated = models.DateField(null=True)
+    description = models.CharField(default=None, null=True, max_length=100)
+    quantity_in_stock = models.DecimalField(default=None, max_digits=10, decimal_places=6)
+    unit = models.CharField(default='pc', null=True, max_length=3)
+    unit_price = models.DecimalField(default=None, null=True, max_digits=10, decimal_places=2)
+    currency = models.CharField(default='dollar', null=True, max_length=3)
+
+class Invoice(models.Model):
+    date_sent = models.DateField(null=True)
+    date_due = models.DateField(null=True)
+    bill_from = models.ForeignKey(Business, on_delete=models.CASCADE, related_name="bill_from")
+    bill_to = models.ForeignKey(Business, on_delete=models.CASCADE, related_name="bill_to")
+    terms = models.CharField(default='NET30', null=True, max_length=24, choices=TERM_CHOICES)
+    total_price = models.DecimalField(default=None, null=True, max_digits=10, decimal_places=6)
+    currency = models.CharField(default='dollar', null=True, max_length=3)
+
+
+class PurchaseOrder(models.Model):
+    invoice = models.ForeignKey(Invoice, null=True, on_delete=models.CASCADE)
+    discount_code = models.ForeignKey(Discount, null=True, default=None, on_delete=models.CASCADE)
+    item = models.ForeignKey(Inventory, on_delete=models.CASCADE)
+    quantity_purchased = models.DecimalField(max_digits=10, decimal_places=6)
+    item_price = models.DecimalField(max_digits=10, decimal_places=6)

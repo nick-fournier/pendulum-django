@@ -1,0 +1,16 @@
+<!--users/templates/invoices/new_invoice.html-->
+
+{% extends 'base.html' %}
+
+{% block content %}
+{% load crispy_forms_tags %}
+
+    <div class="container p-4">
+    <h2>New Invoice</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-primary" type="submit">Send</button>
+    </form>
+
+{% endblock %}
