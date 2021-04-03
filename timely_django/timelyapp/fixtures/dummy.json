@@ -3,6 +3,7 @@
     "model": "timelyapp.business",
     "pk": 1,
     "fields": {
+      "is_member": true,
       "managers": [2],
       "owner": 2,
       "business_name": "Business A",
@@ -14,11 +15,21 @@
     "model": "timelyapp.business",
     "pk": 2,
     "fields": {
+      "is_member": true,
       "managers": [3],
       "owner": 3,
       "business_name": "Business B",
       "address": "321 blahblahblah ave",
       "date_joined": "2021-03-01"
+    }
+  },
+  {
+    "model": "timelyapp.discount",
+    "pk": 1,
+    "fields": {
+      "discount_code": "NONE",
+      "description": "No discount",
+      "discount_ratio": 1.0
     }
   },
   {
@@ -50,7 +61,7 @@
     "pk": 1,
     "fields": {
       "invoice": 1,
-      "discount_code": null,
+      "discount_code": 1,
       "item": 1,
       "quantity_purchased": 4,
       "item_price": 40
@@ -61,7 +72,7 @@
     "pk": 2,
     "fields": {
       "invoice": 1,
-      "discount_code": null,
+      "discount_code": 1,
       "item": 2,
       "quantity_purchased": 3,
       "item_price": 60
@@ -75,8 +86,6 @@
       "date_due": "2021-04-30",
       "bill_from": 1,
       "bill_to": 2,
-      "is_from_member": true,
-      "is_to_member": true,
       "terms": "NET30",
       "total_price": 100,
       "currency": "dollar"

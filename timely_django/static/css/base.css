@@ -17,6 +17,10 @@ span.helptext {
     display: none;
 }
 
+.navbar-custom .navbar-text {
+    color: green;
+}
+
 /* The sidebar menu */
 .sidenav {
   margin-top: 56px;
@@ -56,3 +60,4 @@ span.helptext {
   .sidenav {padding-top: 15px;}
   .sidenav a {font-size: 18px;}
 }
+
