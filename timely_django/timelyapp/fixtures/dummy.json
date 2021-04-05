@@ -36,6 +36,7 @@
     "model": "timelyapp.inventory",
     "pk": 1,
     "fields": {
+      "business": 1,
       "last_updated": "2021-03-03",
       "description": "Some Widget",
       "quantity_in_stock": 1000,
@@ -48,6 +49,7 @@
     "model": "timelyapp.inventory",
     "pk": 2,
     "fields": {
+      "business": 1,
       "last_updated": "2021-03-03",
       "description": "A Different Widget",
       "quantity_in_stock": 1000,
@@ -56,26 +58,52 @@
       "currency": "dollar"
     }
   },
+    {
+    "model": "timelyapp.inventory",
+    "pk": 3,
+    "fields": {
+      "business": 2,
+      "last_updated": "2021-03-13",
+      "description": "Overpriced Legal/Technical/Medical Services",
+      "quantity_in_stock": 1000,
+      "unit": "hrs",
+      "unit_price": 10,
+      "currency": "dollar"
+    }
+  },
   {
-    "model": "timelyapp.purchaseorder",
+    "model": "timelyapp.inventory",
+    "pk": 4,
+    "fields": {
+      "business": 2,
+      "last_updated": "2021-03-13",
+      "description": "Infeasibility Consulting Study",
+      "quantity_in_stock": 1000,
+      "unit": "hrs",
+      "unit_price": 20,
+      "currency": "dollar"
+    }
+  },
+  {
+    "model": "timelyapp.order",
     "pk": 1,
     "fields": {
       "invoice": 1,
       "discount_code": 1,
       "item": 1,
       "quantity_purchased": 4,
-      "item_price": 40
+      "item_total_price": 40
     }
   },
   {
-    "model": "timelyapp.purchaseorder",
+    "model": "timelyapp.order",
     "pk": 2,
     "fields": {
       "invoice": 1,
       "discount_code": 1,
       "item": 2,
       "quantity_purchased": 3,
-      "item_price": 60
+      "item_total_price": 60
     }
   },
   {
@@ -88,7 +116,10 @@
       "bill_to": 2,
       "terms": "NET30",
       "total_price": 100,
-      "currency": "dollar"
+      "currency": "dollar",
+      "is_flagged": false,
+      "is_scheduled": false,
+      "is_paid": false
     }
   }
 ]

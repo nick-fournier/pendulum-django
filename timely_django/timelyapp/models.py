@@ -75,6 +75,9 @@ class Invoice(models.Model):
     terms = models.CharField(default='NET30', null=True, max_length=24, choices=TERM_CHOICES)
     total_price = models.DecimalField(default=None, null=True, max_digits=10, decimal_places=2)
     currency = models.CharField(default='dollar', null=True, max_length=3)
+    is_flagged = models.BooleanField(default=False)
+    is_scheduled = models.BooleanField(default=False)
+    is_paid = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if self.pk is None:
