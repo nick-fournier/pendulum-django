@@ -14,6 +14,9 @@ from django.views import generic
 from django.views.generic.edit import CreateView
 from django.views.generic import ListView
 from django.urls import reverse_lazy
+from django.http import JsonResponse
+from django.core import serializers
+
 
 from .models import *
 from .forms import *
@@ -63,8 +66,6 @@ def get_invoices(biz_id, type):
 
         df.total_price.fillna(0, inplace=True)
         df.total_price = '$' + df.total_price.astype('float').round(2).astype(str)
-        # df.total_price = '$' + df.total_price.astype('float').round(2).to_string(index=False)
-
         df.date_sent = [x.strftime("%B %d, %Y").lstrip("0") for x in df.date_sent]
         df.date_due = ['COD' if x is None else x.strftime("%B %d, %Y").lstrip("0") for x in df.date_due]
 
@@ -124,7 +125,6 @@ class DashboardView(ListView):
     success_url = reverse_lazy('home')
     queryset = Business.objects.all()
 
-
 class ReceivablesView(ListView):
     template_name = 'invoices/receivables.html'
     success_url = reverse_lazy('home')
@@ -146,6 +146,27 @@ class PayablesView(ListView):
         business_id = Business.objects.filter(owner__id=self.request.user.id).values()[0]['id']
         context['payables'] = get_invoices(business_id, 'payables')
         return context
+
+class ReceivablesJSONView(ListView):
+    template_name = 'invoices/receivables.html'
+    success_url = reverse_lazy('home')
+    queryset = Business.objects.all()
+
+    def get(self, *args, **kwargs):
+        business_id = Business.objects.filter(owner__id=self.request.user.id).values()[0]['id']
+        data = get_invoices(business_id, 'receivables')
+        return JsonResponse(data, safe=False)
+
+class PayablesJSONView(ListView):
+    template_name = 'invoices/payables.html'
+    success_url = reverse_lazy('home')
+    queryset = Business.objects.all()
+
+    def get(self, *args, **kwargs):
+        business_id = Business.objects.filter(owner__id=self.request.user.id).values()[0]['id']
+        data = get_invoices(business_id, 'payables')
+        return JsonResponse(data, safe=False)
+
 
 class NewInvoiceFormView(CreateView):
     model = Invoice
