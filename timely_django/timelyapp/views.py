@@ -24,7 +24,7 @@ from .forms import *
 import pandas as pd
 import json
 import datetime
-
+import numpy as np
 
 
 #Generic functions
@@ -42,39 +42,62 @@ def get_duedate(term):
 
     return term_choices[term].strftime("%Y-%m-%d")
 
+def type_converter(obj):
+    if isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, datetime.datetime):
+        return obj.__str__()
+
 def get_invoices(biz_id, type):
 
     if type == "receivables":
-        invoices = Invoice.objects.filter(bill_to__id=biz_id).values()
-        dir = "bill_to_id"
-    elif type == "payables":
         invoices = Invoice.objects.filter(bill_from__id=biz_id).values()
-        dir = "bill_from_id"
+        opposite = "bill_to_id"
+
+    elif type == "payables":
+        invoices = Invoice.objects.filter(bill_to__id=biz_id).values()
+        opposite = "bill_from_id"
     else:
         return None
 
     if invoices.exists():
-        billed_business = Business.objects.filter(pk=invoices[0][dir]).values()
-        # order = Order.objects.filter(invoice=invoices[0]['id']).values()
+        #Gets the other business's data
+        other_business = Business.objects.filter(pk=invoices[0][opposite]).values()
+        order = Order.objects.filter(invoice__in=invoices.values_list('id', flat=True)).values()
 
+        #Convert to data frame to merge
         invoices = pd.DataFrame(invoices).rename(columns={'id': 'invoice_id'})
-        billed_business = pd.DataFrame(billed_business).rename(columns={'id': 'business_id'})
+        other_business = pd.DataFrame(other_business).rename(columns={'id': 'business_id'})
+        order = pd.DataFrame(order)
 
-        df = invoices.merge(billed_business,
-                            left_on=dir,
+        invoices_merged = invoices.merge(other_business,
+                            left_on=opposite,
                             right_on='business_id')
 
-        df.total_price.fillna(0, inplace=True)
-        df.total_price = '$' + df.total_price.astype('float').round(2).astype(str)
-        df.date_sent = [x.strftime("%B %d, %Y").lstrip("0") for x in df.date_sent]
-        df.date_due = ['COD' if x is None else x.strftime("%B %d, %Y").lstrip("0") for x in df.date_due]
+        #Some formatting fixes
+        invoices_merged.total_price.fillna(0, inplace=True)
+        invoices_merged.total_price = '$' + invoices_merged.total_price.astype('float').round(2).astype(str)
+        invoices_merged.date_sent = [x.strftime("%B %d, %Y").lstrip("0") for x in invoices_merged.date_sent]
+        invoices_merged.date_due = ['COD' if x is None else x.strftime("%B %d, %Y").lstrip("0") for x in invoices_merged.date_due]
 
-        df = df.sort_values('date_due', ascending=False).reset_index(drop=True)
-        df.index += 1
+        invoices_merged = invoices_merged.sort_values('date_due', ascending=False).reset_index(drop=True)
+        # invoices_merged.set_index('invoice_id', inplace=True)
 
-        # parsing the DataFrame in json format.
-        json_records = df.reset_index().to_json(orient='records')
-        data = list(json.loads(json_records))
+        #Convert to JSON
+        data_dict_list = []
+        for i in range(len(invoices_merged)):
+            invoice_id = invoices_merged.iloc[i].invoice_id
+            invoice_dict = invoices_merged.iloc[i]
+            order_dict = order[order.invoice_id == invoice_id].to_dict(orient='records')
+            data_dict_list.append({**invoice_dict, **{"order_list": order_dict}})
+
+        #This parses it to make sure any weird data types are smoothed out
+        data_json = json.dumps(data_dict_list, indent=4, default=type_converter)
+        data = list(json.loads(data_json))
 
         return data
 
@@ -125,6 +148,7 @@ class DashboardView(ListView):
     success_url = reverse_lazy('home')
     queryset = Business.objects.all()
 
+
 class ReceivablesView(ListView):
     template_name = 'invoices/receivables.html'
     success_url = reverse_lazy('home')
@@ -146,6 +170,8 @@ class PayablesView(ListView):
         business_id = Business.objects.filter(owner__id=self.request.user.id).values()[0]['id']
         context['payables'] = get_invoices(business_id, 'payables')
         return context
+
+
 
 class ReceivablesJSONView(ListView):
     template_name = 'invoices/receivables.html'
