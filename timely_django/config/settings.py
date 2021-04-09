@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'timelyapp',
     'crispy_forms',
     'dynamic_formsets',
+    'rest_framework',
+    'drf_multiple_model',
 ]
 
 MIDDLEWARE = [
@@ -66,7 +68,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'timelyapp.context_processors.add_context',
-
             ],
         },
     },

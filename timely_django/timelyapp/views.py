@@ -17,7 +17,10 @@ from django.urls import reverse_lazy
 from django.http import JsonResponse
 from django.core import serializers
 
+from drf_multiple_model.views import ObjectMultipleModelAPIView
+from rest_framework import viewsets
 
+from .serializers import InvoiceSerializer
 from .models import *
 from .forms import *
 
@@ -101,10 +104,8 @@ def get_invoices(biz_id, type):
 
         return data
 
-# Create your views here.
-def index(request):
-    return render(request, "home.html")
 
+# Create your views here.
 def password_reset_request(request):
     if request.method == "POST":
         password_reset_form = CustomPasswordResetForm(request.POST)
@@ -138,6 +139,10 @@ def password_reset_request(request):
                   template_name="registration/password_reset_form.html",
                   context={"password_reset_form": password_reset_form})
 
+def index(request):
+    return render(request, "home.html")
+
+# Templates view
 class SignUpView(generic.CreateView):
     form_class = CustomUserCreationForm
     success_url = reverse_lazy('login')
@@ -149,6 +154,19 @@ class DashboardView(ListView):
     queryset = Business.objects.all()
 
 
+# Django REST framework endpoints
+class InvoiceViewSet(viewsets.ModelViewSet):
+    serializer_class = InvoiceSerializer
+    queryset = Invoice.objects.all()
+
+    def get_queryset(self):
+        queryset = self.queryset
+        business_id = Business.objects.get(owner__id=self.request.user.id).id
+        query_set = queryset.filter(Q(bill_from__id=business_id) | Q(bill_from__id=business_id))
+        return query_set
+
+
+# old inbox views (can delete later)
 class ReceivablesView(ListView):
     template_name = 'invoices/receivables.html'
     success_url = reverse_lazy('home')
@@ -172,7 +190,7 @@ class PayablesView(ListView):
         return context
 
 
-
+# Manual JSON serializer (can delete later)
 class ReceivablesJSONView(ListView):
     template_name = 'invoices/receivables.html'
     success_url = reverse_lazy('home')
@@ -194,6 +212,7 @@ class PayablesJSONView(ListView):
         return JsonResponse(data, safe=False)
 
 
+# New Nested Invoice Form
 class NewInvoiceFormView(CreateView):
     model = Invoice
     template_name = 'invoices/new_invoice.html'
