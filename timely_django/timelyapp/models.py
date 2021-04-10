@@ -88,7 +88,7 @@ class Invoice(models.Model):
             super().save(*args, **kwargs)
 
 class Order(models.Model):
-    invoice = models.ForeignKey(Invoice, null=True, on_delete=models.CASCADE, related_name='orders')
+    invoice = models.ForeignKey(Invoice, null=True, on_delete=models.CASCADE, related_name='items')
     discount_code = models.ForeignKey(Discount, default=1, on_delete=models.CASCADE)
     item = models.ForeignKey(Inventory, on_delete=models.CASCADE)
     quantity_purchased = models.DecimalField(max_digits=10, decimal_places=6)

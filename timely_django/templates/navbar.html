@@ -8,8 +8,8 @@
          <ul class="navbar-nav">
              {% if user.is_authenticated %}
                 <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-                <a class="nav-link" href="{% url 'payables' %}">Payables</a>
-                <a class="nav-link" href="{% url 'receivables' %}">Receivables</a>
+                <a class="nav-link" href="{% url 'dashboard:payables-list' %}">Payables</a>
+                <a class="nav-link" href="{% url 'dashboard:receivables-list' %}">Receivables</a>
                 <a class="nav-link" href="{% url 'new_invoice' %}">New Invoice</a>
                 <a class="nav-link" style="color: white">Logged in: {{current_business}}</a>
 
