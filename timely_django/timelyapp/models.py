@@ -38,7 +38,13 @@ class Business(models.Model):
     managers = models.ManyToManyField(CustomUser, related_name='managers')
     business_name = models.CharField(default=None, max_length=64)
     address = models.CharField(default=None, max_length=64)
-    date_joined = models.DateTimeField(default=timezone.now)
+    date_joined = models.DateTimeField()
+
+    def save(self, *args, **kwargs):
+        ''' On save, update timestamps '''
+        if not self.id:
+            self.date_joined = timezone.now()
+        return super(Business, self).save(*args, **kwargs)
 
     def __str__(self):
         return "%s" %(self.business_name)

@@ -10,23 +10,25 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Fieldset, Div, HTML, ButtonHolder, Submit
 
 class CustomUserCreationForm(UserCreationForm):
-
     class Meta(UserCreationForm):
         model = CustomUser
         fields = ('email',)
 
 
 class CustomUserChangeForm(UserChangeForm):
-
     class Meta:
         model = CustomUser
         fields = ('email',)
 
 class CustomPasswordResetForm(PasswordResetForm):
-
     class Meta:
         model = CustomUser
         fields = ('email',)
+
+class CreateBusinessForm(ModelForm):
+    class Meta:
+        model = Business
+        fields = ['business_name', 'address']
 
 class CreateOrderForm(ModelForm):
     class Meta:
@@ -40,7 +42,6 @@ OrderFormSet = inlineformset_factory(
 
 
 class CreateInvoiceForm(forms.ModelForm):
-
     class Meta:
         model = Invoice
         fields = ['bill_to', 'terms']

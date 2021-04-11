@@ -187,6 +187,19 @@ class ReceivablesViewSet(viewsets.ModelViewSet):
         return query_set
 
 # New Nested Invoice Form
+class NewBusinessFormView(CreateView):
+    model = Business
+    template_name = 'registration/new_business.html'
+    form_class = CreateBusinessForm
+    success_url = reverse_lazy('home')
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
+
+
+
+# New Nested Invoice Form
 class NewInvoiceFormView(CreateView):
     model = Invoice
     template_name = 'invoices/new_invoice.html'

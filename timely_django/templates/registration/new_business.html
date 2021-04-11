@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %} Register a new business{% endblock %}
+{% block content %}
+
+<div class="container p-4">
+    <h2>Register a new business</h2>
+    <form method="post">
+        {% crispy form %}
+    <button class="btn btn-primary" type="submit">Submit</button>
+    </form>
+</div>
+{% endblock %}
