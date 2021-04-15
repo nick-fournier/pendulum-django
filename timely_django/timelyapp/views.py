@@ -1,21 +1,20 @@
 from django.shortcuts import render, redirect
 from django.core.mail import send_mail, BadHeaderError
 from django.http import HttpResponse
-# from django.contrib.auth.forms import PasswordResetForm, UserCreationForm
 from django.contrib.auth.tokens import default_token_generator
-from django.template.loader import render_to_string
 from django.db.models.query_utils import Q
 from django.db import transaction
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
-from django.contrib import messages #import messages
-from django.contrib.messages.views import SuccessMessageMixin
 from django.views import generic
 from django.views.generic.edit import CreateView
 from django.views.generic import ListView
 from django.urls import reverse_lazy
 from django.http import JsonResponse
-from django.core import serializers
+
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from drf_multiple_model.views import ObjectMultipleModelAPIView
 from rest_framework import viewsets
@@ -155,6 +154,7 @@ class DashboardView(ListView):
 class InvoiceViewSet(viewsets.ModelViewSet):
     serializer_class = InvoiceSerializer
     queryset = Invoice.objects.all()
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         queryset = self.queryset
@@ -167,6 +167,8 @@ class PayablesViewSet(viewsets.ModelViewSet):
     serializer_class = PayablesSerializer
     queryset = Invoice.objects.all()
     success_url = reverse_lazy('home')
+    permission_classes = [IsAuthenticated]
+
 
     def get_queryset(self):
         queryset = self.queryset
@@ -179,6 +181,7 @@ class ReceivablesViewSet(viewsets.ModelViewSet):
     serializer_class = ReceivablesSerializer
     queryset = Invoice.objects.all()
     success_url = reverse_lazy('home')
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         queryset = self.queryset
@@ -237,48 +240,49 @@ class NewInvoiceFormView(CreateView):
         return reverse_lazy('dashboard')
 
 
+
 # # old inbox views (can delete later)
-# class ReceivablesView(ListView):
-#     template_name = 'invoices/receivables.html'
-#     success_url = reverse_lazy('home')
-#     queryset = Business.objects.all()
-#
-#     def get_context_data(self, **kwargs):
-#         context = super(ReceivablesView, self).get_context_data(**kwargs)
-#         business_id = Business.objects.filter(owner__id=self.request.user.id).values()[0]['id']
-#         context['receivables'] = get_invoices(business_id, 'receivables')
-#         return context
-#
-#
-# class PayablesView(ListView):
-#     template_name = 'invoices/payables.html'
-#     success_url = reverse_lazy('home')
-#     queryset = Business.objects.all()
-#
-#     def get_context_data(self, **kwargs):
-#         context = super(PayablesView, self).get_context_data(**kwargs)
-#         business_id = Business.objects.filter(owner__id=self.request.user.id).values()[0]['id']
-#         context['payables'] = get_invoices(business_id, 'payables')
-#         return context
-#
-#
-# # Manual JSON serializer (can delete later)
-# class ReceivablesJSONView(ListView):
-#     template_name = 'invoices/receivables.html'
-#     success_url = reverse_lazy('home')
-#     queryset = Business.objects.all()
-#
-#     def get(self, *args, **kwargs):
-#         business_id = Business.objects.filter(owner__id=self.request.user.id).values()[0]['id']
-#         data = get_invoices(business_id, 'receivables')
-#         return JsonResponse(data, safe=False)
-#
-# class PayablesJSONView(ListView):
-#     template_name = 'invoices/payables.html'
-#     success_url = reverse_lazy('home')
-#     queryset = Business.objects.all()
-#
-#     def get(self, *args, **kwargs):
-#         business_id = Business.objects.filter(owner__id=self.request.user.id).values()[0]['id']
-#         data = get_invoices(business_id, 'payables')
-#         return JsonResponse(data, safe=False)
+class ReceivablesView(ListView):
+    template_name = 'invoices/receivables.html'
+    success_url = reverse_lazy('home')
+    queryset = Business.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super(ReceivablesView, self).get_context_data(**kwargs)
+        business_id = Business.objects.filter(owner__id=self.request.user.id).values()[0]['id']
+        context['receivables'] = get_invoices(business_id, 'receivables')
+        return context
+
+
+class PayablesView(ListView):
+    template_name = 'invoices/payables.html'
+    success_url = reverse_lazy('home')
+    queryset = Business.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super(PayablesView, self).get_context_data(**kwargs)
+        business_id = Business.objects.filter(owner__id=self.request.user.id).values()[0]['id']
+        context['payables'] = get_invoices(business_id, 'payables')
+        return context
+
+
+# Manual JSON serializer (can delete later)
+class ReceivablesJSONView(ListView):
+    template_name = 'invoices/receivables.html'
+    success_url = reverse_lazy('home')
+    queryset = Business.objects.all()
+
+    def get(self, *args, **kwargs):
+        business_id = Business.objects.filter(owner__id=self.request.user.id).values()[0]['id']
+        data = get_invoices(business_id, 'receivables')
+        return JsonResponse(data, safe=False)
+
+class PayablesJSONView(ListView):
+    template_name = 'invoices/payables.html'
+    success_url = reverse_lazy('home')
+    queryset = Business.objects.all()
+
+    def get(self, *args, **kwargs):
+        business_id = Business.objects.filter(owner__id=self.request.user.id).values()[0]['id']
+        data = get_invoices(business_id, 'payables')
+        return JsonResponse(data, safe=False)
