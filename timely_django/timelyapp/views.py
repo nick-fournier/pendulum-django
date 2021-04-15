@@ -16,8 +16,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from drf_multiple_model.views import ObjectMultipleModelAPIView
-from rest_framework import viewsets
+from rest_framework import viewsets, serializers
 
 from .serializers import *
 from .models import *
@@ -169,16 +168,18 @@ class PayablesViewSet(viewsets.ModelViewSet):
     success_url = reverse_lazy('home')
     permission_classes = [IsAuthenticated]
 
-    # Might need to make a new serializer for incoming data. TBD.
+    # # Overrides internal update
     # def update(self, request, *args, **kwargs):
+    #     kwargs['partial'] = True
     #     instance = self.get_object()
-    #     serializer = ProfileSerializer(
+    #     serializer = InvoiceSerializer(
     #         instance=instance,
     #         data=request.data
     #     )
     #     serializer.is_valid(raise_exception=True)
     #     serializer.save()
     #     return Response(serializer.data)
+
 
     # Overrides the internal function
     def get_queryset(self):

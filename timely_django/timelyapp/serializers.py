@@ -14,9 +14,19 @@ class BusinessSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class OrderSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+
     class Meta:
         model = Order
         fields = '__all__'
+
+    def get_name(self, obj):
+        return Inventory.objects.get(id=obj.item.id).name
+
+    def get_description(self, obj):
+        return Inventory.objects.get(id=obj.item.id).description
+
 
 class InvoiceSerializer(serializers.ModelSerializer):
     bill_from = BusinessSerializer(read_only=True)
@@ -27,6 +37,15 @@ class InvoiceSerializer(serializers.ModelSerializer):
         model = Invoice
         fields = '__all__'
 
+    # # Create new invoice
+    # def create(self, validated_data):
+    #     return Invoice.objects.create(title=validated_data['is_flagged'])
+
+    # # Update the instance
+    # def update(self, instance, validated_data):
+    #     instance.is_flagged = validated_data['is_flagged']
+    #     instance.save()
+    #     return instance
 
 class PayablesSerializer(serializers.ModelSerializer):
     invoice_id = serializers.IntegerField(source='id')

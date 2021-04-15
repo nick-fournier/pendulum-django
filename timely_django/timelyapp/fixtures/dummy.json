@@ -58,13 +58,14 @@
       "currency": "dollar"
     }
   },
-    {
+  {
     "model": "timelyapp.inventory",
     "pk": 3,
     "fields": {
       "business": 2,
       "last_updated": "2021-03-13",
-      "description": "Overpriced Legal/Technical/Medical Services",
+      "name": "Professional Services",
+      "description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
       "quantity_in_stock": 1000,
       "unit": "hrs",
       "unit_price": 10,
@@ -77,7 +78,8 @@
     "fields": {
       "business": 2,
       "last_updated": "2021-03-13",
-      "description": "Infeasibility Consulting Study",
+      "name": "Infeasibility Consulting Study",
+      "description": "A big useless report on what you want to hear",
       "quantity_in_stock": 1000,
       "unit": "hrs",
       "unit_price": 20,
@@ -107,24 +109,8 @@
     }
   },
   {
-    "model": "timelyapp.invoice",
-    "pk": 1,
-    "fields": {
-      "date_sent": "2021-03-30",
-      "date_due": "2021-04-30",
-      "bill_from": 1,
-      "bill_to": 2,
-      "terms": "NET30",
-      "total_price": 100,
-      "currency": "dollar",
-      "is_flagged": false,
-      "is_scheduled": false,
-      "is_paid": false
-    }
-  },
-  {
     "model": "timelyapp.order",
-    "pk": 4,
+    "pk": 3,
     "fields": {
       "invoice": 2,
       "discount_code": 1,
@@ -145,6 +131,66 @@
     }
   },
   {
+    "model": "timelyapp.order",
+    "pk": 5,
+    "fields": {
+      "invoice": 3,
+      "discount_code": 1,
+      "item": 1,
+      "quantity_purchased": 5,
+      "item_total_price": 50
+    }
+  },
+  {
+    "model": "timelyapp.order",
+    "pk": 6,
+    "fields": {
+      "invoice": 3,
+      "discount_code": 1,
+      "item": 2,
+      "quantity_purchased": 4,
+      "item_total_price": 80
+    }
+  },
+  {
+    "model": "timelyapp.order",
+    "pk": 7,
+    "fields": {
+      "invoice": 4,
+      "discount_code": 1,
+      "item": 3,
+      "quantity_purchased": 8,
+      "item_total_price": 80
+    }
+  },
+  {
+    "model": "timelyapp.order",
+    "pk": 8,
+    "fields": {
+      "invoice": 4,
+      "discount_code": 1,
+      "item": 4,
+      "quantity_purchased": 6,
+      "item_total_price": 120
+    }
+  },
+  {
+    "model": "timelyapp.invoice",
+    "pk": 1,
+    "fields": {
+      "date_sent": "2021-03-30",
+      "date_due": "2021-04-30",
+      "bill_from": 1,
+      "bill_to": 2,
+      "terms": "NET30",
+      "total_price": 100,
+      "currency": "dollar",
+      "is_flagged": false,
+      "is_scheduled": false,
+      "is_paid": false
+    }
+  },
+  {
     "model": "timelyapp.invoice",
     "pk": 2,
     "fields": {
@@ -154,6 +200,38 @@
       "bill_to": 1,
       "terms": "NET30",
       "total_price": 100,
+      "currency": "dollar",
+      "is_flagged": false,
+      "is_scheduled": false,
+      "is_paid": false
+    }
+  },
+  {
+    "model": "timelyapp.invoice",
+    "pk": 3,
+    "fields": {
+      "date_sent": "2021-05-30",
+      "date_due": "2021-06-30",
+      "bill_from": 1,
+      "bill_to": 2,
+      "terms": "NET30",
+      "total_price": 130,
+      "currency": "dollar",
+      "is_flagged": false,
+      "is_scheduled": false,
+      "is_paid": false
+    }
+  },
+  {
+    "model": "timelyapp.invoice",
+    "pk": 4,
+    "fields": {
+      "date_sent": "2021-04-30",
+      "date_due": "2021-05-30",
+      "bill_from": 2,
+      "bill_to": 1,
+      "terms": "NET30",
+      "total_price": 200,
       "currency": "dollar",
       "is_flagged": false,
       "is_scheduled": false,

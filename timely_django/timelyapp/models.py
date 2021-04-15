@@ -63,7 +63,8 @@ class Discount(models.Model):
 class Inventory(models.Model):
     business = models.ForeignKey(Business, default=None, null=True, on_delete=models.CASCADE)
     last_updated = models.DateField(null=True)
-    description = models.CharField(default=None, null=True, max_length=100)
+    name = models.CharField(default=None, null=True, max_length=100)
+    description = models.CharField(default=None, null=True, max_length=500)
     quantity_in_stock = models.DecimalField(default=None, max_digits=10, decimal_places=6)
     unit = models.CharField(default='pc', null=True, max_length=3)
     unit_price = models.DecimalField(default=None, null=True, max_digits=10, decimal_places=2)
