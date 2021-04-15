@@ -158,7 +158,7 @@ class InvoiceViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = self.queryset
         business_id = Business.objects.get(owner__id=self.request.user.id).id
-        query_set = queryset.filter(Q(bill_from__id=business_id) | Q(bill_from__id=business_id))
+        query_set = queryset.filter(Q(bill_from__id=business_id) | Q(bill_to__id=business_id)).order_by('id')
         return query_set
 
 
@@ -168,17 +168,8 @@ class PayablesViewSet(viewsets.ModelViewSet):
     success_url = reverse_lazy('home')
     permission_classes = [IsAuthenticated]
 
-    # # Overrides internal update
-    # def update(self, request, *args, **kwargs):
-    #     kwargs['partial'] = True
-    #     instance = self.get_object()
-    #     serializer = InvoiceSerializer(
-    #         instance=instance,
-    #         data=request.data
-    #     )
-    #     serializer.is_valid(raise_exception=True)
-    #     serializer.save()
-    #     return Response(serializer.data)
+    # def put(self, request, *args, **kwargs):
+    #     return self.update(request, *args, **kwargs)
 
 
     # Overrides the internal function

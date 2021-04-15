@@ -42,7 +42,7 @@
       "quantity_in_stock": 1000,
       "unit": "pc",
       "unit_price": 10,
-      "currency": "dollar"
+      "currency": "USD"
     }
   },
   {
@@ -55,7 +55,7 @@
       "quantity_in_stock": 1000,
       "unit": "pc",
       "unit_price": 20,
-      "currency": "dollar"
+      "currency": "USD"
     }
   },
   {
@@ -69,7 +69,7 @@
       "quantity_in_stock": 1000,
       "unit": "hrs",
       "unit_price": 10,
-      "currency": "dollar"
+      "currency": "USD"
     }
   },
   {
@@ -83,7 +83,7 @@
       "quantity_in_stock": 1000,
       "unit": "hrs",
       "unit_price": 20,
-      "currency": "dollar"
+      "currency": "USD"
     }
   },
   {
@@ -178,13 +178,14 @@
     "model": "timelyapp.invoice",
     "pk": 1,
     "fields": {
+      "invoice_name": "BA21000001",
       "date_sent": "2021-03-30",
       "date_due": "2021-04-30",
       "bill_from": 1,
       "bill_to": 2,
       "terms": "NET30",
       "total_price": 100,
-      "currency": "dollar",
+      "currency": "USD",
       "is_flagged": false,
       "is_scheduled": false,
       "is_paid": false
@@ -194,13 +195,14 @@
     "model": "timelyapp.invoice",
     "pk": 2,
     "fields": {
+      "invoice_name": "BB21000002",
       "date_sent": "2021-03-30",
       "date_due": "2021-04-30",
       "bill_from": 2,
       "bill_to": 1,
       "terms": "NET30",
       "total_price": 100,
-      "currency": "dollar",
+      "currency": "USD",
       "is_flagged": false,
       "is_scheduled": false,
       "is_paid": false
@@ -210,13 +212,14 @@
     "model": "timelyapp.invoice",
     "pk": 3,
     "fields": {
+      "invoice_name": "BA21000003",
       "date_sent": "2021-05-30",
       "date_due": "2021-06-30",
       "bill_from": 1,
       "bill_to": 2,
       "terms": "NET30",
       "total_price": 130,
-      "currency": "dollar",
+      "currency": "USD",
       "is_flagged": false,
       "is_scheduled": false,
       "is_paid": false
@@ -226,13 +229,14 @@
     "model": "timelyapp.invoice",
     "pk": 4,
     "fields": {
+      "invoice_name": "BB21000004",
       "date_sent": "2021-04-30",
       "date_due": "2021-05-30",
       "bill_from": 2,
       "bill_to": 1,
       "terms": "NET30",
       "total_price": 200,
-      "currency": "dollar",
+      "currency": "USD",
       "is_flagged": false,
       "is_scheduled": false,
       "is_paid": false
