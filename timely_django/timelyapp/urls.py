@@ -20,6 +20,6 @@ urlpatterns = [
     # path('dashboard/payables/', views.PayablesView.as_view(), name='payables'),
     # path('dashboard/receivables/', views.ReceivablesView.as_view(), name='receivables'),
     path('dashboard/new_invoice/', views.NewInvoiceFormView.as_view(), name='new_invoice'),
-    path('api-data/', include((router.urls, 'timely'), namespace='api')),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    path('rest-api/', include((router.urls, 'timely'), namespace='api')),
+    # path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

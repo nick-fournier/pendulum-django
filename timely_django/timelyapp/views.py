@@ -169,7 +169,18 @@ class PayablesViewSet(viewsets.ModelViewSet):
     success_url = reverse_lazy('home')
     permission_classes = [IsAuthenticated]
 
+    # Might need to make a new serializer for incoming data. TBD.
+    # def update(self, request, *args, **kwargs):
+    #     instance = self.get_object()
+    #     serializer = ProfileSerializer(
+    #         instance=instance,
+    #         data=request.data
+    #     )
+    #     serializer.is_valid(raise_exception=True)
+    #     serializer.save()
+    #     return Response(serializer.data)
 
+    # Overrides the internal function
     def get_queryset(self):
         queryset = self.queryset
         business_id = Business.objects.get(owner__id=self.request.user.id).id
@@ -183,6 +194,7 @@ class ReceivablesViewSet(viewsets.ModelViewSet):
     success_url = reverse_lazy('home')
     permission_classes = [IsAuthenticated]
 
+    # Overrides the internal function
     def get_queryset(self):
         queryset = self.queryset
         business_id = Business.objects.get(owner__id=self.request.user.id).id

@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from address.models import AddressField
 
 from .managers import CustomUserManager
 
@@ -35,9 +36,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 class Business(models.Model):
     is_member = models.BooleanField(default=False)
     owner = models.ForeignKey(CustomUser, default=None, null=True, on_delete=models.CASCADE)
-    managers = models.ManyToManyField(CustomUser, related_name='managers')
+    managers = models.ManyToManyField(CustomUser, null=True, default=None, related_name='managers')
     business_name = models.CharField(default=None, max_length=64)
     address = models.CharField(default=None, max_length=64)
+    # address = AddressField(null=True, on_delete=models.SET_NULL)
     date_joined = models.DateTimeField()
 
     def save(self, *args, **kwargs):

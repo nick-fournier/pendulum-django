@@ -4,10 +4,10 @@
     "pk": 1,
     "fields": {
       "is_member": true,
-      "managers": [2],
-      "owner": 2,
+      "managers": [null],
+      "owner": 1,
       "business_name": "Business A",
-      "address": "123 fake st",
+      "address": "1880 Page St, San Francisco, CA 94117, USA",
       "date_joined": "2021-03-01"
     }
   },
@@ -16,10 +16,10 @@
     "pk": 2,
     "fields": {
       "is_member": true,
-      "managers": [3],
-      "owner": 3,
+      "managers": [null],
+      "owner": 2,
       "business_name": "Business B",
-      "address": "321 blahblahblah ave",
+      "address": "1 Somewhere Ave, Northcote, VIC 3070, AU",
       "date_joined": "2021-03-01"
     }
   },
@@ -114,6 +114,44 @@
       "date_due": "2021-04-30",
       "bill_from": 1,
       "bill_to": 2,
+      "terms": "NET30",
+      "total_price": 100,
+      "currency": "dollar",
+      "is_flagged": false,
+      "is_scheduled": false,
+      "is_paid": false
+    }
+  },
+  {
+    "model": "timelyapp.order",
+    "pk": 4,
+    "fields": {
+      "invoice": 2,
+      "discount_code": 1,
+      "item": 3,
+      "quantity_purchased": 4,
+      "item_total_price": 40
+    }
+  },
+  {
+    "model": "timelyapp.order",
+    "pk": 4,
+    "fields": {
+      "invoice": 2,
+      "discount_code": 1,
+      "item": 4,
+      "quantity_purchased": 3,
+      "item_total_price": 60
+    }
+  },
+  {
+    "model": "timelyapp.invoice",
+    "pk": 2,
+    "fields": {
+      "date_sent": "2021-03-30",
+      "date_due": "2021-04-30",
+      "bill_from": 2,
+      "bill_to": 1,
       "terms": "NET30",
       "total_price": 100,
       "currency": "dollar",
