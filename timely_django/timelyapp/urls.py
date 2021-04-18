@@ -3,6 +3,7 @@
 from django.urls import include, path
 from django.views.generic.base import TemplateView
 from rest_framework import routers
+
 from . import views
 
 router = routers.DefaultRouter()

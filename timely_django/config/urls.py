@@ -18,13 +18,16 @@ from allauth.account.views import confirm_email
 from django.conf.urls import url
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework.authtoken import views
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('timelyapp.urls')),
     path('', include('django.contrib.auth.urls')),
-    path('rest-auth/', include('rest_auth.urls')),
-    path('rest-auth/registration/', include('rest_auth.registration.urls')),
+    # path('rest-auth/', include('rest_auth.urls')),
+    # path('rest-auth/registration/', include('rest_auth.registration.urls')),
+    path('rest-token-auth/', views.obtain_auth_token),
     path('account/', include('allauth.urls')),
     url(r'^accounts-rest/registration/account-confirm-email/(?P<key>.+)/$', confirm_email, name='account_confirm_email'),
 ]

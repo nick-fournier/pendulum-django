@@ -168,10 +168,6 @@ class PayablesViewSet(viewsets.ModelViewSet):
     success_url = reverse_lazy('home')
     permission_classes = [IsAuthenticated]
 
-    # def put(self, request, *args, **kwargs):
-    #     return self.update(request, *args, **kwargs)
-
-
     # Overrides the internal function
     def get_queryset(self):
         queryset = self.queryset

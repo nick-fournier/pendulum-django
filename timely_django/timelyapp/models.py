@@ -5,8 +5,22 @@ from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from address.models import AddressField
 
+# Token Auth
+from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
+
+# Custom User
 from .managers import CustomUserManager
 from datetime import date
+
+# Automatically generates token for each user
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)
+
 
 TERM_CHOICES = [
     ('COD', 'Cash on delivery'),
@@ -37,7 +51,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 class Business(models.Model):
     is_member = models.BooleanField(default=False)
     owner = models.ForeignKey(CustomUser, default=None, null=True, on_delete=models.CASCADE)
-    managers = models.ManyToManyField(CustomUser, null=True, default=None, related_name='managers')
+    managers = models.ManyToManyField(CustomUser, default=None, related_name='managers')
     business_name = models.CharField(default=None, max_length=64)
     address = models.CharField(default=None, max_length=64)
     # address = AddressField(null=True, on_delete=models.SET_NULL)
