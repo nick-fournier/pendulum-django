@@ -29,19 +29,16 @@ import numpy as np
 
 
 #Generic functions
-def get_duedate(term):
+def get_duedate(terms):
     today = datetime.date.today()
-    term_choices = {'COD': 'On delivery',
-                    'CIA': today,
-                    'NET7': today + datetime.timedelta(7),
-                    'NET10': today + datetime.timedelta(10),
-                    'NET30': today + datetime.timedelta(30),
-                    'NET60': today + datetime.timedelta(60),
-                    'NET90': today + datetime.timedelta(90),
-                    'NET120': today + datetime.timedelta(120),
-                    }
+    ndays = {'NET7': 7, 'NET10': 10, 'NET30': 30, 'NET60': 60, 'NET90': 90, 'NET120': 120}
 
-    return term_choices[term].strftime("%Y-%m-%d")
+    if terms in ndays:
+        return (today + datetime.timedelta(ndays[terms])).strftime("%Y-%m-%d")
+    elif terms in ['COD', 'CIA']:
+        return {'COD': 'On delivery', 'CIA': 'Cash in advance'}[terms]
+    else:
+        return None
 
 def type_converter(obj):
     if isinstance(obj, np.integer):

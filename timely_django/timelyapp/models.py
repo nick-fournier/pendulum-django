@@ -110,9 +110,15 @@ class Invoice(models.Model):
 
         if self.total_price or self.invoice_name is None:
             name = Business.objects.get(pk=self.bill_from.id).business_name
-            name = ''.join([x[0] for x in name.split(" ")]).upper()
+            words = name.split(" ")
+            if len(words) > 1:
+                name = ''.join([x[0] for x in words[:2]]).upper()
+            else:
+                name = name[:2].upper()
             name += str(date.today().year)[-2:]
             name += str(self.pk).zfill(6)
+
+
 
             self.invoice_name = name
             self.total_price = sum(Order.objects.filter(invoice=self.pk).values_list('item_total_price', flat=True))

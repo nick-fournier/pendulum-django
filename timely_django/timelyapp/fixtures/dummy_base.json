@@ -1,0 +1,143 @@
+[
+  {
+    "model": "timelyapp.business",
+    "pk": 1,
+    "fields": {
+      "is_member": true,
+      "managers": [null],
+      "owner": 1,
+      "business_name": "Business A",
+      "address": "1880 Page St, San Francisco, CA 94117, USA",
+      "date_joined": "2021-03-01"
+    }
+  },
+  {
+    "model": "timelyapp.business",
+    "pk": 2,
+    "fields": {
+      "is_member": true,
+      "managers": [null],
+      "owner": 2,
+      "business_name": "Business B",
+      "address": "1 Somewhere Ave, Northcote, VIC 3070, AU",
+      "date_joined": "2021-03-01"
+    }
+  },
+   {
+    "model": "timelyapp.business",
+    "pk": 3,
+    "fields": {
+      "is_member": true,
+      "managers": [null],
+      "owner": null,
+      "business_name": "Third Business",
+      "address": "1 Prowlett St, East Melbourne, VIC 3002, AU",
+      "date_joined": "2021-03-01"
+    }
+  },
+   {
+    "model": "timelyapp.business",
+    "pk": 4,
+    "fields": {
+      "is_member": true,
+      "managers": [null],
+      "owner": null,
+      "business_name": "Fourth Store",
+      "address": "1 Commonwealth Ave, Boston, MA 02116, USA",
+      "date_joined": "2021-03-01"
+    }
+  },
+  {
+    "model": "timelyapp.discount",
+    "pk": 1,
+    "fields": {
+      "discount_code": "NONE",
+      "description": "No discount",
+      "discount_ratio": 1.0
+    }
+  },
+  {
+    "model": "timelyapp.inventory",
+    "pk": 1,
+    "fields": {
+      "business": 1,
+      "last_updated": "2021-03-03",
+      "name": "Some Widget",
+      "description": "A business widget for vertical synergy jargon",
+      "quantity_in_stock": 1000,
+      "unit": "pc",
+      "unit_price": 10,
+      "currency": "USD"
+    }
+  },
+  {
+    "model": "timelyapp.inventory",
+    "pk": 2,
+    "fields": {
+      "business": 1,
+      "last_updated": "2021-03-03",
+      "name": "A Different Widget",
+      "description": "A widget for backward overflow jargon",
+      "quantity_in_stock": 1000,
+      "unit": "pc",
+      "unit_price": 20,
+      "currency": "USD"
+    }
+  },
+  {
+    "model": "timelyapp.inventory",
+    "pk": 3,
+    "fields": {
+      "business": 2,
+      "last_updated": "2021-03-13",
+      "name": "Professional Services",
+      "description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
+      "quantity_in_stock": 1000,
+      "unit": "hrs",
+      "unit_price": 10,
+      "currency": "USD"
+    }
+  },
+  {
+    "model": "timelyapp.inventory",
+    "pk": 4,
+    "fields": {
+      "business": 2,
+      "last_updated": "2021-03-13",
+      "name": "Infeasibility Consulting Study",
+      "description": "A big useless report on what you want to hear",
+      "quantity_in_stock": 1000,
+      "unit": "hrs",
+      "unit_price": 20,
+      "currency": "USD"
+    }
+  },
+  {
+    "model": "timelyapp.order",
+    "pk": 1,
+    "fields": {
+      "invoice": 1,
+      "discount_code": 1,
+      "item": 1,
+      "quantity_purchased": 4,
+      "item_total_price": 40
+    }
+  },
+   {
+    "model": "timelyapp.invoice",
+    "pk": 1,
+    "fields": {
+      "invoice_name": "BA21000001",
+      "date_sent": "2021-03-30",
+      "date_due": "2021-04-30",
+      "bill_from": 1,
+      "bill_to": 2,
+      "terms": "NET30",
+      "total_price": 100,
+      "currency": "USD",
+      "is_flagged": false,
+      "is_scheduled": false,
+      "is_paid": false
+    }
+  }
+]
