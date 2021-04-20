@@ -24,7 +24,7 @@ from rest_framework.authtoken import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('timelyapp.urls')),
-    path('', include('django.contrib.auth.urls')),
+    # path('', include('django.contrib.auth.urls')), #This is the old django authentication
     # path('rest-auth/', include('rest_auth.urls')),
     # path('rest-auth/registration/', include('rest_auth.registration.urls')),
     path('rest-token-auth/', views.obtain_auth_token),

@@ -150,7 +150,6 @@ class DashboardView(ListView):
 class InvoiceViewSet(viewsets.ModelViewSet):
     serializer_class = InvoiceSerializer
     queryset = Invoice.objects.all()
-    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         queryset = self.queryset
@@ -163,7 +162,6 @@ class PayablesViewSet(viewsets.ModelViewSet):
     serializer_class = PayablesSerializer
     queryset = Invoice.objects.all()
     success_url = reverse_lazy('home')
-    permission_classes = [IsAuthenticated]
 
     # Overrides the internal function
     def get_queryset(self):
@@ -177,7 +175,7 @@ class ReceivablesViewSet(viewsets.ModelViewSet):
     serializer_class = ReceivablesSerializer
     queryset = Invoice.objects.all()
     success_url = reverse_lazy('home')
-    permission_classes = [IsAuthenticated]
+
 
     # Overrides the internal function
     def get_queryset(self):
