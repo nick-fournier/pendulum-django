@@ -35,15 +35,18 @@ TERM_CHOICES = [
 
 # Create your models here.
 class CustomUser(AbstractBaseUser, PermissionsMixin):
+    username = None
     email = models.EmailField(_('email address'), unique=True)
-    is_staff = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
-    date_joined = models.DateTimeField(default=timezone.now)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
     objects = CustomUserManager()
+    first_name = models.CharField(default=None, max_length=64)
+    last_name = models.CharField(default=None, max_length=64)
+    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    date_joined = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.email
@@ -53,6 +56,7 @@ class Business(models.Model):
     owner = models.ForeignKey(CustomUser, default=None, null=True, on_delete=models.CASCADE)
     managers = models.ManyToManyField(CustomUser, default=None, related_name='managers')
     business_name = models.CharField(default=None, max_length=64)
+    # business_phone =
     address = models.CharField(default=None, max_length=64)
     # address = AddressField(null=True, on_delete=models.SET_NULL)
     date_joined = models.DateTimeField()

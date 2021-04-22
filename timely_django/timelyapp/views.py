@@ -99,6 +99,11 @@ def get_invoices(biz_id, type):
 
         return data
 
+def get_business_id(user_id):
+    try:
+        return Business.objects.get(owner__id=user_id).id
+    except Business.DoesNotExist:
+        return None
 
 # Create your views here.
 def password_reset_request(request):
@@ -153,7 +158,7 @@ class InvoiceViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = self.queryset
-        business_id = Business.objects.get(owner__id=self.request.user.id).id
+        business_id = get_business_id(self.request.user.id)
         query_set = queryset.filter(Q(bill_from__id=business_id) | Q(bill_to__id=business_id)).order_by('id')
         return query_set
 
@@ -166,7 +171,7 @@ class PayablesViewSet(viewsets.ModelViewSet):
     # Overrides the internal function
     def get_queryset(self):
         queryset = self.queryset
-        business_id = Business.objects.get(owner__id=self.request.user.id).id
+        business_id = get_business_id(self.request.user.id)
         query_set = queryset.filter(bill_to__id=business_id)
         return query_set
 
@@ -176,11 +181,10 @@ class ReceivablesViewSet(viewsets.ModelViewSet):
     queryset = Invoice.objects.all()
     success_url = reverse_lazy('home')
 
-
     # Overrides the internal function
     def get_queryset(self):
         queryset = self.queryset
-        business_id = Business.objects.get(owner__id=self.request.user.id).id
+        business_id = get_business_id(self.request.user.id)
         query_set = queryset.filter(bill_from__id=business_id)
         return query_set
 
