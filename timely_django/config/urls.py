@@ -24,6 +24,9 @@ from rest_framework import routers
 from timelyapp import views
 
 router = routers.DefaultRouter()
+router.register(r'businesses', views.BusinessViewSet, basename='api-businesses')
+router.register(r'inventory', views.InventoryViewSet, basename='api-inventory')
+router.register(r'orders', views.OrderViewSet, basename='api-orders')
 router.register(r'invoices', views.InvoiceViewSet)
 router.register(r'payables', views.PayablesViewSet, basename='api-payables')
 router.register(r'receivables', views.ReceivablesViewSet, basename='api-receivables')
