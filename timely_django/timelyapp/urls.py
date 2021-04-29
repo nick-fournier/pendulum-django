@@ -2,6 +2,7 @@
 
 from django.urls import include, path
 from django.views.generic.base import TemplateView
+from timelyapp import views
 
 urlpatterns = [
     path('', TemplateView.as_view(template_name='helloworld.html'), name='home'),
