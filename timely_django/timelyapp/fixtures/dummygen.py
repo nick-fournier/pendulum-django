@@ -44,6 +44,12 @@ class GenerateData:
         with open(self.base_path + 'dummy_base.json') as f:
             data = json.load(f)
 
+        with open(self.base_path + 'users.json') as f:
+            users = json.load(f)
+
+        # Add user data
+        data = data + users
+
         for i in range(len(data)):
             if data[i]['model'] == 'timelyapp.order':
                 self.base_order = data[i]
