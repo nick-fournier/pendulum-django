@@ -154,8 +154,8 @@ class DashboardView(ListView):
 
 
 # Django REST framework endpoints
-class InvoiceViewSet(viewsets.ModelViewSet):
-    serializer_class = RawInvoiceSerializer
+class InvoiceViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = FullInvoiceSerializer
     queryset = Invoice.objects.all()
 
     def get_queryset(self):
@@ -163,6 +163,11 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         business_id = get_business_id(self.request.user.id)
         query_set = queryset.filter(Q(bill_from__id=business_id) | Q(bill_to__id=business_id)).order_by('id')
         return query_set
+
+# Django REST framework endpoints
+class NewInvoiceViewSet(viewsets.ModelViewSet):
+    serializer_class = NewInvoiceSerializer
+    queryset = Invoice.objects.all()
 
 
 class BusinessViewSet(viewsets.ModelViewSet):
