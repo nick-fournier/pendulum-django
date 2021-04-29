@@ -139,11 +139,13 @@ def password_reset_request(request):
                   template_name="registration/password_reset_form.html",
                   context={"password_reset_form": password_reset_form})
 
+
 # Templates view
 class SignUpView(generic.CreateView):
     form_class = CustomUserCreationForm
     success_url = reverse_lazy('login')
     template_name = 'registration/signup.html'
+
 
 class DashboardView(ListView):
     template_name = 'invoices/dashboard.html'
@@ -153,7 +155,7 @@ class DashboardView(ListView):
 
 # Django REST framework endpoints
 class InvoiceViewSet(viewsets.ModelViewSet):
-    serializer_class = InvoiceSerializer
+    serializer_class = RawInvoiceSerializer
     queryset = Invoice.objects.all()
 
     def get_queryset(self):
@@ -163,8 +165,24 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         return query_set
 
 
+class BusinessViewSet(viewsets.ModelViewSet):
+    serializer_class = BusinessSerializer
+    queryset = Business.objects.all()
+
+
+class InventoryViewSet(viewsets.ModelViewSet):
+    serializer_class = InventorySerializer
+    queryset = Inventory.objects.all()
+
+    def get_queryset(self):
+        queryset = self.queryset
+        business_id = get_business_id(self.request.user.id)
+        query_set = queryset.filter(Q(business__id=business_id)).order_by('last_updated')
+        return query_set
+
+
 class PayablesViewSet(viewsets.ModelViewSet):
-    serializer_class = PayablesSerializer
+    serializer_class = InvoiceSerializer
     queryset = Invoice.objects.all()
     success_url = reverse_lazy('home')
 
@@ -177,7 +195,7 @@ class PayablesViewSet(viewsets.ModelViewSet):
 
 
 class ReceivablesViewSet(viewsets.ModelViewSet):
-    serializer_class = ReceivablesSerializer
+    serializer_class = InvoiceSerializer
     queryset = Invoice.objects.all()
     success_url = reverse_lazy('home')
 
@@ -188,7 +206,9 @@ class ReceivablesViewSet(viewsets.ModelViewSet):
         query_set = queryset.filter(bill_from__id=business_id)
         return query_set
 
-# New Nested Invoice Form
+
+
+#### OLD FORMS BELOW THIS, MARKED FOR DELETION ####
 class NewBusinessFormView(CreateView):
     model = Business
     template_name = 'registration/new_business.html'
@@ -199,9 +219,7 @@ class NewBusinessFormView(CreateView):
         form.instance.owner = self.request.user
         return super().form_valid(form)
 
-
-
-# New Nested Invoice Form
+# Nested Invoice Form
 class NewInvoiceFormView(CreateView):
     model = Invoice
     template_name = 'invoices/new_invoice.html'
