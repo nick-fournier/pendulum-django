@@ -28,7 +28,7 @@ class CustomPasswordResetForm(PasswordResetForm):
 class CreateBusinessForm(ModelForm):
     class Meta:
         model = Business
-        fields = ['business_name', 'address']
+        fields = ['business_name', 'billing_address', 'shipping_address']
 
 class CreateOrderForm(ModelForm):
     class Meta:
