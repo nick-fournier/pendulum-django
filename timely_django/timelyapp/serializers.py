@@ -43,13 +43,11 @@ class UserSerializer(serializers.ModelSerializer):
 class BusinessSerializer(serializers.ModelSerializer):
     class Meta:
         model = Business
-        # fields = '__all__'
-        exclude = ['owner', 'date_joined']
+        exclude = ['owner', 'date_joined', 'managers', 'pref_payment']
 
 class InventorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Inventory
-        # fields = '__all__'
         exclude = ['business']
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -66,8 +64,24 @@ class OrderSerializer(serializers.ModelSerializer):
     def get_description(self, obj):
         return Inventory.objects.get(id=obj.item.id).description
 
+class NewInvoiceSerializer(serializers.ModelSerializer):
+    # bill_from = BusinessSerializer(read_only=True)
+    bill_from = serializers.PrimaryKeyRelatedField(read_only=True)
+    bill_to = BusinessSerializer(read_only=False)
+    items = OrderSerializer(many=True, read_only=False)
 
-class RawInvoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Invoice
+        exclude = ['is_flagged', 'is_scheduled', 'is_paid']
+        # fields = '__all__'
+
+    def create(self, validated_data):
+        business_id = Business.objects.get(owner__id=self.request.user.id).id
+        invoice = Invoice.objects.create(bill_from=business_id, **validated_data)
+        return invoice
+
+
+class FullInvoiceSerializer(serializers.ModelSerializer):
     bill_from = BusinessSerializer(read_only=True)
     bill_to = BusinessSerializer(read_only=True)
     items = OrderSerializer(many=True, read_only=True)
@@ -75,6 +89,7 @@ class RawInvoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invoice
         fields = '__all__'
+
 
 class InvoiceSerializer(serializers.ModelSerializer):
     invoice_id = serializers.IntegerField(source='id')
