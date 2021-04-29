@@ -3,7 +3,13 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
-from address.models import AddressField
+# from address.models import AddressField
+from phonenumber_field.modelfields import PhoneNumberField
+
+# Address stuff
+# from django.contrib.gis.db import models
+from django.utils.translation import ugettext as _
+# from django.contrib.localflavor.us.models import USStateField
 
 # Token Auth
 from django.conf import settings
@@ -33,6 +39,79 @@ TERM_CHOICES = [
     ('NET120', 'Net 120 days'),
 ]
 
+PAYMENT_CHOICES = [
+    ('ACH', 'Bank transfer'),
+    ('CHECK', 'Check'),
+    ('CREDIT', 'Credit card'),
+    ('LATER', 'Pay later with Timely'),
+    ('FINANCE', 'Invoice financing with Timely'),
+]
+
+STATES_CHOICES = (
+    ('AL', _('Alabama')),
+    ('AZ', _('Arizona')),
+    ('AR', _('Arkansas')),
+    ('CA', _('California')),
+    ('CO', _('Colorado')),
+    ('CT', _('Connecticut')),
+    ('DE', _('Delaware')),
+    ('DC', _('District of Columbia')),
+    ('FL', _('Florida')),
+    ('GA', _('Georgia')),
+    ('ID', _('Idaho')),
+    ('IL', _('Illinois')),
+    ('IN', _('Indiana')),
+    ('IA', _('Iowa')),
+    ('KS', _('Kansas')),
+    ('KY', _('Kentucky')),
+    ('LA', _('Louisiana')),
+    ('ME', _('Maine')),
+    ('MD', _('Maryland')),
+    ('MA', _('Massachusetts')),
+    ('MI', _('Michigan')),
+    ('MN', _('Minnesota')),
+    ('MS', _('Mississippi')),
+    ('MO', _('Missouri')),
+    ('MT', _('Montana')),
+    ('NE', _('Nebraska')),
+    ('NV', _('Nevada')),
+    ('NH', _('New Hampshire')),
+    ('NJ', _('New Jersey')),
+    ('NM', _('New Mexico')),
+    ('NY', _('New York')),
+    ('NC', _('North Carolina')),
+    ('ND', _('North Dakota')),
+    ('OH', _('Ohio')),
+    ('OK', _('Oklahoma')),
+    ('OR', _('Oregon')),
+    ('PA', _('Pennsylvania')),
+    ('RI', _('Rhode Island')),
+    ('SC', _('South Carolina')),
+    ('SD', _('South Dakota')),
+    ('TN', _('Tennessee')),
+    ('TX', _('Texas')),
+    ('UT', _('Utah')),
+    ('VT', _('Vermont')),
+    ('VA', _('Virginia')),
+    ('WA', _('Washington')),
+    ('WV', _('West Virginia')),
+    ('WI', _('Wisconsin')),
+    ('WY', _('Wyoming')),
+    ('AK', _('Alaska')),
+    ('HI', _('Hawaii')),
+    ('AS', _('American Samoa')),
+    ('GU', _('Guam')),
+    ('MP', _('Northern Mariana Islands')),
+    ('PR', _('Puerto Rico')),
+    ('VI', _('Virgin Islands')),
+    ('AA', _('Armed Forces Americas')),
+    ('AE', _('Armed Forces Europe')),
+    ('AP', _('Armed Forces Pacific')),
+    ('FM', _('Federated States of Micronesia')),
+    ('MH', _('Marshall Islands')),
+    ('PW', _('Palau')),
+)
+
 # Create your models here.
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     username = None
@@ -51,13 +130,33 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+# class Address(models.Model):
+#     address_1 = models.CharField(_("address"), max_length=128)
+#     address_2 = models.CharField(_("address cont'd"), max_length=128, blank=True)
+#     city = models.CharField(_("city"), max_length=64, default="Zanesville")
+#     state = models.CharField(_("state"), default="OH", null=True, max_length=36, choices=STATES_CHOICES)
+#     zip_code = models.CharField(_("zip code"), max_length=5, default="43701")
+#
+#     def __str__(self):
+#         return "%s %s, %s, %s %s" %(self.address_1,
+#                                     self.address_2,
+#                                     self.city,
+#                                     self.state,
+#                                     self.zip_code)
+
 class Business(models.Model):
     is_member = models.BooleanField(default=False)
     owner = models.ForeignKey(CustomUser, default=None, null=True, on_delete=models.CASCADE)
     managers = models.ManyToManyField(CustomUser, default=None, related_name='managers')
     business_name = models.CharField(default=None, max_length=64)
-    # business_phone =
-    address = models.CharField(default=None, max_length=64)
+    pref_payment = models.CharField(default='ACH', null=True, max_length=64, choices=PAYMENT_CHOICES)
+    email = models.EmailField(_('email address'), unique=True)
+    phone = PhoneNumberField(blank=True, null=True)
+    fax = PhoneNumberField(blank=True, null=True)
+    # billing_address = models.ForeignKey(Address, on_delete=models.CASCADE, related_name='billing_address')
+    # shipping_address = models.ForeignKey(Address, default=None, null=True, on_delete=models.CASCADE, related_name='shipping_address')
+    billing_address = models.CharField(default=None, max_length=64)
+    shipping_address = models.CharField(default=None, null=True, max_length=64)
     # address = AddressField(null=True, on_delete=models.SET_NULL)
     date_joined = models.DateTimeField()
 
@@ -104,6 +203,7 @@ class Invoice(models.Model):
     terms = models.CharField(default='NET30', null=True, max_length=24, choices=TERM_CHOICES)
     total_price = models.DecimalField(default=None, null=True, max_digits=10, decimal_places=2)
     currency = models.CharField(default='dollar', null=True, max_length=3)
+    notes = models.CharField(default=None, null=True, max_length=200)
     is_flagged = models.BooleanField(default=False)
     is_scheduled = models.BooleanField(default=False)
     is_paid = models.BooleanField(default=False)
