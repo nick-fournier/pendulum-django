@@ -157,7 +157,7 @@ class Business(models.Model):
     # shipping_address = models.ForeignKey(Address, default=None, null=True, on_delete=models.CASCADE, related_name='shipping_address')
     billing_address = models.CharField(default=None, max_length=64)
     shipping_address = models.CharField(default=None, null=True, max_length=64)
-    # address = AddressField(null=True, on_delete=models.SET_NULL)
+    # billing_address = AddressField(null=True, on_delete=models.SET_NULL)
     date_joined = models.DateTimeField()
 
     def save(self, *args, **kwargs):
@@ -221,8 +221,6 @@ class Invoice(models.Model):
                 name = name[:2].upper()
             name += str(date.today().year)[-2:]
             name += str(self.pk).zfill(6)
-
-
 
             self.invoice_name = name
             self.total_price = sum(Order.objects.filter(invoice=self.pk).values_list('item_total_price', flat=True))
