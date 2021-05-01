@@ -169,6 +169,12 @@ class NewInvoiceViewSet(viewsets.ModelViewSet):
     serializer_class = NewInvoiceSerializer
     queryset = Invoice.objects.all()
 
+    def get_queryset(self):
+        queryset = self.queryset
+        business_id = get_business_id(self.request.user.id)
+        query_set = queryset.filter(Q(bill_from__id=business_id) | Q(bill_to__id=business_id))
+        return query_set
+
 
 class BusinessViewSet(viewsets.ModelViewSet):
     serializer_class = BusinessSerializer
@@ -183,6 +189,18 @@ class InventoryViewSet(viewsets.ModelViewSet):
         queryset = self.queryset
         business_id = get_business_id(self.request.user.id)
         query_set = queryset.filter(Q(business__id=business_id)).order_by('last_updated')
+        return query_set
+
+
+class OrderViewSet(viewsets.ModelViewSet):
+    serializer_class = OrderSerializer
+    queryset = Order.objects.all()
+
+    def get_queryset(self):
+        queryset = self.queryset
+        business_id = get_business_id(self.request.user.id)
+        item_list = Inventory.objects.filter(Q(business__id=business_id)).values_list('id', flat=True)
+        query_set = queryset.filter(pk__in=item_list)
         return query_set
 
 
