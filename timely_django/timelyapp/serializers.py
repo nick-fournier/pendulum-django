@@ -45,6 +45,26 @@ class BusinessSerializer(serializers.ModelSerializer):
         model = Business
         exclude = ['owner', 'date_joined', 'managers', 'pref_payment']
 
+
+# This provides the pre-fetched choices for the drop down
+class ToBusinessKeyField(serializers.PrimaryKeyRelatedField):
+    queryset = Business.objects.all()
+
+    def get_queryset(self):
+        return self.queryset.exclude(owner__id=self.context['request'].user.id)
+
+class FromBusinessKeyField(serializers.PrimaryKeyRelatedField):
+    queryset = Business.objects.all()
+
+    def bill_from(self, value):
+        if self.pk_field is not None:
+            return self.pk_field.bill_from(value.pk)
+        return {"id": value.pk}
+
+    def get_queryset(self):
+        return self.queryset.filter(owner__id=self.context['request'].user.id)
+
+
 class InventorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Inventory
@@ -56,7 +76,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = '__all__'
+        fields = ['quantity_purchased', 'invoice', 'item', 'description', 'name']
 
     def get_name(self, obj):
         return Inventory.objects.get(id=obj.item.id).name
@@ -64,20 +84,61 @@ class OrderSerializer(serializers.ModelSerializer):
     def get_description(self, obj):
         return Inventory.objects.get(id=obj.item.id).description
 
+
 class NewInvoiceSerializer(serializers.ModelSerializer):
-    # bill_from = BusinessSerializer(read_only=True)
-    bill_from = serializers.PrimaryKeyRelatedField(read_only=True)
-    bill_to = BusinessSerializer(read_only=False)
-    items = OrderSerializer(many=True, read_only=False)
+    bill_to = ToBusinessKeyField()
+    bill_from = FromBusinessKeyField()
+    items = OrderSerializer(many=True)
 
     class Meta:
         model = Invoice
-        exclude = ['is_flagged', 'is_scheduled', 'is_paid']
-        # fields = '__all__'
+        fields = ['bill_to', 'bill_from', 'items', 'terms', 'currency', 'notes']
 
+    def calculate_duedate(self, terms):
+        today = datetime.date.today()
+        ndays = {'NET7': 7, 'NET10': 10, 'NET30': 30, 'NET60': 60, 'NET90': 90, 'NET120': 120}
+
+        if terms in ndays:
+            return (today + datetime.timedelta(ndays[terms])).strftime("%Y-%m-%d")
+        elif terms in ['COD', 'CIA']:
+            return {'COD': 'On delivery', 'CIA': 'Cash in advance'}[terms]
+        else:
+            return None
+
+    def generate_invoice_name(self, bill_from_id):
+        name = Business.objects.get(pk=bill_from_id).business_name
+        n = Invoice.objects.filter(bill_from__id=bill_from_id).count()
+
+        words = name.split(" ")
+        if len(words) > 1:
+            name = ''.join([x[0] for x in words[:2]]).upper()
+        else:
+            name = name[:2].upper()
+        name += str(datetime.date.today().year)[-2:]
+        name += str(n).zfill(6)
+        return name
+
+    def calculate_prices(self, items):
+        #Calculate sub-total and total price
+        total_price = 0
+        for i in range(len(items)):
+            unit_price = getattr(Inventory.objects.get(pk=items[i]['item'].pk), 'unit_price')
+            items[i] = {**items[i], **{'item_total_price': unit_price * items[i]['quantity_purchased']}}
+            total_price += items[i]['item_total_price']
+        return items, total_price
+
+    # Custom create()
     def create(self, validated_data):
-        business_id = Business.objects.get(owner__id=self.request.user.id).id
-        invoice = Invoice.objects.create(bill_from=business_id, **validated_data)
+        items_data = validated_data.pop('items')
+        validated_data['date_sent'] = datetime.date.today()
+        validated_data['date_due'] = self.calculate_duedate(validated_data['terms'])
+        validated_data['invoice_name'] = self.generate_invoice_name(validated_data['bill_from'].pk)
+        items_data, validated_data['total_price'] = self.calculate_prices(items_data)
+
+        invoice = Invoice.objects.create(**validated_data)
+        for item in items_data:
+            item.pop('invoice', None)
+            Order.objects.create(invoice=invoice, **item)
         return invoice
 
 
