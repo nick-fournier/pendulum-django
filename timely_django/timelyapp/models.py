@@ -19,13 +19,26 @@ from rest_framework.authtoken.models import Token
 
 # Custom User
 from .managers import CustomUserManager
-from datetime import date
+import datetime
 
 # Automatically generates token for each user
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
+
+
+#Generic functions
+def get_duedate(terms):
+    today = datetime.date.today()
+    ndays = {'NET7': 7, 'NET10': 10, 'NET30': 30, 'NET60': 60, 'NET90': 90, 'NET120': 120}
+
+    if terms in ndays:
+        return (today + datetime.timedelta(ndays[terms])).strftime("%Y-%m-%d")
+    elif terms in ['COD', 'CIA']:
+        return {'COD': 'On delivery', 'CIA': 'Cash in advance'}[terms]
+    else:
+        return None
 
 
 TERM_CHOICES = [
@@ -112,6 +125,7 @@ STATES_CHOICES = (
     ('PW', _('Palau')),
 )
 
+
 # Create your models here.
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     username = None
@@ -189,7 +203,7 @@ class Inventory(models.Model):
     currency = models.CharField(default='USD', null=True, max_length=3)
 
     def __str__(self):
-        return "%s: $%s/%s, Available: %s" %(self.description,
+        return "%s: $%s/%s, Available: %s" %(self.name,
                                              self.unit_price,
                                              self.unit,
                                              self.quantity_in_stock)
@@ -208,23 +222,11 @@ class Invoice(models.Model):
     is_scheduled = models.BooleanField(default=False)
     is_paid = models.BooleanField(default=False)
 
-    def save(self, *args, **kwargs):
-        if self.pk is None:
-            super().save(*args, **kwargs)
+    def __str__(self):
+        return "%s, $%s, due: %s" %(self.invoice_name,
+                                    self.total_price,
+                                    self.date_due)
 
-        if self.total_price or self.invoice_name is None:
-            name = Business.objects.get(pk=self.bill_from.id).business_name
-            words = name.split(" ")
-            if len(words) > 1:
-                name = ''.join([x[0] for x in words[:2]]).upper()
-            else:
-                name = name[:2].upper()
-            name += str(date.today().year)[-2:]
-            name += str(self.pk).zfill(6)
-
-            self.invoice_name = name
-            self.total_price = sum(Order.objects.filter(invoice=self.pk).values_list('item_total_price', flat=True))
-            super().save(*args, **kwargs)
 
 class Order(models.Model):
     invoice = models.ForeignKey(Invoice, null=True, on_delete=models.CASCADE, related_name='items')
@@ -232,8 +234,3 @@ class Order(models.Model):
     item = models.ForeignKey(Inventory, on_delete=models.CASCADE)
     quantity_purchased = models.DecimalField(max_digits=10, decimal_places=6)
     item_total_price = models.DecimalField(max_digits=10, decimal_places=6)
-
-    def save(self, *args, **kwargs):
-        unit_price = getattr(Inventory.objects.get(pk=self.item.pk), 'unit_price')
-        self.item_total_price = self.quantity_purchased * unit_price
-        super().save(*args, **kwargs)
