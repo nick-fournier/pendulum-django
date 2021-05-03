@@ -41,10 +41,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class BusinessSerializer(serializers.ModelSerializer):
+    billing_address = serializers.CharField(read_only=True)
+    shipping_address = serializers.CharField(read_only=True)
     class Meta:
         model = Business
-        exclude = ['owner', 'date_joined', 'managers', 'pref_payment']
-
+        exclude = ['owner', 'date_joined', 'managers']
 
 # This provides the pre-fetched choices for the drop down
 class ToBusinessKeyField(serializers.PrimaryKeyRelatedField):
@@ -52,6 +53,7 @@ class ToBusinessKeyField(serializers.PrimaryKeyRelatedField):
 
     def get_queryset(self):
         return self.queryset.exclude(owner__id=self.context['request'].user.id)
+
 
 class FromBusinessKeyField(serializers.PrimaryKeyRelatedField):
     queryset = Business.objects.all()
