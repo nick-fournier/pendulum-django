@@ -226,6 +226,7 @@ class Invoice(models.Model):
     is_flagged = models.BooleanField(default=False)
     is_scheduled = models.BooleanField(default=False)
     is_paid = models.BooleanField(default=False)
+    invoice_only = models.BooleanField(default=False)
 
     def __str__(self):
         return "%s, $%s, due: %s" %(self.invoice_name,
