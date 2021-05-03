@@ -165,12 +165,14 @@ class Address(models.Model):
 class Payments(models.Model):
     type = models.CharField(default='ACH', null=True, max_length=64, choices=PAYMENT_CHOICES)
 
+    def __str__(self):
+        return u"%s [%s]" % (self.get_type_display(), self.type)
 
 class Business(models.Model):
     is_member = models.BooleanField(default=False)
     owner = models.ForeignKey(CustomUser, default=None, null=True, on_delete=models.CASCADE)
     managers = models.ManyToManyField(CustomUser, default=None, related_name='managers')
-    business_name = models.CharField(default=None, max_length=64)
+    business_name = models.CharField(default=None, max_length=64, unique=True)
     email = models.EmailField(_('email address'), unique=True)
     phone = PhoneNumberField(blank=True, null=True)
     fax = PhoneNumberField(blank=True, null=True)
