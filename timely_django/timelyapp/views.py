@@ -21,6 +21,7 @@ from rest_framework import viewsets, serializers
 from .serializers import *
 from .models import *
 from .forms import *
+from timelyapp.utils import *
 
 import pandas as pd
 import json
@@ -29,17 +30,6 @@ import numpy as np
 
 
 #Generic functions
-def get_duedate(terms):
-    today = datetime.date.today()
-    ndays = {'NET7': 7, 'NET10': 10, 'NET30': 30, 'NET60': 60, 'NET90': 90, 'NET120': 120}
-
-    if terms in ndays:
-        return (today + datetime.timedelta(ndays[terms])).strftime("%Y-%m-%d")
-    elif terms in ['COD', 'CIA']:
-        return {'COD': 'On delivery', 'CIA': 'Cash in advance'}[terms]
-    else:
-        return None
-
 def type_converter(obj):
     if isinstance(obj, np.integer):
         return int(obj)
@@ -268,7 +258,7 @@ class NewInvoiceFormView(CreateView):
         with transaction.atomic():
             form.instance.bill_from = Business.objects.get(owner__id=self.request.user.id)
             form.instance.date_sent = datetime.date.today().strftime("%Y-%m-%d")
-            form.instance.date_due = get_duedate(form.instance.terms)
+            form.instance.date_due = calculate_duedate(form.instance.terms)
 
             self.object = form.save()
             if item.is_valid():
