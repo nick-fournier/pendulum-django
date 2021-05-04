@@ -172,7 +172,7 @@ class NewInvoiceViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = self.queryset
         business_id = get_business_id(self.request.user.id)
-        query_set = queryset.filter(Q(bill_from__id=business_id) | Q(bill_to__id=business_id))
+        query_set = queryset.filter(bill_from__id=business_id)
         return query_set
 
 
