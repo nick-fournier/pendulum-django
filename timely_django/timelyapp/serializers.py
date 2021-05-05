@@ -79,7 +79,7 @@ class NewOrderSerializer(serializers.ModelSerializer):
 
 class NewInvoiceSerializer(serializers.ModelSerializer):
     bill_to_key = ToBusinessKeyField(source="bill_to")
-    bill_to_name = serializers.SerializerMethodField()
+    bill_to_name = serializers.SerializerMethodField(required=False)
     items = NewOrderSerializer(many=True, allow_null=True, required=False)
 
     class Meta:
