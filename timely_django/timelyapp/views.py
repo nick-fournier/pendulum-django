@@ -21,79 +21,12 @@ from rest_framework import viewsets, serializers
 from .serializers import *
 from .models import *
 from .forms import *
-from timelyapp.utils import *
+from timelyapp.utils import get_business_id
 
 import pandas as pd
 import json
 import datetime
 import numpy as np
-
-
-#Generic functions
-def type_converter(obj):
-    if isinstance(obj, np.integer):
-        return int(obj)
-    elif isinstance(obj, np.floating):
-        return float(obj)
-    elif isinstance(obj, np.ndarray):
-        return obj.tolist()
-    elif isinstance(obj, datetime.datetime):
-        return obj.__str__()
-
-def get_invoices(biz_id, type):
-
-    if type == "receivables":
-        invoices = Invoice.objects.filter(bill_from__id=biz_id).values()
-        opposite = "bill_to_id"
-
-    elif type == "payables":
-        invoices = Invoice.objects.filter(bill_to__id=biz_id).values()
-        opposite = "bill_from_id"
-    else:
-        return None
-
-    if invoices.exists():
-        #Gets the other business's data
-        other_business = Business.objects.filter(pk=invoices[0][opposite]).values()
-        order = Order.objects.filter(invoice__in=invoices.values_list('id', flat=True)).values()
-
-        #Convert to data frame to merge
-        invoices = pd.DataFrame(invoices).rename(columns={'id': 'invoice_id'})
-        other_business = pd.DataFrame(other_business).rename(columns={'id': 'business_id'})
-        order = pd.DataFrame(order)
-
-        invoices_merged = invoices.merge(other_business,
-                            left_on=opposite,
-                            right_on='business_id')
-
-        #Some formatting fixes
-        invoices_merged.total_price.fillna(0, inplace=True)
-        invoices_merged.total_price = '$' + invoices_merged.total_price.astype('float').round(2).astype(str)
-        invoices_merged.date_sent = [x.strftime("%B %d, %Y").lstrip("0") for x in invoices_merged.date_sent]
-        invoices_merged.date_due = ['COD' if x is None else x.strftime("%B %d, %Y").lstrip("0") for x in invoices_merged.date_due]
-
-        invoices_merged = invoices_merged.sort_values('date_due', ascending=False).reset_index(drop=True)
-        # invoices_merged.set_index('invoice_id', inplace=True)
-
-        #Convert to JSON
-        data_dict_list = []
-        for i in range(len(invoices_merged)):
-            invoice_id = invoices_merged.iloc[i].invoice_id
-            invoice_dict = invoices_merged.iloc[i]
-            order_dict = order[order.invoice_id == invoice_id].to_dict(orient='records')
-            data_dict_list.append({**invoice_dict, **{"order_list": order_dict}})
-
-        #This parses it to make sure any weird data types are smoothed out
-        data_json = json.dumps(data_dict_list, indent=4, default=type_converter)
-        data = list(json.loads(data_json))
-
-        return data
-
-def get_business_id(user_id):
-    try:
-        return Business.objects.get(owner__id=user_id).id
-    except Business.DoesNotExist:
-        return None
 
 # Create your views here.
 def password_reset_request(request):
@@ -220,99 +153,99 @@ class ReceivablesViewSet(viewsets.ModelViewSet):
         return query_set
 
 
-
-#### OLD FORMS BELOW THIS, MARKED FOR DELETION ####
-class NewBusinessFormView(CreateView):
-    model = Business
-    template_name = 'registration/new_business.html'
-    form_class = CreateBusinessForm
-    success_url = reverse_lazy('home')
-
-    def form_valid(self, form):
-        form.instance.owner = self.request.user
-        return super().form_valid(form)
-
-# Nested Invoice Form
-class NewInvoiceFormView(CreateView):
-    model = Invoice
-    template_name = 'invoices/new_invoice.html'
-    form_class = CreateInvoiceForm
-    success_url = None
-
-    #Use this to have useful default fields
-    def get_initial(self):
-        pass
-
-    def get_context_data(self, **kwargs):
-        data = super(NewInvoiceFormView, self).get_context_data(**kwargs)
-        if self.request.POST:
-            data['item'] = OrderFormSet(self.request.POST)
-        else:
-            data['item'] = OrderFormSet()
-        return data
-
-    def form_valid(self, form):
-        context = self.get_context_data()
-        item = context['item']
-
-        with transaction.atomic():
-            form.instance.bill_from = Business.objects.get(owner__id=self.request.user.id)
-            form.instance.date_sent = datetime.date.today().strftime("%Y-%m-%d")
-            form.instance.date_due = calculate_duedate(form.instance.terms)
-
-            self.object = form.save()
-            if item.is_valid():
-                item.instance = self.object
-                item.save()
-        return super(NewInvoiceFormView, self).form_valid(form)
-
-    def get_success_url(self):
-        return reverse_lazy('dashboard')
-
-
-
-# # old inbox views (can delete later)
-class ReceivablesView(ListView):
-    template_name = 'invoices/receivables.html'
-    success_url = reverse_lazy('home')
-    queryset = Business.objects.all()
-
-    def get_context_data(self, **kwargs):
-        context = super(ReceivablesView, self).get_context_data(**kwargs)
-        business_id = Business.objects.filter(owner__id=self.request.user.id).values()[0]['id']
-        context['receivables'] = get_invoices(business_id, 'receivables')
-        return context
-
-
-class PayablesView(ListView):
-    template_name = 'invoices/payables.html'
-    success_url = reverse_lazy('home')
-    queryset = Business.objects.all()
-
-    def get_context_data(self, **kwargs):
-        context = super(PayablesView, self).get_context_data(**kwargs)
-        business_id = Business.objects.filter(owner__id=self.request.user.id).values()[0]['id']
-        context['payables'] = get_invoices(business_id, 'payables')
-        return context
-
-
-# Manual JSON serializer (can delete later)
-class ReceivablesJSONView(ListView):
-    template_name = 'invoices/receivables.html'
-    success_url = reverse_lazy('home')
-    queryset = Business.objects.all()
-
-    def get(self, *args, **kwargs):
-        business_id = Business.objects.filter(owner__id=self.request.user.id).values()[0]['id']
-        data = get_invoices(business_id, 'receivables')
-        return JsonResponse(data, safe=False)
-
-class PayablesJSONView(ListView):
-    template_name = 'invoices/payables.html'
-    success_url = reverse_lazy('home')
-    queryset = Business.objects.all()
-
-    def get(self, *args, **kwargs):
-        business_id = Business.objects.filter(owner__id=self.request.user.id).values()[0]['id']
-        data = get_invoices(business_id, 'payables')
-        return JsonResponse(data, safe=False)
+#
+# #### OLD FORMS BELOW THIS, MARKED FOR DELETION ####
+# class NewBusinessFormView(CreateView):
+#     model = Business
+#     template_name = 'registration/new_business.html'
+#     form_class = CreateBusinessForm
+#     success_url = reverse_lazy('home')
+#
+#     def form_valid(self, form):
+#         form.instance.owner = self.request.user
+#         return super().form_valid(form)
+#
+# # Nested Invoice Form
+# class NewInvoiceFormView(CreateView):
+#     model = Invoice
+#     template_name = 'invoices/new_invoice.html'
+#     form_class = CreateInvoiceForm
+#     success_url = None
+#
+#     #Use this to have useful default fields
+#     def get_initial(self):
+#         pass
+#
+#     def get_context_data(self, **kwargs):
+#         data = super(NewInvoiceFormView, self).get_context_data(**kwargs)
+#         if self.request.POST:
+#             data['item'] = OrderFormSet(self.request.POST)
+#         else:
+#             data['item'] = OrderFormSet()
+#         return data
+#
+#     def form_valid(self, form):
+#         context = self.get_context_data()
+#         item = context['item']
+#
+#         with transaction.atomic():
+#             form.instance.bill_from = Business.objects.get(owner__id=self.request.user.id)
+#             form.instance.date_sent = datetime.date.today().strftime("%Y-%m-%d")
+#             form.instance.date_due = calculate_duedate(form.instance.terms)
+#
+#             self.object = form.save()
+#             if item.is_valid():
+#                 item.instance = self.object
+#                 item.save()
+#         return super(NewInvoiceFormView, self).form_valid(form)
+#
+#     def get_success_url(self):
+#         return reverse_lazy('dashboard')
+#
+#
+#
+# # # old inbox views (can delete later)
+# class ReceivablesView(ListView):
+#     template_name = 'invoices/receivables.html'
+#     success_url = reverse_lazy('home')
+#     queryset = Business.objects.all()
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(ReceivablesView, self).get_context_data(**kwargs)
+#         business_id = Business.objects.filter(owner__id=self.request.user.id).values()[0]['id']
+#         context['receivables'] = get_invoices(business_id, 'receivables')
+#         return context
+#
+#
+# class PayablesView(ListView):
+#     template_name = 'invoices/payables.html'
+#     success_url = reverse_lazy('home')
+#     queryset = Business.objects.all()
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(PayablesView, self).get_context_data(**kwargs)
+#         business_id = Business.objects.filter(owner__id=self.request.user.id).values()[0]['id']
+#         context['payables'] = get_invoices(business_id, 'payables')
+#         return context
+#
+#
+# # Manual JSON serializer (can delete later)
+# class ReceivablesJSONView(ListView):
+#     template_name = 'invoices/receivables.html'
+#     success_url = reverse_lazy('home')
+#     queryset = Business.objects.all()
+#
+#     def get(self, *args, **kwargs):
+#         business_id = Business.objects.filter(owner__id=self.request.user.id).values()[0]['id']
+#         data = get_invoices(business_id, 'receivables')
+#         return JsonResponse(data, safe=False)
+#
+# class PayablesJSONView(ListView):
+#     template_name = 'invoices/payables.html'
+#     success_url = reverse_lazy('home')
+#     queryset = Business.objects.all()
+#
+#     def get(self, *args, **kwargs):
+#         business_id = Business.objects.filter(owner__id=self.request.user.id).values()[0]['id']
+#         data = get_invoices(business_id, 'payables')
+#         return JsonResponse(data, safe=False)
