@@ -203,16 +203,17 @@ class Inventory(models.Model):
     last_updated = models.DateField(null=True)
     name = models.CharField(default=None, null=True, max_length=100)
     description = models.CharField(default=None, null=True, max_length=500)
-    quantity_in_stock = models.DecimalField(default=None, max_digits=10, decimal_places=6)
-    unit = models.CharField(default='pc', null=True, max_length=3)
+    quantity_in_stock = models.DecimalField(default=None, null=True, max_digits=10, decimal_places=6)
+    unit = models.CharField(default='ea', null=True, max_length=10)
     unit_price = models.DecimalField(default=None, null=True, max_digits=10, decimal_places=2)
     currency = models.CharField(default='USD', null=True, max_length=3)
 
+    def save(self, *args, **kwargs):
+        self.last_updated = timezone.now()
+        return super(Inventory, self).save(*args, **kwargs)
+
     def __str__(self):
-        return "%s: $%s/%s, Available: %s" %(self.name,
-                                             self.unit_price,
-                                             self.unit,
-                                             self.quantity_in_stock)
+        return "%s" %(self.name)
 
 class Invoice(models.Model):
     invoice_name = models.CharField(default=None, null=True, max_length=16)
@@ -224,7 +225,7 @@ class Invoice(models.Model):
     accepted_payments = models.ManyToManyField(Payments, default=[1, 2, 3], related_name='accepted_payments')
     total_price = models.DecimalField(default=None, null=True, max_digits=10, decimal_places=2)
     currency = models.CharField(default='dollar', null=True, max_length=3)
-    notes = models.CharField(default=None, null=True, max_length=200)
+    notes = models.CharField(default='Thank you for your payment!', null=True, max_length=200)
     is_flagged = models.BooleanField(default=False)
     is_scheduled = models.BooleanField(default=False)
     is_paid = models.BooleanField(default=False)
@@ -239,7 +240,8 @@ class Invoice(models.Model):
 class Order(models.Model):
     invoice = models.ForeignKey(Invoice, null=True, on_delete=models.CASCADE, related_name='items')
     discount_code = models.ForeignKey(Discount, default=1, on_delete=models.CASCADE)
-    item = models.ForeignKey(Inventory, on_delete=models.CASCADE)
+    item_name = models.CharField(default=None, null=True, max_length=100)
+    item_description = models.CharField(default=None, null=True, max_length=500)
     quantity_purchased = models.DecimalField(max_digits=10, decimal_places=6)
     item_total_price = models.DecimalField(max_digits=10, decimal_places=6)
 

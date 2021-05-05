@@ -203,7 +203,8 @@
     "fields": {
       "invoice": 1,
       "discount_code": 1,
-      "item": 1,
+      "item_name": "Some Widget",
+      "item_description": null,
       "quantity_purchased": 4,
       "item_total_price": 40
     }

@@ -115,11 +115,11 @@ class GenerateData:
             for j in range(len(items)):
                 quantity = random.randint(1, ordermax)
                 new_order = copy.deepcopy(self.base_order)
-
                 new_order['pk'] = orderpk
                 new_order['fields']['invoice'] = i+1
                 new_order['fields']['discount_code'] = 1
-                new_order['fields']['item'] = items[j]['pk']
+                new_order['fields']['item_name'] = items[j]['fields']['name']
+                new_order['fields']['item_description'] = items[j]['fields']['description']
                 new_order['fields']['quantity_purchased'] = quantity
                 new_order['fields']['item_total_price'] = items[j]['fields']['unit_price'] * quantity
 
