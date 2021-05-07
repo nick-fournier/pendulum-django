@@ -74,7 +74,7 @@ class NewOrderSerializer(serializers.ModelSerializer):
     is_new = serializers.BooleanField(default=False)
     class Meta:
         model = Order
-        fields = ['item_name', 'quantity_purchased', 'item_total_price', 'is_new']
+        fields = ['item_name', 'quantity_purchased', 'item_price', 'item_total_price', 'is_new']
 
 
 class NewInvoiceSerializer(serializers.ModelSerializer):
@@ -84,7 +84,7 @@ class NewInvoiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Invoice
-        fields = ['bill_to_key', 'bill_to_name', 'terms', 'date_due', 'total_price', 'accepted_payments', 'notes',
+        fields = ['bill_to_key', 'bill_to_name', 'terms', 'date_due', 'invoice_total_price', 'accepted_payments', 'notes',
                   'items']
 
     def get_bill_to_name(self, obj):
@@ -104,13 +104,13 @@ class NewInvoiceSerializer(serializers.ModelSerializer):
         # If itemized, pop out. Need to create invoice before linking
         if 'items' in validated_data:
             items_data = validated_data.pop('items')
-            validated_data['invoice_only'] = True
+            validated_data['invoice_only'] = False
 
             # Calculate total price if missing
             if not validated_data['total_price']:
-                validated_data['total_price'] = 0
+                validated_data['invoice_total_price'] = 0
                 for i in range(len(items_data)):
-                    validated_data['total_price'] += items_data[i]['item_total_price']
+                    validated_data['invoice_total_price'] += items_data[i]['item_total_price']
 
             # Now create invoice and assign linked orders
             invoice = Invoice.objects.create(**validated_data)
@@ -118,8 +118,7 @@ class NewInvoiceSerializer(serializers.ModelSerializer):
             for item in items_data:
                 # If new item, add to inventory
                 if item['is_new']:
-                    new_item = {'name': item['item_name'],
-                                'unit_price': item['item_total_price'] / item['quantity_purchased']}
+                    new_item = {'item_name': item['item_name'], 'item_price': item['item_price']}
                     Inventory.objects.create(business=validated_data['bill_from'], **new_item)
                 item.pop('is_new')
                 Order.objects.create(invoice=invoice, **item)

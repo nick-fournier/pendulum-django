@@ -118,17 +118,18 @@ class GenerateData:
                 new_order['pk'] = orderpk
                 new_order['fields']['invoice'] = i+1
                 new_order['fields']['discount_code'] = 1
-                new_order['fields']['item_name'] = items[j]['fields']['name']
+                new_order['fields']['item_name'] = items[j]['fields']['item_name']
                 new_order['fields']['item_description'] = items[j]['fields']['description']
                 new_order['fields']['quantity_purchased'] = quantity
-                new_order['fields']['item_total_price'] = items[j]['fields']['unit_price'] * quantity
+                new_order['fields']['item_price'] = items[j]['fields']['item_price']
+                new_order['fields']['item_total_price'] = items[j]['fields']['item_price'] * quantity
 
                 output_data.append(new_order)
                 subtotal += new_order['fields']['item_total_price']
                 orderpk += 1
 
             # Update total price
-            new_invoice['fields']['total_price'] = subtotal
+            new_invoice['fields']['invoice_total_price'] = subtotal
             output_data.append(new_invoice)
 
         return output_data

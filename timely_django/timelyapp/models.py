@@ -201,11 +201,11 @@ class Discount(models.Model):
 class Inventory(models.Model):
     business = models.ForeignKey(Business, default=None, null=True, on_delete=models.CASCADE)
     last_updated = models.DateField(null=True)
-    name = models.CharField(default=None, null=True, max_length=100)
+    item_name = models.CharField(default=None, null=True, max_length=100)
     description = models.CharField(default=None, null=True, max_length=500)
     quantity_in_stock = models.DecimalField(default=None, null=True, max_digits=10, decimal_places=6)
-    unit = models.CharField(default='ea', null=True, max_length=10)
-    unit_price = models.DecimalField(default=None, null=True, max_digits=10, decimal_places=2)
+    item_unit = models.CharField(default='ea', null=True, max_length=10)
+    item_price = models.DecimalField(default=None, null=True, max_digits=10, decimal_places=2)
     currency = models.CharField(default='USD', null=True, max_length=3)
 
     def save(self, *args, **kwargs):
@@ -223,7 +223,7 @@ class Invoice(models.Model):
     bill_to = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='bill_to')
     terms = models.CharField(default='NET30', null=True, max_length=24, choices=TERM_CHOICES)
     accepted_payments = models.ManyToManyField(Payments, default=[1, 2, 3], related_name='accepted_payments')
-    total_price = models.DecimalField(default=None, null=True, max_digits=10, decimal_places=2)
+    invoice_total_price = models.DecimalField(default=None, null=True, max_digits=10, decimal_places=2)
     currency = models.CharField(default='dollar', null=True, max_length=3)
     notes = models.CharField(default='Thank you for your payment!', null=True, max_length=200)
     is_flagged = models.BooleanField(default=False)
@@ -233,7 +233,7 @@ class Invoice(models.Model):
 
     def __str__(self):
         return "%s, $%s, due: %s" %(self.invoice_name,
-                                    self.total_price,
+                                    self.invoice_total_price,
                                     self.date_due)
 
 
@@ -243,5 +243,6 @@ class Order(models.Model):
     item_name = models.CharField(default=None, null=True, max_length=100)
     item_description = models.CharField(default=None, null=True, max_length=500)
     quantity_purchased = models.DecimalField(max_digits=10, decimal_places=6)
+    item_price = models.DecimalField(max_digits=10, decimal_places=6)
     item_total_price = models.DecimalField(max_digits=10, decimal_places=6)
 

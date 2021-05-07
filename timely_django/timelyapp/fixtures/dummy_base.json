@@ -147,11 +147,11 @@
     "fields": {
       "business": 1,
       "last_updated": "2021-03-03",
-      "name": "Some Widget",
+      "item_name": "Some Widget",
       "description": "A business widget for vertical synergy jargon",
       "quantity_in_stock": 1000,
-      "unit": "pc",
-      "unit_price": 10,
+      "item_unit": "pc",
+      "item_price": 10,
       "currency": "USD"
     }
   },
@@ -161,11 +161,11 @@
     "fields": {
       "business": 1,
       "last_updated": "2021-03-03",
-      "name": "A Different Widget",
+      "item_name": "A Different Widget",
       "description": "A widget for backward overflow jargon",
       "quantity_in_stock": 1000,
-      "unit": "pc",
-      "unit_price": 20,
+      "item_unit": "pc",
+      "item_price": 20,
       "currency": "USD"
     }
   },
@@ -175,11 +175,11 @@
     "fields": {
       "business": 2,
       "last_updated": "2021-03-13",
-      "name": "Professional Services",
+      "item_name": "Professional Services",
       "description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
       "quantity_in_stock": 1000,
-      "unit": "hrs",
-      "unit_price": 10,
+      "item_unit": "hrs",
+      "item_price": 10,
       "currency": "USD"
     }
   },
@@ -189,11 +189,11 @@
     "fields": {
       "business": 2,
       "last_updated": "2021-03-13",
-      "name": "Infeasibility Consulting Study",
+      "item_name": "Infeasibility Consulting Study",
       "description": "A big useless report on what you want to hear",
       "quantity_in_stock": 1000,
-      "unit": "hrs",
-      "unit_price": 20,
+      "item_unit": "hrs",
+      "item_price": 20,
       "currency": "USD"
     }
   },
@@ -206,6 +206,7 @@
       "item_name": "Some Widget",
       "item_description": null,
       "quantity_purchased": 4,
+      "item_price": 10,
       "item_total_price": 40
     }
   },
@@ -219,7 +220,7 @@
       "bill_from": 1,
       "bill_to": 2,
       "terms": "NET30",
-      "total_price": 100,
+      "invoice_total_price": 100,
       "currency": "USD",
       "is_flagged": false,
       "is_scheduled": false,
