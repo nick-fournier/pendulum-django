@@ -178,6 +178,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
                   'date_due',
                   'terms',
                   'invoice_total_price',
+                  'notes',
                   'currency',
                   'is_flagged',
                   'is_scheduled',
