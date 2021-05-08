@@ -107,7 +107,7 @@ class NewInvoiceSerializer(serializers.ModelSerializer):
             validated_data['invoice_only'] = False
 
             # Calculate total price if missing
-            if not validated_data['total_price']:
+            if not validated_data['invoice_total_price']:
                 validated_data['invoice_total_price'] = 0
                 for i in range(len(items_data)):
                     validated_data['invoice_total_price'] += items_data[i]['item_total_price']
@@ -177,7 +177,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
                   'date_sent',
                   'date_due',
                   'terms',
-                  'total_price',
+                  'invoice_total_price',
                   'currency',
                   'is_flagged',
                   'is_scheduled',
@@ -229,7 +229,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
 #                   'date_sent',
 #                   'date_due',
 #                   'terms',
-#                   'total_price',
+#                   'invoice_total_price',
 #                   'currency',
 #                   'is_flagged',
 #                   'is_scheduled',
@@ -267,7 +267,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
 #                   'date_sent',
 #                   'date_due',
 #                   'terms',
-#                   'total_price',
+#                   'invoice_total_price',
 #                   'currency',
 #                   'is_flagged',
 #                   'is_scheduled',
