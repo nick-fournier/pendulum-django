@@ -19,13 +19,13 @@ class UserSerializer(serializers.ModelSerializer):
 
 class CustomTokenSerializer(serializers.ModelSerializer):
     user_id = serializers.SerializerMethodField()
-    email = serializers.SerializerMethodField()
+    user_email = serializers.SerializerMethodField()
     business_id = serializers.SerializerMethodField()
     business_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Token
-        fields = ['key', 'user_id', 'email', 'business_id', 'business_name']
+        fields = ['key', 'user_id', 'user_email', 'business_id', 'business_name']
 
     def get_user_id(self, obj):
         return obj.user.id
