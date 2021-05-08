@@ -10,8 +10,43 @@ from rest_framework import serializers
 from .models import *
 from timelyapp.utils import calculate_duedate, generate_invoice_name, get_business_id
 
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'email', 'first_name', 'last_name', 'date_joined']
+
+
+class CustomTokenSerializer(serializers.ModelSerializer):
+    user_id = serializers.SerializerMethodField()
+    email = serializers.SerializerMethodField()
+    business_id = serializers.SerializerMethodField()
+    business_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Token
+        fields = ['key', 'user_id', 'email', 'business_id', 'business_name']
+
+    def get_user_id(self, obj):
+        return obj.user.id
+    def get_email(self, obj):
+        return obj.user.email
+    def get_business_name(self, obj):
+        return Business.objects.get(id=obj.user.id).business_name
+    def get_business_id(self, obj):
+        return Business.objects.get(id=obj.user.id).id
+
+class BusinessSerializer(serializers.ModelSerializer):
+    billing_address = serializers.CharField(read_only=True)
+    shipping_address = serializers.CharField(read_only=True)
+    class Meta:
+        model = Business
+        exclude = ['owner', 'date_joined', 'managers']
+
+
 class CustomLoginSerializer(RestAuthLoginSerializer):
     username = None
+
 
 class CustomRegisterSerializer(RegisterSerializer):
     username = None
@@ -34,20 +69,6 @@ class CustomRegisterSerializer(RegisterSerializer):
         setup_user_email(request, user, [])
         user.save()
         return user
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = ['id', 'email', 'first_name', 'last_name', 'date_joined']
-
-
-class BusinessSerializer(serializers.ModelSerializer):
-    billing_address = serializers.CharField(read_only=True)
-    shipping_address = serializers.CharField(read_only=True)
-    class Meta:
-        model = Business
-        exclude = ['owner', 'date_joined', 'managers']
 
 
 # This provides the pre-fetched choices for the drop down

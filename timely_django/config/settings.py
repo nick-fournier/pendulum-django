@@ -162,6 +162,7 @@ SITE_ID = 1
 REST_AUTH_SERIALIZERS = {
     'USER_DETAILS_SERIALIZER': 'timelyapp.serializers.UserSerializer',
     'LOGIN_SERIALIZER': 'timelyapp.serializers.CustomLoginSerializer',
+    'TOKEN_SERIALIZER': 'timelyapp.serializers.CustomTokenSerializer',
 }
 
 REST_AUTH_REGISTER_SERIALIZERS = {
