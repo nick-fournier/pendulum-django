@@ -10,10 +10,12 @@ def calculate_duedate(terms):
 
     if terms in ndays:
         return (today + datetime.timedelta(ndays[terms])).strftime("%Y-%m-%d")
-    elif terms in ['COD', 'CIA']:
-        return {'COD': 'On delivery', 'CIA': 'Cash in advance'}[terms]
-    else:
+    elif terms == 'COD':
         return None
+    elif terms == 'CIA':
+        return today
+    else:
+        pass
 
 def generate_invoice_name(bill_from_id):
     name = Business.objects.get(pk=bill_from_id).business_name
