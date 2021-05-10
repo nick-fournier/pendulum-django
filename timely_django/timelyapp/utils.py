@@ -4,18 +4,20 @@ import numpy as np
 
 from .models import *
 
-def calculate_duedate(terms):
+def calculate_duedate(terms, duedate):
     today = datetime.date.today()
     ndays = {'NET7': 7, 'NET10': 10, 'NET30': 30, 'NET60': 60, 'NET90': 90, 'NET120': 120}
 
+    # if terms == 'Custom':
+    #     return duedate
     if terms in ndays:
         return (today + datetime.timedelta(ndays[terms])).strftime("%Y-%m-%d")
-    elif terms == 'COD':
-        return None
-    elif terms == 'CIA':
+    if terms == 'CIA':
         return today
+    if terms == 'COD':
+        return None
     else:
-        pass
+        return None
 
 def generate_invoice_name(bill_from_id):
     name = Business.objects.get(pk=bill_from_id).business_name

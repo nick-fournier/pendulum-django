@@ -116,7 +116,8 @@ class NewInvoiceSerializer(serializers.ModelSerializer):
         # validated_data['bill_to'] = validated_data.pop('bill_to_key')
         validated_data['bill_from'] = Business.objects.get(owner__id=self.context['request'].user.id)
         validated_data['date_sent'] = datetime.date.today()
-        validated_data['date_due'] = calculate_duedate(validated_data['terms'])
+        if validated_data['terms'] != "Custom":
+            validated_data['date_due'] = calculate_duedate(validated_data['terms'])
         validated_data['invoice_name'] = generate_invoice_name(validated_data['bill_from'].pk)
 
         # Pop out many-to-many payment field. Need to create invoice before assigning

@@ -28,19 +28,6 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
         Token.objects.create(user=instance)
 
 
-#Generic functions
-def get_duedate(terms):
-    today = datetime.date.today()
-    ndays = {'NET7': 7, 'NET10': 10, 'NET30': 30, 'NET60': 60, 'NET90': 90, 'NET120': 120}
-
-    if terms in ndays:
-        return (today + datetime.timedelta(ndays[terms])).strftime("%Y-%m-%d")
-    elif terms in ['COD', 'CIA']:
-        return {'COD': 'On delivery', 'CIA': 'Cash in advance'}[terms]
-    else:
-        return None
-
-
 TERM_CHOICES = [
     ('Custom', 'Custom due date'),
     ('COD', 'Cash on delivery'),
@@ -224,7 +211,7 @@ class Invoice(models.Model):
     terms = models.CharField(default='NET30', null=True, max_length=24, choices=TERM_CHOICES)
     accepted_payments = models.ManyToManyField(Payments, default=[1, 2, 3], related_name='accepted_payments')
     invoice_total_price = models.DecimalField(default=None, null=True, max_digits=12, decimal_places=2)
-    currency = models.CharField(default='dollar', null=True, max_length=3)
+    currency = models.CharField(default='USD', null=True, max_length=3)
     notes = models.CharField(default='Thank you for your payment!', null=True, max_length=200)
     is_flagged = models.BooleanField(default=False)
     is_scheduled = models.BooleanField(default=False)
