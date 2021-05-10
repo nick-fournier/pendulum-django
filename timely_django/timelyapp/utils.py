@@ -4,12 +4,10 @@ import numpy as np
 
 from .models import *
 
-def calculate_duedate(terms, duedate):
+def calculate_duedate(terms):
     today = datetime.date.today()
     ndays = {'NET7': 7, 'NET10': 10, 'NET30': 30, 'NET60': 60, 'NET90': 90, 'NET120': 120}
 
-    # if terms == 'Custom':
-    #     return duedate
     if terms in ndays:
         return (today + datetime.timedelta(ndays[terms])).strftime("%Y-%m-%d")
     if terms == 'CIA':
