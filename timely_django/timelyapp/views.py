@@ -129,7 +129,7 @@ class OrderViewSet(viewsets.ModelViewSet):
 
 class PayablesViewSet(viewsets.ModelViewSet):
     serializer_class = InvoiceSerializer
-    queryset = Invoice.objects.all()
+    queryset = Invoice.objects.all().order_by('-pk')
     success_url = reverse_lazy('home')
 
     # Overrides the internal function
@@ -142,7 +142,7 @@ class PayablesViewSet(viewsets.ModelViewSet):
 
 class ReceivablesViewSet(viewsets.ModelViewSet):
     serializer_class = InvoiceSerializer
-    queryset = Invoice.objects.all()
+    queryset = Invoice.objects.all().order_by('-pk')
     success_url = reverse_lazy('home')
 
     # Overrides the internal function
