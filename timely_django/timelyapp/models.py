@@ -233,3 +233,8 @@ class Order(models.Model):
     item_price = models.DecimalField(max_digits=12, decimal_places=2)
     item_total_price = models.DecimalField(max_digits=12, decimal_places=2)
 
+class Newsletter(models.Model):
+    email = models.EmailField(unique=True)
+    first_name = models.CharField(default=None, null=True, max_length=64)
+    last_name = models.CharField(default=None, null=True, max_length=64)
+    date_joined = models.DateTimeField(default=timezone.now)

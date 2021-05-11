@@ -152,6 +152,12 @@ class ReceivablesViewSet(viewsets.ModelViewSet):
         query_set = queryset.filter(bill_from__id=business_id)
         return query_set
 
+class NewsletterViewSet(viewsets.ModelViewSet):
+    serializer_class = NewsletterSerializer
+    queryset = Newsletter.objects.all()
+    success_url = reverse_lazy('home')
+
+
 
 #
 # #### OLD FORMS BELOW THIS, MARKED FOR DELETION ####

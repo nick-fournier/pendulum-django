@@ -31,6 +31,7 @@ router.register(r'invoices', views.InvoiceViewSet, basename='api-invoices')
 router.register(r'new_invoices', views.NewInvoiceViewSet, basename='api-new_invoice')
 router.register(r'payables', views.PayablesViewSet, basename='api-payables')
 router.register(r'receivables', views.ReceivablesViewSet, basename='api-receivables')
+router.register(r'newsletter', views.NewsletterViewSet, basename='api-newsletter')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

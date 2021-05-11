@@ -236,72 +236,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
     def get_to_phone(self, obj):
         return str(Business.objects.get(id=obj.bill_to.id).phone)
 
-
-# OLD SERIALIZERS, MARKED FOR DELETION
-## class PayablesSerializer(serializers.ModelSerializer):
-#     invoice_id = serializers.IntegerField(source='id')
-#     items = OrderSerializer(many=True, read_only=True)
-#     billing_address = serializers.SerializerMethodField()
-#     business_name = serializers.SerializerMethodField()
-#
-#     class Meta:
-#         model = Invoice
-#         fields = ('invoice_id',
-#                   'invoice_name',
-#                   'bill_to',
-#                   'bill_from',
-#                   'business_name',
-#                   'billing_address',
-#                   'date_sent',
-#                   'date_due',
-#                   'terms',
-#                   'invoice_total_price',
-#                   'currency',
-#                   'is_flagged',
-#                   'is_scheduled',
-#                   'is_paid',
-#                   'items')
-#
-#     # Update the instance
-#     def update(self, instance, validated_data):
-#         instance.is_flagged = validated_data['is_flagged']
-#         instance.is_scheduled = validated_data['is_scheduled']
-#         instance.is_paid = validated_data['is_paid']
-#         instance.save()
-#         return instance
-#
-#     def get_billing_address(self, obj):
-#         return Business.objects.get(id=obj.bill_from.id).billing_address
-#
-#     def get_business_name(self, obj):
-#         return Business.objects.get(id=obj.bill_from.id).business_name
-#
-# class ReceivablesSerializer(serializers.ModelSerializer):
-#     invoice_id = serializers.IntegerField(source='id')
-#     items = OrderSerializer(many=True, read_only=True)
-#     address = serializers.SerializerMethodField()
-#     business_name = serializers.SerializerMethodField()
-#
-#     class Meta:
-#         model = Invoice
-#         fields = ('invoice_id',
-#                   'invoice_name',
-#                   'bill_to',
-#                   'bill_from',
-#                   'business_name',
-#                   'address',
-#                   'date_sent',
-#                   'date_due',
-#                   'terms',
-#                   'invoice_total_price',
-#                   'currency',
-#                   'is_flagged',
-#                   'is_scheduled',
-#                   'is_paid',
-#                   'items')
-#
-#     def get_address(self, obj):
-#         return Business.objects.get(id=obj.bill_to.id).address
-#
-#     def get_business_name(self, obj):
-#         return Business.objects.get(id=obj.bill_to.id).business_name
+class NewsletterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Newsletter
+        fields = ['email', 'first_name', 'last_name']
