@@ -193,7 +193,7 @@ class Inventory(models.Model):
     quantity_in_stock = models.DecimalField(default=None, null=True, max_digits=18, decimal_places=6)
     item_unit = models.CharField(default='ea', null=True, max_length=10)
     item_price = models.DecimalField(default=None, null=True, max_digits=12, decimal_places=2)
-    currency = models.CharField(default='USD', null=True, max_length=3)
+    currency = models.CharField(default='USD', null=True, max_length=6)
 
     def save(self, *args, **kwargs):
         self.last_updated = timezone.now()
@@ -211,7 +211,7 @@ class Invoice(models.Model):
     terms = models.CharField(default='NET30', null=True, max_length=24, choices=TERM_CHOICES)
     accepted_payments = models.ManyToManyField(Payments, default=[1, 2, 3], related_name='accepted_payments')
     invoice_total_price = models.DecimalField(default=None, null=True, max_digits=12, decimal_places=2)
-    currency = models.CharField(default='USD', null=True, max_length=3)
+    currency = models.CharField(default='USD', null=True, max_length=6)
     notes = models.CharField(default='Thank you for your payment!', null=True, max_length=200)
     is_flagged = models.BooleanField(default=False)
     is_scheduled = models.BooleanField(default=False)
