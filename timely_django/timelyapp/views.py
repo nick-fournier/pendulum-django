@@ -11,8 +11,7 @@ from django.views.generic.edit import CreateView
 from django.views.generic import ListView
 from django.urls import reverse_lazy
 from django.http import JsonResponse
-
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -153,105 +152,7 @@ class ReceivablesViewSet(viewsets.ModelViewSet):
         return query_set
 
 class NewsletterViewSet(viewsets.ModelViewSet):
+    permission_classes = [AllowAny]
     serializer_class = NewsletterSerializer
-    queryset = Newsletter.objects.all()
+    queryset = Newsletter.objects.none()
     success_url = reverse_lazy('home')
-
-
-
-#
-# #### OLD FORMS BELOW THIS, MARKED FOR DELETION ####
-# class NewBusinessFormView(CreateView):
-#     model = Business
-#     template_name = 'registration/new_business.html'
-#     form_class = CreateBusinessForm
-#     success_url = reverse_lazy('home')
-#
-#     def form_valid(self, form):
-#         form.instance.owner = self.request.user
-#         return super().form_valid(form)
-#
-# # Nested Invoice Form
-# class NewInvoiceFormView(CreateView):
-#     model = Invoice
-#     template_name = 'invoices/new_invoice.html'
-#     form_class = CreateInvoiceForm
-#     success_url = None
-#
-#     #Use this to have useful default fields
-#     def get_initial(self):
-#         pass
-#
-#     def get_context_data(self, **kwargs):
-#         data = super(NewInvoiceFormView, self).get_context_data(**kwargs)
-#         if self.request.POST:
-#             data['item'] = OrderFormSet(self.request.POST)
-#         else:
-#             data['item'] = OrderFormSet()
-#         return data
-#
-#     def form_valid(self, form):
-#         context = self.get_context_data()
-#         item = context['item']
-#
-#         with transaction.atomic():
-#             form.instance.bill_from = Business.objects.get(owner__id=self.request.user.id)
-#             form.instance.date_sent = datetime.date.today().strftime("%Y-%m-%d")
-#             form.instance.date_due = calculate_duedate(form.instance.terms)
-#
-#             self.object = form.save()
-#             if item.is_valid():
-#                 item.instance = self.object
-#                 item.save()
-#         return super(NewInvoiceFormView, self).form_valid(form)
-#
-#     def get_success_url(self):
-#         return reverse_lazy('dashboard')
-#
-#
-#
-# # # old inbox views (can delete later)
-# class ReceivablesView(ListView):
-#     template_name = 'invoices/receivables.html'
-#     success_url = reverse_lazy('home')
-#     queryset = Business.objects.all()
-#
-#     def get_context_data(self, **kwargs):
-#         context = super(ReceivablesView, self).get_context_data(**kwargs)
-#         business_id = Business.objects.filter(owner__id=self.request.user.id).values()[0]['id']
-#         context['receivables'] = get_invoices(business_id, 'receivables')
-#         return context
-#
-#
-# class PayablesView(ListView):
-#     template_name = 'invoices/payables.html'
-#     success_url = reverse_lazy('home')
-#     queryset = Business.objects.all()
-#
-#     def get_context_data(self, **kwargs):
-#         context = super(PayablesView, self).get_context_data(**kwargs)
-#         business_id = Business.objects.filter(owner__id=self.request.user.id).values()[0]['id']
-#         context['payables'] = get_invoices(business_id, 'payables')
-#         return context
-#
-#
-# # Manual JSON serializer (can delete later)
-# class ReceivablesJSONView(ListView):
-#     template_name = 'invoices/receivables.html'
-#     success_url = reverse_lazy('home')
-#     queryset = Business.objects.all()
-#
-#     def get(self, *args, **kwargs):
-#         business_id = Business.objects.filter(owner__id=self.request.user.id).values()[0]['id']
-#         data = get_invoices(business_id, 'receivables')
-#         return JsonResponse(data, safe=False)
-#
-# class PayablesJSONView(ListView):
-#     template_name = 'invoices/payables.html'
-#     success_url = reverse_lazy('home')
-#     queryset = Business.objects.all()
-#
-#     def get(self, *args, **kwargs):
-#         business_id = Business.objects.filter(owner__id=self.request.user.id).values()[0]['id']
-#         data = get_invoices(business_id, 'payables')
-#         return JsonResponse(data, safe=False)

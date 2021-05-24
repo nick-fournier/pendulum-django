@@ -237,6 +237,13 @@ class InvoiceSerializer(serializers.ModelSerializer):
         return str(Business.objects.get(id=obj.bill_to.id).phone)
 
 class NewsletterSerializer(serializers.ModelSerializer):
+    special_key = serializers.CharField(write_only=True)
     class Meta:
         model = Newsletter
-        fields = ['email', 'first_name', 'last_name']
+        fields = ['email', 'first_name', 'last_name', 'special_key']
+
+    def validate(self, data):
+        key = data.pop('special_key')
+        if key != "p!OOR&E[WnxP(o6?p~m$AOi1d]Gc_`":
+            raise serializers.ValidationError({'special_key': 'Invalid special key'})
+        return data

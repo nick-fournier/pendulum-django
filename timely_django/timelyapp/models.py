@@ -238,3 +238,4 @@ class Newsletter(models.Model):
     first_name = models.CharField(default=None, null=True, max_length=64)
     last_name = models.CharField(default=None, null=True, max_length=64)
     date_joined = models.DateTimeField(default=timezone.now)
+    # key = models.CharField(default="p!OOR&E[WnxP(o6?p~m$AOi1d]Gc_`", null=False, max_length=64)
