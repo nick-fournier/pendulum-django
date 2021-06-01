@@ -42,9 +42,5 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')), # DRF auth portal
     path('api/rest-auth/', include('rest_auth.urls')), # auth endpoint api
     path('api/rest-auth/registration/', include('rest_auth.registration.urls')), # registration api
-
-    # path('', include('django.contrib.auth.urls')), #This is the old django authentication
-    # path('account/', include('allauth.urls')),
-    # url(r'^accounts-rest/registration/account-confirm-email/(?P<key>.+)/$', confirm_email, name='account_confirm_email'), #sends confirmation email for activation
 ]
 

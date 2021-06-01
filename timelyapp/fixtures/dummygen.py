@@ -37,7 +37,7 @@ class GenerateData:
 
     def get_base_data(self):
         if 'dummy_base.json' in os.listdir():
-            self.base_path = './'
+            self.base_path = '/'
         else:
             self.base_path = './timely_django/timelyapp/fixtures/'
 
