@@ -32,5 +32,39 @@
         "groups": [],
         "user_permissions": []
     }
+},
+{
+    "model": "timelyapp.customuser",
+    "pk": 2,
+    "fields": {
+        "password": "pbkdf2_sha256$260000$vZXc8TF9Kx01u0lVbEhj63$5qvugVywe6WMc1jftHcOY/g1KIBkYARFpbq2ic0Mwas=",
+        "last_login": "2021-04-29T16:24:51.077Z",
+        "is_superuser": false,
+        "email": "adel@adel.com",
+        "first_name": "Adel",
+        "last_name": "Kafouri",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2021-04-29T16:24:50.849Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "timelyapp.customuser",
+    "pk": 2,
+    "fields": {
+        "password": "pbkdf2_sha256$260000$vZXc8TF9Kx01u0lVbEhj63$5qvugVywe6WMc1jftHcOY/g1KIBkYARFpbq2ic0Mwas=",
+        "last_login": "2021-04-29T16:24:51.077Z",
+        "is_superuser": false,
+        "email": "test@test.com",
+        "first_name": "Test",
+        "last_name": "Test",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2021-04-29T16:24:50.849Z",
+        "groups": [],
+        "user_permissions": []
+    }
 }
 ]

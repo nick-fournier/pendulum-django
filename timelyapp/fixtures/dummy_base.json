@@ -4,7 +4,7 @@
     "pk": 1,
     "fields": {
       "is_member": true,
-      "managers": [null],
+      "managers": [1],
       "owner": 1,
       "business_name": "Business A",
       "billing_address": 1,
@@ -20,7 +20,7 @@
     "pk": 2,
     "fields": {
       "is_member": true,
-      "managers": [null],
+      "managers": [2],
       "owner": 2,
       "business_name": "Business B",
       "billing_address": 2,
@@ -36,8 +36,8 @@
     "pk": 3,
     "fields": {
       "is_member": true,
-      "managers": [null],
-      "owner": null,
+      "managers": [3],
+      "owner": 3,
       "business_name": "Third Business",
       "billing_address": 3,
       "shipping_address": null,
@@ -52,8 +52,8 @@
     "pk": 4,
     "fields": {
       "is_member": true,
-      "managers": [null],
-      "owner": null,
+      "managers": [4],
+      "owner": 4,
       "business_name": "Fourth Store",
       "billing_address": 4,
       "shipping_address": null,

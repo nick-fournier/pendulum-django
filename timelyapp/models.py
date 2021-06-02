@@ -158,7 +158,7 @@ class Payments(models.Model):
 class Business(models.Model):
     is_member = models.BooleanField(default=False)
     owner = models.ForeignKey(CustomUser, default=None, null=True, on_delete=models.CASCADE)
-    managers = models.ManyToManyField(CustomUser, blank=True, default=None, related_name='managers')
+    managers = models.ManyToManyField(CustomUser, related_name='managers')
     business_name = models.CharField(default=None, max_length=64, unique=True)
     email = models.EmailField(_('email address'), unique=True)
     phone = PhoneNumberField(default=None, blank=True, null=True)
