@@ -31,7 +31,7 @@ if os.path.isfile(dotenv_file):
 SECRET_KEY = 'z=l)xoj49(=1g%p&*5359(goag@z(@(8#tpml_3!20tvw7+)nz'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'https://timely-invoicing-backend.herokuapp.com/']
 
@@ -59,8 +59,6 @@ INSTALLED_APPS = [
     'corsheaders',
 
     'timelyapp',
-    'crispy_forms',
-    'dynamic_formsets',
     'address',
     'phonenumber_field',
 ]
@@ -80,11 +78,12 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://127.0.0.1:3000"
+    "http://127.0.0.1:3000",
+    "https://timely-invoicing-backend.herokuapp.com"
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'config.urls'
 
