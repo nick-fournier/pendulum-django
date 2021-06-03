@@ -79,11 +79,11 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://timely-invoicing-api.herokuapp.com"
+    "https://timely-invoicing.herokuapp.com"
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = False
 
 ROOT_URLCONF = 'config.urls'
 
