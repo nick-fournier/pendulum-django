@@ -33,7 +33,7 @@ SECRET_KEY = 'z=l)xoj49(=1g%p&*5359(goag@z(@(8#tpml_3!20tvw7+)nz'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'https://timely-invoicing-backend.herokuapp.com/']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'https://timely-invoicing-api.herokuapp.com/']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
