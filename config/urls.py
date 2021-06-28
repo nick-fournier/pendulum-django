@@ -36,6 +36,7 @@ router.register(r'newsletter', views.NewsletterViewSet, basename='api-newsletter
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('timelyapp.urls')),
+    #path('payments/', include('timelyapp.urls')),
 
     #Endpoints
     path('api/', include((router.urls, 'timely'), namespace='api')), #The data API
@@ -43,4 +44,3 @@ urlpatterns = [
     path('api/rest-auth/', include('rest_auth.urls')), # auth endpoint api
     path('api/rest-auth/registration/', include('rest_auth.registration.urls')), # registration api
 ]
-
