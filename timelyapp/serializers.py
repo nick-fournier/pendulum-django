@@ -244,6 +244,6 @@ class NewsletterSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         key = data.pop('special_key')
-        if key != "p!OOR&E[WnxP(o6?p~m$AOi1d]Gc_`":
+        if key != settings.NEWSLETTER_KEY:
             raise serializers.ValidationError({'special_key': 'Invalid special key'})
         return data
