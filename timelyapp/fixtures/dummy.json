@@ -4,6 +4,7 @@
         "pk": 1,
         "fields": {
             "is_member": true,
+            "is_individual": false,
             "managers": [
                 1
             ],
@@ -22,6 +23,7 @@
         "pk": 2,
         "fields": {
             "is_member": true,
+            "is_individual": false,
             "managers": [
                 2
             ],
@@ -40,6 +42,7 @@
         "pk": 3,
         "fields": {
             "is_member": true,
+            "is_individual": false,
             "managers": [
                 3
             ],
@@ -58,6 +61,7 @@
         "pk": 4,
         "fields": {
             "is_member": true,
+            "is_individual": false,
             "managers": [
                 4
             ],
@@ -311,9 +315,9 @@
             "discount_code": 1,
             "item_name": "Professional Services",
             "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 5,
+            "quantity_purchased": 6,
             "item_price": 10,
-            "item_total_price": 50
+            "item_total_price": 60
         }
     },
     {
@@ -324,9 +328,9 @@
             "discount_code": 1,
             "item_name": "Infeasibility Consulting Study",
             "item_description": "A big useless report on what you want to hear",
-            "quantity_purchased": 9,
+            "quantity_purchased": 8,
             "item_price": 20,
-            "item_total_price": 180
+            "item_total_price": 160
         }
     },
     {
@@ -335,11 +339,11 @@
         "fields": {
             "invoice": 1,
             "discount_code": 1,
-            "item_name": "Some Widget",
-            "item_description": "A business widget for vertical synergy jargon",
-            "quantity_purchased": 2,
-            "item_price": 10,
-            "item_total_price": 20
+            "item_name": "Infeasibility Consulting Study",
+            "item_description": "A big useless report on what you want to hear",
+            "quantity_purchased": 10,
+            "item_price": 20,
+            "item_total_price": 200
         }
     },
     {
@@ -348,68 +352,16 @@
         "fields": {
             "invoice": 1,
             "discount_code": 1,
-            "item_name": "A Different Widget",
-            "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 10,
+            "item_name": "Infeasibility Consulting Study",
+            "item_description": "A big useless report on what you want to hear",
+            "quantity_purchased": 1,
             "item_price": 20,
-            "item_total_price": 200
+            "item_total_price": 20
         }
     },
     {
         "model": "timelyapp.order",
         "pk": 5,
-        "fields": {
-            "invoice": 1,
-            "discount_code": 1,
-            "item_name": "Some Widget",
-            "item_description": "A business widget for vertical synergy jargon",
-            "quantity_purchased": 6,
-            "item_price": 10,
-            "item_total_price": 60
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 6,
-        "fields": {
-            "invoice": 1,
-            "discount_code": 1,
-            "item_name": "Some Widget",
-            "item_description": "A business widget for vertical synergy jargon",
-            "quantity_purchased": 5,
-            "item_price": 10,
-            "item_total_price": 50
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 7,
-        "fields": {
-            "invoice": 1,
-            "discount_code": 1,
-            "item_name": "Infeasibility Consulting Study",
-            "item_description": "A big useless report on what you want to hear",
-            "quantity_purchased": 4,
-            "item_price": 20,
-            "item_total_price": 80
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 8,
-        "fields": {
-            "invoice": 1,
-            "discount_code": 1,
-            "item_name": "A Different Widget",
-            "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 6,
-            "item_price": 20,
-            "item_total_price": 120
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 9,
         "fields": {
             "invoice": 1,
             "discount_code": 1,
@@ -425,41 +377,127 @@
         "pk": 1,
         "fields": {
             "invoice_name": "TB21000001",
-            "date_sent": "2021-09-01",
-            "date_due": "2021-10-31",
+            "date_sent": "2021-09-18",
+            "date_due": null,
             "bill_from": 3,
+            "bill_to": 2,
+            "terms": "COD",
+            "invoice_total_price": 500,
+            "currency": "USD",
+            "is_flagged": true,
+            "is_scheduled": false,
+            "is_paid": false
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 6,
+        "fields": {
+            "invoice": 2,
+            "discount_code": 1,
+            "item_name": "Some Widget",
+            "item_description": "A business widget for vertical synergy jargon",
+            "quantity_purchased": 9,
+            "item_price": 10,
+            "item_total_price": 90
+        }
+    },
+    {
+        "model": "timelyapp.invoice",
+        "pk": 2,
+        "fields": {
+            "invoice_name": "BA21000002",
+            "date_sent": "2021-12-05",
+            "date_due": null,
+            "bill_from": 1,
             "bill_to": 3,
-            "terms": "NET60",
-            "invoice_total_price": 820,
+            "terms": "CIA",
+            "invoice_total_price": 90,
             "currency": "USD",
             "is_flagged": false,
-            "is_scheduled": true,
+            "is_scheduled": false,
             "is_paid": false
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 7,
+        "fields": {
+            "invoice": 3,
+            "discount_code": 1,
+            "item_name": "Professional Services",
+            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
+            "quantity_purchased": 10,
+            "item_price": 10,
+            "item_total_price": 100
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 8,
+        "fields": {
+            "invoice": 3,
+            "discount_code": 1,
+            "item_name": "Professional Services",
+            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
+            "quantity_purchased": 1,
+            "item_price": 10,
+            "item_total_price": 10
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 9,
+        "fields": {
+            "invoice": 3,
+            "discount_code": 1,
+            "item_name": "Some Widget",
+            "item_description": "A business widget for vertical synergy jargon",
+            "quantity_purchased": 6,
+            "item_price": 10,
+            "item_total_price": 60
         }
     },
     {
         "model": "timelyapp.order",
         "pk": 10,
         "fields": {
-            "invoice": 2,
+            "invoice": 3,
             "discount_code": 1,
             "item_name": "Some Widget",
             "item_description": "A business widget for vertical synergy jargon",
-            "quantity_purchased": 3,
+            "quantity_purchased": 8,
             "item_price": 10,
-            "item_total_price": 30
+            "item_total_price": 80
+        }
+    },
+    {
+        "model": "timelyapp.invoice",
+        "pk": 3,
+        "fields": {
+            "invoice_name": "BB21000003",
+            "date_sent": "2021-11-02",
+            "date_due": "2021-11-09",
+            "bill_from": 2,
+            "bill_to": 2,
+            "terms": "NET7",
+            "invoice_total_price": 250,
+            "currency": "USD",
+            "is_flagged": true,
+            "is_scheduled": true,
+            "is_paid": false
         }
     },
     {
         "model": "timelyapp.order",
         "pk": 11,
         "fields": {
-            "invoice": 2,
+            "invoice": 4,
             "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 8,
-            "item_price": 10,
+            "item_name": "A Different Widget",
+            "item_description": "A widget for backward overflow jargon",
+            "quantity_purchased": 4,
+            "item_price": 20,
             "item_total_price": 80
         }
     },
@@ -467,10 +505,10 @@
         "model": "timelyapp.order",
         "pk": 12,
         "fields": {
-            "invoice": 2,
+            "invoice": 4,
             "discount_code": 1,
-            "item_name": "Infeasibility Consulting Study",
-            "item_description": "A big useless report on what you want to hear",
+            "item_name": "A Different Widget",
+            "item_description": "A widget for backward overflow jargon",
             "quantity_purchased": 7,
             "item_price": 20,
             "item_total_price": 140
@@ -480,317 +518,10 @@
         "model": "timelyapp.order",
         "pk": 13,
         "fields": {
-            "invoice": 2,
-            "discount_code": 1,
-            "item_name": "Infeasibility Consulting Study",
-            "item_description": "A big useless report on what you want to hear",
-            "quantity_purchased": 8,
-            "item_price": 20,
-            "item_total_price": 160
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 14,
-        "fields": {
-            "invoice": 2,
-            "discount_code": 1,
-            "item_name": "Infeasibility Consulting Study",
-            "item_description": "A big useless report on what you want to hear",
-            "quantity_purchased": 6,
-            "item_price": 20,
-            "item_total_price": 120
-        }
-    },
-    {
-        "model": "timelyapp.invoice",
-        "pk": 2,
-        "fields": {
-            "invoice_name": "TB21000002",
-            "date_sent": "2021-09-30",
-            "date_due": "2021-10-10",
-            "bill_from": 3,
-            "bill_to": 1,
-            "terms": "NET10",
-            "invoice_total_price": 530,
-            "currency": "USD",
-            "is_flagged": true,
-            "is_scheduled": true,
-            "is_paid": false
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 15,
-        "fields": {
-            "invoice": 3,
-            "discount_code": 1,
-            "item_name": "A Different Widget",
-            "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 5,
-            "item_price": 20,
-            "item_total_price": 100
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 16,
-        "fields": {
-            "invoice": 3,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 2,
-            "item_price": 10,
-            "item_total_price": 20
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 17,
-        "fields": {
-            "invoice": 3,
-            "discount_code": 1,
-            "item_name": "Some Widget",
-            "item_description": "A business widget for vertical synergy jargon",
-            "quantity_purchased": 3,
-            "item_price": 10,
-            "item_total_price": 30
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 18,
-        "fields": {
-            "invoice": 3,
-            "discount_code": 1,
-            "item_name": "Infeasibility Consulting Study",
-            "item_description": "A big useless report on what you want to hear",
-            "quantity_purchased": 3,
-            "item_price": 20,
-            "item_total_price": 60
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 19,
-        "fields": {
-            "invoice": 3,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 1,
-            "item_price": 10,
-            "item_total_price": 10
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 20,
-        "fields": {
-            "invoice": 3,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 4,
-            "item_price": 10,
-            "item_total_price": 40
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 21,
-        "fields": {
-            "invoice": 3,
-            "discount_code": 1,
-            "item_name": "A Different Widget",
-            "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 8,
-            "item_price": 20,
-            "item_total_price": 160
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 22,
-        "fields": {
-            "invoice": 3,
-            "discount_code": 1,
-            "item_name": "Infeasibility Consulting Study",
-            "item_description": "A big useless report on what you want to hear",
-            "quantity_purchased": 1,
-            "item_price": 20,
-            "item_total_price": 20
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 23,
-        "fields": {
-            "invoice": 3,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 9,
-            "item_price": 10,
-            "item_total_price": 90
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 24,
-        "fields": {
-            "invoice": 3,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 1,
-            "item_price": 10,
-            "item_total_price": 10
-        }
-    },
-    {
-        "model": "timelyapp.invoice",
-        "pk": 3,
-        "fields": {
-            "invoice_name": "BA21000003",
-            "date_sent": "2021-08-15",
-            "date_due": "2021-08-22",
-            "bill_from": 1,
-            "bill_to": 3,
-            "terms": "NET7",
-            "invoice_total_price": 540,
-            "currency": "USD",
-            "is_flagged": true,
-            "is_scheduled": false,
-            "is_paid": false
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 25,
-        "fields": {
-            "invoice": 4,
-            "discount_code": 1,
-            "item_name": "Infeasibility Consulting Study",
-            "item_description": "A big useless report on what you want to hear",
-            "quantity_purchased": 3,
-            "item_price": 20,
-            "item_total_price": 60
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 26,
-        "fields": {
-            "invoice": 4,
-            "discount_code": 1,
-            "item_name": "Infeasibility Consulting Study",
-            "item_description": "A big useless report on what you want to hear",
-            "quantity_purchased": 6,
-            "item_price": 20,
-            "item_total_price": 120
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 27,
-        "fields": {
-            "invoice": 4,
-            "discount_code": 1,
-            "item_name": "Some Widget",
-            "item_description": "A business widget for vertical synergy jargon",
-            "quantity_purchased": 1,
-            "item_price": 10,
-            "item_total_price": 10
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 28,
-        "fields": {
             "invoice": 4,
             "discount_code": 1,
             "item_name": "A Different Widget",
             "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 2,
-            "item_price": 20,
-            "item_total_price": 40
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 29,
-        "fields": {
-            "invoice": 4,
-            "discount_code": 1,
-            "item_name": "Infeasibility Consulting Study",
-            "item_description": "A big useless report on what you want to hear",
-            "quantity_purchased": 6,
-            "item_price": 20,
-            "item_total_price": 120
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 30,
-        "fields": {
-            "invoice": 4,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 2,
-            "item_price": 10,
-            "item_total_price": 20
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 31,
-        "fields": {
-            "invoice": 4,
-            "discount_code": 1,
-            "item_name": "A Different Widget",
-            "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 3,
-            "item_price": 20,
-            "item_total_price": 60
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 32,
-        "fields": {
-            "invoice": 4,
-            "discount_code": 1,
-            "item_name": "Infeasibility Consulting Study",
-            "item_description": "A big useless report on what you want to hear",
-            "quantity_purchased": 10,
-            "item_price": 20,
-            "item_total_price": 200
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 33,
-        "fields": {
-            "invoice": 4,
-            "discount_code": 1,
-            "item_name": "A Different Widget",
-            "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 6,
-            "item_price": 20,
-            "item_total_price": 120
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 34,
-        "fields": {
-            "invoice": 4,
-            "discount_code": 1,
-            "item_name": "Infeasibility Consulting Study",
-            "item_description": "A big useless report on what you want to hear",
             "quantity_purchased": 1,
             "item_price": 20,
             "item_total_price": 20
@@ -800,13 +531,13 @@
         "model": "timelyapp.invoice",
         "pk": 4,
         "fields": {
-            "invoice_name": "BA21000004",
-            "date_sent": "2021-09-16",
-            "date_due": "2021-10-16",
-            "bill_from": 1,
-            "bill_to": 4,
-            "terms": "NET30",
-            "invoice_total_price": 770,
+            "invoice_name": "TB21000004",
+            "date_sent": "2021-10-23",
+            "date_due": "2022-01-21",
+            "bill_from": 3,
+            "bill_to": 1,
+            "terms": "NET90",
+            "invoice_total_price": 240,
             "currency": "USD",
             "is_flagged": false,
             "is_scheduled": false,
@@ -815,64 +546,64 @@
     },
     {
         "model": "timelyapp.order",
-        "pk": 35,
-        "fields": {
-            "invoice": 5,
-            "discount_code": 1,
-            "item_name": "Some Widget",
-            "item_description": "A business widget for vertical synergy jargon",
-            "quantity_purchased": 5,
-            "item_price": 10,
-            "item_total_price": 50
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 36,
+        "pk": 14,
         "fields": {
             "invoice": 5,
             "discount_code": 1,
             "item_name": "Infeasibility Consulting Study",
             "item_description": "A big useless report on what you want to hear",
-            "quantity_purchased": 7,
+            "quantity_purchased": 3,
             "item_price": 20,
-            "item_total_price": 140
+            "item_total_price": 60
         }
     },
     {
         "model": "timelyapp.order",
-        "pk": 37,
-        "fields": {
-            "invoice": 5,
-            "discount_code": 1,
-            "item_name": "A Different Widget",
-            "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 4,
-            "item_price": 20,
-            "item_total_price": 80
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 38,
-        "fields": {
-            "invoice": 5,
-            "discount_code": 1,
-            "item_name": "A Different Widget",
-            "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 5,
-            "item_price": 20,
-            "item_total_price": 100
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 39,
+        "pk": 15,
         "fields": {
             "invoice": 5,
             "discount_code": 1,
             "item_name": "Some Widget",
             "item_description": "A business widget for vertical synergy jargon",
+            "quantity_purchased": 9,
+            "item_price": 10,
+            "item_total_price": 90
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 16,
+        "fields": {
+            "invoice": 5,
+            "discount_code": 1,
+            "item_name": "Some Widget",
+            "item_description": "A business widget for vertical synergy jargon",
+            "quantity_purchased": 8,
+            "item_price": 10,
+            "item_total_price": 80
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 17,
+        "fields": {
+            "invoice": 5,
+            "discount_code": 1,
+            "item_name": "Some Widget",
+            "item_description": "A business widget for vertical synergy jargon",
+            "quantity_purchased": 7,
+            "item_price": 10,
+            "item_total_price": 70
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 18,
+        "fields": {
+            "invoice": 5,
+            "discount_code": 1,
+            "item_name": "Professional Services",
+            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
             "quantity_purchased": 1,
             "item_price": 10,
             "item_total_price": 10
@@ -880,7 +611,7 @@
     },
     {
         "model": "timelyapp.order",
-        "pk": 40,
+        "pk": 19,
         "fields": {
             "invoice": 5,
             "discount_code": 1,
@@ -895,13 +626,13 @@
         "model": "timelyapp.invoice",
         "pk": 5,
         "fields": {
-            "invoice_name": "BA21000005",
-            "date_sent": "2021-11-29",
-            "date_due": null,
-            "bill_from": 1,
+            "invoice_name": "TB21000005",
+            "date_sent": "2021-12-31",
+            "date_due": "2022-01-07",
+            "bill_from": 3,
             "bill_to": 1,
-            "terms": "COD",
-            "invoice_total_price": 440,
+            "terms": "NET7",
+            "invoice_total_price": 370,
             "currency": "USD",
             "is_flagged": true,
             "is_scheduled": false,
@@ -910,12 +641,38 @@
     },
     {
         "model": "timelyapp.order",
-        "pk": 41,
+        "pk": 20,
         "fields": {
             "invoice": 6,
             "discount_code": 1,
-            "item_name": "Some Widget",
-            "item_description": "A business widget for vertical synergy jargon",
+            "item_name": "A Different Widget",
+            "item_description": "A widget for backward overflow jargon",
+            "quantity_purchased": 4,
+            "item_price": 20,
+            "item_total_price": 80
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 21,
+        "fields": {
+            "invoice": 6,
+            "discount_code": 1,
+            "item_name": "Infeasibility Consulting Study",
+            "item_description": "A big useless report on what you want to hear",
+            "quantity_purchased": 5,
+            "item_price": 20,
+            "item_total_price": 100
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 22,
+        "fields": {
+            "invoice": 6,
+            "discount_code": 1,
+            "item_name": "Professional Services",
+            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
             "quantity_purchased": 1,
             "item_price": 10,
             "item_total_price": 10
@@ -923,74 +680,52 @@
     },
     {
         "model": "timelyapp.order",
-        "pk": 42,
+        "pk": 23,
         "fields": {
             "invoice": 6,
             "discount_code": 1,
             "item_name": "Infeasibility Consulting Study",
             "item_description": "A big useless report on what you want to hear",
-            "quantity_purchased": 10,
+            "quantity_purchased": 4,
             "item_price": 20,
-            "item_total_price": 200
+            "item_total_price": 80
         }
     },
     {
         "model": "timelyapp.order",
-        "pk": 43,
+        "pk": 24,
         "fields": {
             "invoice": 6,
             "discount_code": 1,
             "item_name": "Infeasibility Consulting Study",
             "item_description": "A big useless report on what you want to hear",
-            "quantity_purchased": 8,
-            "item_price": 20,
-            "item_total_price": 160
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 44,
-        "fields": {
-            "invoice": 6,
-            "discount_code": 1,
-            "item_name": "Infeasibility Consulting Study",
-            "item_description": "A big useless report on what you want to hear",
-            "quantity_purchased": 10,
-            "item_price": 20,
-            "item_total_price": 200
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 45,
-        "fields": {
-            "invoice": 6,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
             "quantity_purchased": 7,
-            "item_price": 10,
-            "item_total_price": 70
+            "item_price": 20,
+            "item_total_price": 140
+        }
+    },
+    {
+        "model": "timelyapp.invoice",
+        "pk": 6,
+        "fields": {
+            "invoice_name": "BA21000006",
+            "date_sent": "2021-12-09",
+            "date_due": "2022-02-07",
+            "bill_from": 1,
+            "bill_to": 4,
+            "terms": "NET60",
+            "invoice_total_price": 410,
+            "currency": "USD",
+            "is_flagged": true,
+            "is_scheduled": false,
+            "is_paid": false
         }
     },
     {
         "model": "timelyapp.order",
-        "pk": 46,
+        "pk": 25,
         "fields": {
-            "invoice": 6,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 7,
-            "item_price": 10,
-            "item_total_price": 70
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 47,
-        "fields": {
-            "invoice": 6,
+            "invoice": 7,
             "discount_code": 1,
             "item_name": "Infeasibility Consulting Study",
             "item_description": "A big useless report on what you want to hear",
@@ -1001,110 +736,41 @@
     },
     {
         "model": "timelyapp.order",
-        "pk": 48,
-        "fields": {
-            "invoice": 6,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 5,
-            "item_price": 10,
-            "item_total_price": 50
-        }
-    },
-    {
-        "model": "timelyapp.invoice",
-        "pk": 6,
-        "fields": {
-            "invoice_name": "BA21000006",
-            "date_sent": "2021-08-17",
-            "date_due": "2021-10-16",
-            "bill_from": 1,
-            "bill_to": 1,
-            "terms": "NET60",
-            "invoice_total_price": 800,
-            "currency": "USD",
-            "is_flagged": false,
-            "is_scheduled": true,
-            "is_paid": false
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 49,
-        "fields": {
-            "invoice": 7,
-            "discount_code": 1,
-            "item_name": "A Different Widget",
-            "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 8,
-            "item_price": 20,
-            "item_total_price": 160
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 50,
-        "fields": {
-            "invoice": 7,
-            "discount_code": 1,
-            "item_name": "Some Widget",
-            "item_description": "A business widget for vertical synergy jargon",
-            "quantity_purchased": 5,
-            "item_price": 10,
-            "item_total_price": 50
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 51,
-        "fields": {
-            "invoice": 7,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 6,
-            "item_price": 10,
-            "item_total_price": 60
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 52,
+        "pk": 26,
         "fields": {
             "invoice": 7,
             "discount_code": 1,
             "item_name": "Infeasibility Consulting Study",
             "item_description": "A big useless report on what you want to hear",
-            "quantity_purchased": 10,
+            "quantity_purchased": 9,
             "item_price": 20,
-            "item_total_price": 200
+            "item_total_price": 180
         }
     },
     {
         "model": "timelyapp.order",
-        "pk": 53,
+        "pk": 27,
         "fields": {
             "invoice": 7,
             "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 4,
+            "item_name": "Some Widget",
+            "item_description": "A business widget for vertical synergy jargon",
+            "quantity_purchased": 7,
             "item_price": 10,
-            "item_total_price": 40
+            "item_total_price": 70
         }
     },
     {
         "model": "timelyapp.order",
-        "pk": 54,
+        "pk": 28,
         "fields": {
             "invoice": 7,
             "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 6,
+            "item_name": "Some Widget",
+            "item_description": "A business widget for vertical synergy jargon",
+            "quantity_purchased": 3,
             "item_price": 10,
-            "item_total_price": 60
+            "item_total_price": 30
         }
     },
     {
@@ -1112,12 +778,12 @@
         "pk": 7,
         "fields": {
             "invoice_name": "BB21000007",
-            "date_sent": "2021-10-10",
-            "date_due": "2021-10-20",
+            "date_sent": "2021-12-14",
+            "date_due": "2021-12-24",
             "bill_from": 2,
-            "bill_to": 3,
+            "bill_to": 4,
             "terms": "NET10",
-            "invoice_total_price": 570,
+            "invoice_total_price": 320,
             "currency": "USD",
             "is_flagged": true,
             "is_scheduled": true,
@@ -1126,38 +792,120 @@
     },
     {
         "model": "timelyapp.order",
-        "pk": 55,
+        "pk": 29,
         "fields": {
             "invoice": 8,
             "discount_code": 1,
-            "item_name": "Infeasibility Consulting Study",
-            "item_description": "A big useless report on what you want to hear",
-            "quantity_purchased": 10,
+            "item_name": "A Different Widget",
+            "item_description": "A widget for backward overflow jargon",
+            "quantity_purchased": 7,
             "item_price": 20,
-            "item_total_price": 200
+            "item_total_price": 140
         }
     },
     {
         "model": "timelyapp.order",
-        "pk": 56,
+        "pk": 30,
         "fields": {
             "invoice": 8,
             "discount_code": 1,
             "item_name": "Professional Services",
             "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 8,
+            "quantity_purchased": 9,
             "item_price": 10,
+            "item_total_price": 90
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 31,
+        "fields": {
+            "invoice": 8,
+            "discount_code": 1,
+            "item_name": "Infeasibility Consulting Study",
+            "item_description": "A big useless report on what you want to hear",
+            "quantity_purchased": 4,
+            "item_price": 20,
             "item_total_price": 80
         }
     },
     {
         "model": "timelyapp.order",
-        "pk": 57,
+        "pk": 32,
         "fields": {
             "invoice": 8,
             "discount_code": 1,
             "item_name": "Some Widget",
             "item_description": "A business widget for vertical synergy jargon",
+            "quantity_purchased": 1,
+            "item_price": 10,
+            "item_total_price": 10
+        }
+    },
+    {
+        "model": "timelyapp.invoice",
+        "pk": 8,
+        "fields": {
+            "invoice_name": "FS21000008",
+            "date_sent": "2021-09-16",
+            "date_due": null,
+            "bill_from": 4,
+            "bill_to": 1,
+            "terms": "CIA",
+            "invoice_total_price": 320,
+            "currency": "USD",
+            "is_flagged": false,
+            "is_scheduled": false,
+            "is_paid": false
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 33,
+        "fields": {
+            "invoice": 9,
+            "discount_code": 1,
+            "item_name": "A Different Widget",
+            "item_description": "A widget for backward overflow jargon",
+            "quantity_purchased": 5,
+            "item_price": 20,
+            "item_total_price": 100
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 34,
+        "fields": {
+            "invoice": 9,
+            "discount_code": 1,
+            "item_name": "A Different Widget",
+            "item_description": "A widget for backward overflow jargon",
+            "quantity_purchased": 3,
+            "item_price": 20,
+            "item_total_price": 60
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 35,
+        "fields": {
+            "invoice": 9,
+            "discount_code": 1,
+            "item_name": "Professional Services",
+            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
+            "quantity_purchased": 7,
+            "item_price": 10,
+            "item_total_price": 70
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 36,
+        "fields": {
+            "invoice": 9,
+            "discount_code": 1,
+            "item_name": "Professional Services",
+            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
             "quantity_purchased": 10,
             "item_price": 10,
             "item_total_price": 100
@@ -1165,95 +913,9 @@
     },
     {
         "model": "timelyapp.order",
-        "pk": 58,
-        "fields": {
-            "invoice": 8,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 3,
-            "item_price": 10,
-            "item_total_price": 30
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 59,
-        "fields": {
-            "invoice": 8,
-            "discount_code": 1,
-            "item_name": "Infeasibility Consulting Study",
-            "item_description": "A big useless report on what you want to hear",
-            "quantity_purchased": 3,
-            "item_price": 20,
-            "item_total_price": 60
-        }
-    },
-    {
-        "model": "timelyapp.invoice",
-        "pk": 8,
-        "fields": {
-            "invoice_name": "BB21000008",
-            "date_sent": "2021-08-26",
-            "date_due": "2021-09-02",
-            "bill_from": 2,
-            "bill_to": 3,
-            "terms": "NET7",
-            "invoice_total_price": 470,
-            "currency": "USD",
-            "is_flagged": false,
-            "is_scheduled": true,
-            "is_paid": false
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 60,
+        "pk": 37,
         "fields": {
             "invoice": 9,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 4,
-            "item_price": 10,
-            "item_total_price": 40
-        }
-    },
-    {
-        "model": "timelyapp.invoice",
-        "pk": 9,
-        "fields": {
-            "invoice_name": "FS21000009",
-            "date_sent": "2021-10-31",
-            "date_due": "2021-11-10",
-            "bill_from": 4,
-            "bill_to": 3,
-            "terms": "NET10",
-            "invoice_total_price": 40,
-            "currency": "USD",
-            "is_flagged": true,
-            "is_scheduled": false,
-            "is_paid": false
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 61,
-        "fields": {
-            "invoice": 10,
-            "discount_code": 1,
-            "item_name": "Some Widget",
-            "item_description": "A business widget for vertical synergy jargon",
-            "quantity_purchased": 7,
-            "item_price": 10,
-            "item_total_price": 70
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 62,
-        "fields": {
-            "invoice": 10,
             "discount_code": 1,
             "item_name": "Infeasibility Consulting Study",
             "item_description": "A big useless report on what you want to hear",
@@ -1263,10 +925,87 @@
         }
     },
     {
+        "model": "timelyapp.invoice",
+        "pk": 9,
+        "fields": {
+            "invoice_name": "BA21000009",
+            "date_sent": "2021-12-20",
+            "date_due": "2022-04-19",
+            "bill_from": 1,
+            "bill_to": 3,
+            "terms": "NET120",
+            "invoice_total_price": 510,
+            "currency": "USD",
+            "is_flagged": false,
+            "is_scheduled": true,
+            "is_paid": false
+        }
+    },
+    {
         "model": "timelyapp.order",
-        "pk": 63,
+        "pk": 38,
         "fields": {
             "invoice": 10,
+            "discount_code": 1,
+            "item_name": "Professional Services",
+            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
+            "quantity_purchased": 5,
+            "item_price": 10,
+            "item_total_price": 50
+        }
+    },
+    {
+        "model": "timelyapp.invoice",
+        "pk": 10,
+        "fields": {
+            "invoice_name": "TB21000010",
+            "date_sent": "2021-11-22",
+            "date_due": "2021-12-22",
+            "bill_from": 3,
+            "bill_to": 1,
+            "terms": "NET30",
+            "invoice_total_price": 50,
+            "currency": "USD",
+            "is_flagged": true,
+            "is_scheduled": false,
+            "is_paid": false
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 39,
+        "fields": {
+            "invoice": 11,
+            "discount_code": 1,
+            "item_name": "Some Widget",
+            "item_description": "A business widget for vertical synergy jargon",
+            "quantity_purchased": 2,
+            "item_price": 10,
+            "item_total_price": 20
+        }
+    },
+    {
+        "model": "timelyapp.invoice",
+        "pk": 11,
+        "fields": {
+            "invoice_name": "FS21000011",
+            "date_sent": "2021-12-08",
+            "date_due": "2022-01-07",
+            "bill_from": 4,
+            "bill_to": 4,
+            "terms": "NET30",
+            "invoice_total_price": 20,
+            "currency": "USD",
+            "is_flagged": false,
+            "is_scheduled": false,
+            "is_paid": false
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 40,
+        "fields": {
+            "invoice": 12,
             "discount_code": 1,
             "item_name": "Infeasibility Consulting Study",
             "item_description": "A big useless report on what you want to hear",
@@ -1277,203 +1016,35 @@
     },
     {
         "model": "timelyapp.order",
-        "pk": 64,
+        "pk": 41,
         "fields": {
-            "invoice": 10,
+            "invoice": 12,
             "discount_code": 1,
-            "item_name": "A Different Widget",
-            "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 10,
-            "item_price": 20,
-            "item_total_price": 200
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 65,
-        "fields": {
-            "invoice": 10,
-            "discount_code": 1,
-            "item_name": "A Different Widget",
-            "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 9,
-            "item_price": 20,
-            "item_total_price": 180
-        }
-    },
-    {
-        "model": "timelyapp.invoice",
-        "pk": 10,
-        "fields": {
-            "invoice_name": "FS21000010",
-            "date_sent": "2021-06-24",
-            "date_due": null,
-            "bill_from": 4,
-            "bill_to": 1,
-            "terms": "COD",
-            "invoice_total_price": 710,
-            "currency": "USD",
-            "is_flagged": false,
-            "is_scheduled": false,
-            "is_paid": false
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 66,
-        "fields": {
-            "invoice": 11,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 3,
-            "item_price": 10,
-            "item_total_price": 30
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 67,
-        "fields": {
-            "invoice": 11,
-            "discount_code": 1,
-            "item_name": "A Different Widget",
-            "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 10,
-            "item_price": 20,
-            "item_total_price": 200
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 68,
-        "fields": {
-            "invoice": 11,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 3,
-            "item_price": 10,
-            "item_total_price": 30
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 69,
-        "fields": {
-            "invoice": 11,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
+            "item_name": "Infeasibility Consulting Study",
+            "item_description": "A big useless report on what you want to hear",
             "quantity_purchased": 1,
-            "item_price": 10,
-            "item_total_price": 10
-        }
-    },
-    {
-        "model": "timelyapp.invoice",
-        "pk": 11,
-        "fields": {
-            "invoice_name": "BB21000011",
-            "date_sent": "2021-09-23",
-            "date_due": "2022-01-21",
-            "bill_from": 2,
-            "bill_to": 1,
-            "terms": "NET120",
-            "invoice_total_price": 270,
-            "currency": "USD",
-            "is_flagged": true,
-            "is_scheduled": false,
-            "is_paid": false
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 70,
-        "fields": {
-            "invoice": 12,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 1,
-            "item_price": 10,
-            "item_total_price": 10
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 71,
-        "fields": {
-            "invoice": 12,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 1,
-            "item_price": 10,
-            "item_total_price": 10
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 72,
-        "fields": {
-            "invoice": 12,
-            "discount_code": 1,
-            "item_name": "A Different Widget",
-            "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 3,
             "item_price": 20,
-            "item_total_price": 60
+            "item_total_price": 20
         }
     },
     {
         "model": "timelyapp.order",
-        "pk": 73,
+        "pk": 42,
         "fields": {
             "invoice": 12,
             "discount_code": 1,
-            "item_name": "Some Widget",
-            "item_description": "A business widget for vertical synergy jargon",
-            "quantity_purchased": 4,
-            "item_price": 10,
+            "item_name": "Infeasibility Consulting Study",
+            "item_description": "A big useless report on what you want to hear",
+            "quantity_purchased": 2,
+            "item_price": 20,
             "item_total_price": 40
         }
     },
     {
-        "model": "timelyapp.invoice",
-        "pk": 12,
-        "fields": {
-            "invoice_name": "BB21000012",
-            "date_sent": "2021-10-08",
-            "date_due": "2022-01-06",
-            "bill_from": 2,
-            "bill_to": 4,
-            "terms": "NET90",
-            "invoice_total_price": 120,
-            "currency": "USD",
-            "is_flagged": false,
-            "is_scheduled": false,
-            "is_paid": false
-        }
-    },
-    {
         "model": "timelyapp.order",
-        "pk": 74,
+        "pk": 43,
         "fields": {
-            "invoice": 13,
-            "discount_code": 1,
-            "item_name": "Some Widget",
-            "item_description": "A business widget for vertical synergy jargon",
-            "quantity_purchased": 7,
-            "item_price": 10,
-            "item_total_price": 70
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 75,
-        "fields": {
-            "invoice": 13,
+            "invoice": 12,
             "discount_code": 1,
             "item_name": "Some Widget",
             "item_description": "A business widget for vertical synergy jargon",
@@ -1484,22 +1055,121 @@
     },
     {
         "model": "timelyapp.order",
-        "pk": 76,
+        "pk": 44,
+        "fields": {
+            "invoice": 12,
+            "discount_code": 1,
+            "item_name": "Infeasibility Consulting Study",
+            "item_description": "A big useless report on what you want to hear",
+            "quantity_purchased": 3,
+            "item_price": 20,
+            "item_total_price": 60
+        }
+    },
+    {
+        "model": "timelyapp.invoice",
+        "pk": 12,
+        "fields": {
+            "invoice_name": "BA21000012",
+            "date_sent": "2021-08-17",
+            "date_due": null,
+            "bill_from": 1,
+            "bill_to": 3,
+            "terms": "CIA",
+            "invoice_total_price": 290,
+            "currency": "USD",
+            "is_flagged": false,
+            "is_scheduled": true,
+            "is_paid": false
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 45,
+        "fields": {
+            "invoice": 13,
+            "discount_code": 1,
+            "item_name": "Some Widget",
+            "item_description": "A business widget for vertical synergy jargon",
+            "quantity_purchased": 2,
+            "item_price": 10,
+            "item_total_price": 20
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 46,
         "fields": {
             "invoice": 13,
             "discount_code": 1,
             "item_name": "A Different Widget",
             "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 8,
+            "quantity_purchased": 5,
             "item_price": 20,
-            "item_total_price": 160
+            "item_total_price": 100
         }
     },
     {
         "model": "timelyapp.order",
-        "pk": 77,
+        "pk": 47,
         "fields": {
             "invoice": 13,
+            "discount_code": 1,
+            "item_name": "Infeasibility Consulting Study",
+            "item_description": "A big useless report on what you want to hear",
+            "quantity_purchased": 9,
+            "item_price": 20,
+            "item_total_price": 180
+        }
+    },
+    {
+        "model": "timelyapp.invoice",
+        "pk": 13,
+        "fields": {
+            "invoice_name": "FS21000013",
+            "date_sent": "2021-10-21",
+            "date_due": "2021-11-20",
+            "bill_from": 4,
+            "bill_to": 3,
+            "terms": "NET30",
+            "invoice_total_price": 300,
+            "currency": "USD",
+            "is_flagged": true,
+            "is_scheduled": true,
+            "is_paid": false
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 48,
+        "fields": {
+            "invoice": 14,
+            "discount_code": 1,
+            "item_name": "A Different Widget",
+            "item_description": "A widget for backward overflow jargon",
+            "quantity_purchased": 5,
+            "item_price": 20,
+            "item_total_price": 100
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 49,
+        "fields": {
+            "invoice": 14,
+            "discount_code": 1,
+            "item_name": "A Different Widget",
+            "item_description": "A widget for backward overflow jargon",
+            "quantity_purchased": 6,
+            "item_price": 20,
+            "item_total_price": 120
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 50,
+        "fields": {
+            "invoice": 14,
             "discount_code": 1,
             "item_name": "A Different Widget",
             "item_description": "A widget for backward overflow jargon",
@@ -1510,9 +1180,78 @@
     },
     {
         "model": "timelyapp.order",
-        "pk": 78,
+        "pk": 51,
         "fields": {
-            "invoice": 13,
+            "invoice": 14,
+            "discount_code": 1,
+            "item_name": "Infeasibility Consulting Study",
+            "item_description": "A big useless report on what you want to hear",
+            "quantity_purchased": 2,
+            "item_price": 20,
+            "item_total_price": 40
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 52,
+        "fields": {
+            "invoice": 14,
+            "discount_code": 1,
+            "item_name": "A Different Widget",
+            "item_description": "A widget for backward overflow jargon",
+            "quantity_purchased": 10,
+            "item_price": 20,
+            "item_total_price": 200
+        }
+    },
+    {
+        "model": "timelyapp.invoice",
+        "pk": 14,
+        "fields": {
+            "invoice_name": "TB21000014",
+            "date_sent": "2021-11-29",
+            "date_due": null,
+            "bill_from": 3,
+            "bill_to": 4,
+            "terms": "CIA",
+            "invoice_total_price": 480,
+            "currency": "USD",
+            "is_flagged": true,
+            "is_scheduled": false,
+            "is_paid": false
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 53,
+        "fields": {
+            "invoice": 15,
+            "discount_code": 1,
+            "item_name": "Some Widget",
+            "item_description": "A business widget for vertical synergy jargon",
+            "quantity_purchased": 8,
+            "item_price": 10,
+            "item_total_price": 80
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 54,
+        "fields": {
+            "invoice": 15,
+            "discount_code": 1,
+            "item_name": "Professional Services",
+            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
+            "quantity_purchased": 8,
+            "item_price": 10,
+            "item_total_price": 80
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 55,
+        "fields": {
+            "invoice": 15,
             "discount_code": 1,
             "item_name": "Infeasibility Consulting Study",
             "item_description": "A big useless report on what you want to hear",
@@ -1522,16 +1261,81 @@
         }
     },
     {
-        "model": "timelyapp.invoice",
-        "pk": 13,
+        "model": "timelyapp.order",
+        "pk": 56,
         "fields": {
-            "invoice_name": "FS21000013",
-            "date_sent": "2021-09-10",
-            "date_due": "2021-09-17",
+            "invoice": 15,
+            "discount_code": 1,
+            "item_name": "Some Widget",
+            "item_description": "A business widget for vertical synergy jargon",
+            "quantity_purchased": 10,
+            "item_price": 10,
+            "item_total_price": 100
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 57,
+        "fields": {
+            "invoice": 15,
+            "discount_code": 1,
+            "item_name": "Professional Services",
+            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
+            "quantity_purchased": 8,
+            "item_price": 10,
+            "item_total_price": 80
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 58,
+        "fields": {
+            "invoice": 15,
+            "discount_code": 1,
+            "item_name": "Professional Services",
+            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
+            "quantity_purchased": 10,
+            "item_price": 10,
+            "item_total_price": 100
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 59,
+        "fields": {
+            "invoice": 15,
+            "discount_code": 1,
+            "item_name": "Infeasibility Consulting Study",
+            "item_description": "A big useless report on what you want to hear",
+            "quantity_purchased": 4,
+            "item_price": 20,
+            "item_total_price": 80
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 60,
+        "fields": {
+            "invoice": 15,
+            "discount_code": 1,
+            "item_name": "Infeasibility Consulting Study",
+            "item_description": "A big useless report on what you want to hear",
+            "quantity_purchased": 8,
+            "item_price": 20,
+            "item_total_price": 160
+        }
+    },
+    {
+        "model": "timelyapp.invoice",
+        "pk": 15,
+        "fields": {
+            "invoice_name": "FS21000015",
+            "date_sent": "2021-07-12",
+            "date_due": "2021-10-10",
             "bill_from": 4,
             "bill_to": 4,
-            "terms": "NET7",
-            "invoice_total_price": 420,
+            "terms": "NET90",
+            "invoice_total_price": 760,
             "currency": "USD",
             "is_flagged": true,
             "is_scheduled": false,
@@ -1540,9 +1344,359 @@
     },
     {
         "model": "timelyapp.order",
+        "pk": 61,
+        "fields": {
+            "invoice": 16,
+            "discount_code": 1,
+            "item_name": "Infeasibility Consulting Study",
+            "item_description": "A big useless report on what you want to hear",
+            "quantity_purchased": 2,
+            "item_price": 20,
+            "item_total_price": 40
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 62,
+        "fields": {
+            "invoice": 16,
+            "discount_code": 1,
+            "item_name": "Some Widget",
+            "item_description": "A business widget for vertical synergy jargon",
+            "quantity_purchased": 3,
+            "item_price": 10,
+            "item_total_price": 30
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 63,
+        "fields": {
+            "invoice": 16,
+            "discount_code": 1,
+            "item_name": "A Different Widget",
+            "item_description": "A widget for backward overflow jargon",
+            "quantity_purchased": 7,
+            "item_price": 20,
+            "item_total_price": 140
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 64,
+        "fields": {
+            "invoice": 16,
+            "discount_code": 1,
+            "item_name": "A Different Widget",
+            "item_description": "A widget for backward overflow jargon",
+            "quantity_purchased": 6,
+            "item_price": 20,
+            "item_total_price": 120
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 65,
+        "fields": {
+            "invoice": 16,
+            "discount_code": 1,
+            "item_name": "A Different Widget",
+            "item_description": "A widget for backward overflow jargon",
+            "quantity_purchased": 2,
+            "item_price": 20,
+            "item_total_price": 40
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 66,
+        "fields": {
+            "invoice": 16,
+            "discount_code": 1,
+            "item_name": "A Different Widget",
+            "item_description": "A widget for backward overflow jargon",
+            "quantity_purchased": 4,
+            "item_price": 20,
+            "item_total_price": 80
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 67,
+        "fields": {
+            "invoice": 16,
+            "discount_code": 1,
+            "item_name": "Infeasibility Consulting Study",
+            "item_description": "A big useless report on what you want to hear",
+            "quantity_purchased": 10,
+            "item_price": 20,
+            "item_total_price": 200
+        }
+    },
+    {
+        "model": "timelyapp.invoice",
+        "pk": 16,
+        "fields": {
+            "invoice_name": "BA21000016",
+            "date_sent": "2021-08-18",
+            "date_due": "2021-08-25",
+            "bill_from": 1,
+            "bill_to": 2,
+            "terms": "NET7",
+            "invoice_total_price": 650,
+            "currency": "USD",
+            "is_flagged": false,
+            "is_scheduled": true,
+            "is_paid": false
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 68,
+        "fields": {
+            "invoice": 17,
+            "discount_code": 1,
+            "item_name": "Professional Services",
+            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
+            "quantity_purchased": 8,
+            "item_price": 10,
+            "item_total_price": 80
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 69,
+        "fields": {
+            "invoice": 17,
+            "discount_code": 1,
+            "item_name": "A Different Widget",
+            "item_description": "A widget for backward overflow jargon",
+            "quantity_purchased": 6,
+            "item_price": 20,
+            "item_total_price": 120
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 70,
+        "fields": {
+            "invoice": 17,
+            "discount_code": 1,
+            "item_name": "Infeasibility Consulting Study",
+            "item_description": "A big useless report on what you want to hear",
+            "quantity_purchased": 2,
+            "item_price": 20,
+            "item_total_price": 40
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 71,
+        "fields": {
+            "invoice": 17,
+            "discount_code": 1,
+            "item_name": "A Different Widget",
+            "item_description": "A widget for backward overflow jargon",
+            "quantity_purchased": 9,
+            "item_price": 20,
+            "item_total_price": 180
+        }
+    },
+    {
+        "model": "timelyapp.invoice",
+        "pk": 17,
+        "fields": {
+            "invoice_name": "FS21000017",
+            "date_sent": "2021-08-13",
+            "date_due": null,
+            "bill_from": 4,
+            "bill_to": 3,
+            "terms": "CIA",
+            "invoice_total_price": 420,
+            "currency": "USD",
+            "is_flagged": false,
+            "is_scheduled": false,
+            "is_paid": false
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 72,
+        "fields": {
+            "invoice": 18,
+            "discount_code": 1,
+            "item_name": "Professional Services",
+            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
+            "quantity_purchased": 10,
+            "item_price": 10,
+            "item_total_price": 100
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 73,
+        "fields": {
+            "invoice": 18,
+            "discount_code": 1,
+            "item_name": "A Different Widget",
+            "item_description": "A widget for backward overflow jargon",
+            "quantity_purchased": 4,
+            "item_price": 20,
+            "item_total_price": 80
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 74,
+        "fields": {
+            "invoice": 18,
+            "discount_code": 1,
+            "item_name": "A Different Widget",
+            "item_description": "A widget for backward overflow jargon",
+            "quantity_purchased": 6,
+            "item_price": 20,
+            "item_total_price": 120
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 75,
+        "fields": {
+            "invoice": 18,
+            "discount_code": 1,
+            "item_name": "Infeasibility Consulting Study",
+            "item_description": "A big useless report on what you want to hear",
+            "quantity_purchased": 7,
+            "item_price": 20,
+            "item_total_price": 140
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 76,
+        "fields": {
+            "invoice": 18,
+            "discount_code": 1,
+            "item_name": "Professional Services",
+            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
+            "quantity_purchased": 1,
+            "item_price": 10,
+            "item_total_price": 10
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 77,
+        "fields": {
+            "invoice": 18,
+            "discount_code": 1,
+            "item_name": "A Different Widget",
+            "item_description": "A widget for backward overflow jargon",
+            "quantity_purchased": 5,
+            "item_price": 20,
+            "item_total_price": 100
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 78,
+        "fields": {
+            "invoice": 18,
+            "discount_code": 1,
+            "item_name": "A Different Widget",
+            "item_description": "A widget for backward overflow jargon",
+            "quantity_purchased": 8,
+            "item_price": 20,
+            "item_total_price": 160
+        }
+    },
+    {
+        "model": "timelyapp.order",
         "pk": 79,
         "fields": {
-            "invoice": 14,
+            "invoice": 18,
+            "discount_code": 1,
+            "item_name": "A Different Widget",
+            "item_description": "A widget for backward overflow jargon",
+            "quantity_purchased": 8,
+            "item_price": 20,
+            "item_total_price": 160
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 80,
+        "fields": {
+            "invoice": 18,
+            "discount_code": 1,
+            "item_name": "Professional Services",
+            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
+            "quantity_purchased": 2,
+            "item_price": 10,
+            "item_total_price": 20
+        }
+    },
+    {
+        "model": "timelyapp.invoice",
+        "pk": 18,
+        "fields": {
+            "invoice_name": "FS21000018",
+            "date_sent": "2021-12-12",
+            "date_due": "2022-03-12",
+            "bill_from": 4,
+            "bill_to": 3,
+            "terms": "NET90",
+            "invoice_total_price": 890,
+            "currency": "USD",
+            "is_flagged": false,
+            "is_scheduled": false,
+            "is_paid": false
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 81,
+        "fields": {
+            "invoice": 19,
+            "discount_code": 1,
+            "item_name": "Infeasibility Consulting Study",
+            "item_description": "A big useless report on what you want to hear",
+            "quantity_purchased": 9,
+            "item_price": 20,
+            "item_total_price": 180
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 82,
+        "fields": {
+            "invoice": 19,
+            "discount_code": 1,
+            "item_name": "A Different Widget",
+            "item_description": "A widget for backward overflow jargon",
+            "quantity_purchased": 6,
+            "item_price": 20,
+            "item_total_price": 120
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 83,
+        "fields": {
+            "invoice": 19,
+            "discount_code": 1,
+            "item_name": "Some Widget",
+            "item_description": "A business widget for vertical synergy jargon",
+            "quantity_purchased": 7,
+            "item_price": 10,
+            "item_total_price": 70
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 84,
+        "fields": {
+            "invoice": 19,
             "discount_code": 1,
             "item_name": "Infeasibility Consulting Study",
             "item_description": "A big useless report on what you want to hear",
@@ -1553,35 +1707,22 @@
     },
     {
         "model": "timelyapp.order",
-        "pk": 80,
+        "pk": 85,
         "fields": {
-            "invoice": 14,
+            "invoice": 19,
             "discount_code": 1,
-            "item_name": "Some Widget",
-            "item_description": "A business widget for vertical synergy jargon",
-            "quantity_purchased": 9,
+            "item_name": "Professional Services",
+            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
+            "quantity_purchased": 3,
             "item_price": 10,
-            "item_total_price": 90
+            "item_total_price": 30
         }
     },
     {
         "model": "timelyapp.order",
-        "pk": 81,
+        "pk": 86,
         "fields": {
-            "invoice": 14,
-            "discount_code": 1,
-            "item_name": "Some Widget",
-            "item_description": "A business widget for vertical synergy jargon",
-            "quantity_purchased": 1,
-            "item_price": 10,
-            "item_total_price": 10
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 82,
-        "fields": {
-            "invoice": 14,
+            "invoice": 19,
             "discount_code": 1,
             "item_name": "Infeasibility Consulting Study",
             "item_description": "A big useless report on what you want to hear",
@@ -1592,95 +1733,9 @@
     },
     {
         "model": "timelyapp.order",
-        "pk": 83,
-        "fields": {
-            "invoice": 14,
-            "discount_code": 1,
-            "item_name": "Infeasibility Consulting Study",
-            "item_description": "A big useless report on what you want to hear",
-            "quantity_purchased": 10,
-            "item_price": 20,
-            "item_total_price": 200
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 84,
-        "fields": {
-            "invoice": 14,
-            "discount_code": 1,
-            "item_name": "A Different Widget",
-            "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 2,
-            "item_price": 20,
-            "item_total_price": 40
-        }
-    },
-    {
-        "model": "timelyapp.invoice",
-        "pk": 14,
-        "fields": {
-            "invoice_name": "FS21000014",
-            "date_sent": "2021-06-27",
-            "date_due": "2021-10-25",
-            "bill_from": 4,
-            "bill_to": 2,
-            "terms": "NET120",
-            "invoice_total_price": 500,
-            "currency": "USD",
-            "is_flagged": true,
-            "is_scheduled": true,
-            "is_paid": false
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 85,
-        "fields": {
-            "invoice": 15,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 1,
-            "item_price": 10,
-            "item_total_price": 10
-        }
-    },
-    {
-        "model": "timelyapp.invoice",
-        "pk": 15,
-        "fields": {
-            "invoice_name": "TB21000015",
-            "date_sent": "2021-07-25",
-            "date_due": "2021-08-04",
-            "bill_from": 3,
-            "bill_to": 3,
-            "terms": "NET10",
-            "invoice_total_price": 10,
-            "currency": "USD",
-            "is_flagged": true,
-            "is_scheduled": false,
-            "is_paid": false
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 86,
-        "fields": {
-            "invoice": 16,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 5,
-            "item_price": 10,
-            "item_total_price": 50
-        }
-    },
-    {
-        "model": "timelyapp.order",
         "pk": 87,
         "fields": {
-            "invoice": 16,
+            "invoice": 19,
             "discount_code": 1,
             "item_name": "Professional Services",
             "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
@@ -1693,347 +1748,10 @@
         "model": "timelyapp.order",
         "pk": 88,
         "fields": {
-            "invoice": 16,
-            "discount_code": 1,
-            "item_name": "A Different Widget",
-            "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 6,
-            "item_price": 20,
-            "item_total_price": 120
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 89,
-        "fields": {
-            "invoice": 16,
+            "invoice": 19,
             "discount_code": 1,
             "item_name": "Some Widget",
             "item_description": "A business widget for vertical synergy jargon",
-            "quantity_purchased": 10,
-            "item_price": 10,
-            "item_total_price": 100
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 90,
-        "fields": {
-            "invoice": 16,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 5,
-            "item_price": 10,
-            "item_total_price": 50
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 91,
-        "fields": {
-            "invoice": 16,
-            "discount_code": 1,
-            "item_name": "Infeasibility Consulting Study",
-            "item_description": "A big useless report on what you want to hear",
-            "quantity_purchased": 2,
-            "item_price": 20,
-            "item_total_price": 40
-        }
-    },
-    {
-        "model": "timelyapp.invoice",
-        "pk": 16,
-        "fields": {
-            "invoice_name": "BA21000016",
-            "date_sent": "2021-11-05",
-            "date_due": null,
-            "bill_from": 1,
-            "bill_to": 1,
-            "terms": "COD",
-            "invoice_total_price": 440,
-            "currency": "USD",
-            "is_flagged": false,
-            "is_scheduled": true,
-            "is_paid": false
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 92,
-        "fields": {
-            "invoice": 17,
-            "discount_code": 1,
-            "item_name": "Some Widget",
-            "item_description": "A business widget for vertical synergy jargon",
-            "quantity_purchased": 2,
-            "item_price": 10,
-            "item_total_price": 20
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 93,
-        "fields": {
-            "invoice": 17,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 4,
-            "item_price": 10,
-            "item_total_price": 40
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 94,
-        "fields": {
-            "invoice": 17,
-            "discount_code": 1,
-            "item_name": "A Different Widget",
-            "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 8,
-            "item_price": 20,
-            "item_total_price": 160
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 95,
-        "fields": {
-            "invoice": 17,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 5,
-            "item_price": 10,
-            "item_total_price": 50
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 96,
-        "fields": {
-            "invoice": 17,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 9,
-            "item_price": 10,
-            "item_total_price": 90
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 97,
-        "fields": {
-            "invoice": 17,
-            "discount_code": 1,
-            "item_name": "Some Widget",
-            "item_description": "A business widget for vertical synergy jargon",
-            "quantity_purchased": 1,
-            "item_price": 10,
-            "item_total_price": 10
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 98,
-        "fields": {
-            "invoice": 17,
-            "discount_code": 1,
-            "item_name": "A Different Widget",
-            "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 8,
-            "item_price": 20,
-            "item_total_price": 160
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 99,
-        "fields": {
-            "invoice": 17,
-            "discount_code": 1,
-            "item_name": "Infeasibility Consulting Study",
-            "item_description": "A big useless report on what you want to hear",
-            "quantity_purchased": 7,
-            "item_price": 20,
-            "item_total_price": 140
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 100,
-        "fields": {
-            "invoice": 17,
-            "discount_code": 1,
-            "item_name": "A Different Widget",
-            "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 7,
-            "item_price": 20,
-            "item_total_price": 140
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 101,
-        "fields": {
-            "invoice": 17,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 4,
-            "item_price": 10,
-            "item_total_price": 40
-        }
-    },
-    {
-        "model": "timelyapp.invoice",
-        "pk": 17,
-        "fields": {
-            "invoice_name": "FS21000017",
-            "date_sent": "2021-06-17",
-            "date_due": null,
-            "bill_from": 4,
-            "bill_to": 1,
-            "terms": "COD",
-            "invoice_total_price": 850,
-            "currency": "USD",
-            "is_flagged": true,
-            "is_scheduled": false,
-            "is_paid": false
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 102,
-        "fields": {
-            "invoice": 18,
-            "discount_code": 1,
-            "item_name": "A Different Widget",
-            "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 9,
-            "item_price": 20,
-            "item_total_price": 180
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 103,
-        "fields": {
-            "invoice": 18,
-            "discount_code": 1,
-            "item_name": "A Different Widget",
-            "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 1,
-            "item_price": 20,
-            "item_total_price": 20
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 104,
-        "fields": {
-            "invoice": 18,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 1,
-            "item_price": 10,
-            "item_total_price": 10
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 105,
-        "fields": {
-            "invoice": 18,
-            "discount_code": 1,
-            "item_name": "A Different Widget",
-            "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 5,
-            "item_price": 20,
-            "item_total_price": 100
-        }
-    },
-    {
-        "model": "timelyapp.invoice",
-        "pk": 18,
-        "fields": {
-            "invoice_name": "TB21000018",
-            "date_sent": "2021-09-03",
-            "date_due": "2021-09-13",
-            "bill_from": 3,
-            "bill_to": 3,
-            "terms": "NET10",
-            "invoice_total_price": 310,
-            "currency": "USD",
-            "is_flagged": true,
-            "is_scheduled": true,
-            "is_paid": false
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 106,
-        "fields": {
-            "invoice": 19,
-            "discount_code": 1,
-            "item_name": "Infeasibility Consulting Study",
-            "item_description": "A big useless report on what you want to hear",
-            "quantity_purchased": 4,
-            "item_price": 20,
-            "item_total_price": 80
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 107,
-        "fields": {
-            "invoice": 19,
-            "discount_code": 1,
-            "item_name": "Infeasibility Consulting Study",
-            "item_description": "A big useless report on what you want to hear",
-            "quantity_purchased": 7,
-            "item_price": 20,
-            "item_total_price": 140
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 108,
-        "fields": {
-            "invoice": 19,
-            "discount_code": 1,
-            "item_name": "A Different Widget",
-            "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 4,
-            "item_price": 20,
-            "item_total_price": 80
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 109,
-        "fields": {
-            "invoice": 19,
-            "discount_code": 1,
-            "item_name": "Infeasibility Consulting Study",
-            "item_description": "A big useless report on what you want to hear",
-            "quantity_purchased": 5,
-            "item_price": 20,
-            "item_total_price": 100
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 110,
-        "fields": {
-            "invoice": 19,
-            "discount_code": 1,
-            "item_name": "Professional Services",
-            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
             "quantity_purchased": 3,
             "item_price": 10,
             "item_total_price": 30
@@ -2041,35 +1759,78 @@
     },
     {
         "model": "timelyapp.order",
-        "pk": 111,
+        "pk": 89,
         "fields": {
             "invoice": 19,
             "discount_code": 1,
             "item_name": "Infeasibility Consulting Study",
             "item_description": "A big useless report on what you want to hear",
-            "quantity_purchased": 10,
+            "quantity_purchased": 2,
             "item_price": 20,
-            "item_total_price": 200
+            "item_total_price": 40
+        }
+    },
+    {
+        "model": "timelyapp.invoice",
+        "pk": 19,
+        "fields": {
+            "invoice_name": "BB21000019",
+            "date_sent": "2021-12-24",
+            "date_due": "2022-02-22",
+            "bill_from": 2,
+            "bill_to": 1,
+            "terms": "NET60",
+            "invoice_total_price": 710,
+            "currency": "USD",
+            "is_flagged": true,
+            "is_scheduled": true,
+            "is_paid": false
         }
     },
     {
         "model": "timelyapp.order",
-        "pk": 112,
+        "pk": 90,
         "fields": {
-            "invoice": 19,
+            "invoice": 20,
             "discount_code": 1,
             "item_name": "Professional Services",
             "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
-            "quantity_purchased": 5,
+            "quantity_purchased": 6,
             "item_price": 10,
-            "item_total_price": 50
+            "item_total_price": 60
         }
     },
     {
         "model": "timelyapp.order",
-        "pk": 113,
+        "pk": 91,
         "fields": {
-            "invoice": 19,
+            "invoice": 20,
+            "discount_code": 1,
+            "item_name": "Infeasibility Consulting Study",
+            "item_description": "A big useless report on what you want to hear",
+            "quantity_purchased": 3,
+            "item_price": 20,
+            "item_total_price": 60
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 92,
+        "fields": {
+            "invoice": 20,
+            "discount_code": 1,
+            "item_name": "Professional Services",
+            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
+            "quantity_purchased": 10,
+            "item_price": 10,
+            "item_total_price": 100
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 93,
+        "fields": {
+            "invoice": 20,
             "discount_code": 1,
             "item_name": "Professional Services",
             "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
@@ -2080,9 +1841,22 @@
     },
     {
         "model": "timelyapp.order",
-        "pk": 114,
+        "pk": 94,
         "fields": {
-            "invoice": 19,
+            "invoice": 20,
+            "discount_code": 1,
+            "item_name": "Professional Services",
+            "item_description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
+            "quantity_purchased": 2,
+            "item_price": 10,
+            "item_total_price": 20
+        }
+    },
+    {
+        "model": "timelyapp.order",
+        "pk": 95,
+        "fields": {
+            "invoice": 20,
             "discount_code": 1,
             "item_name": "Infeasibility Consulting Study",
             "item_description": "A big useless report on what you want to hear",
@@ -2092,25 +1866,8 @@
         }
     },
     {
-        "model": "timelyapp.invoice",
-        "pk": 19,
-        "fields": {
-            "invoice_name": "BB21000019",
-            "date_sent": "2021-09-22",
-            "date_due": "2022-01-20",
-            "bill_from": 2,
-            "bill_to": 4,
-            "terms": "NET120",
-            "invoice_total_price": 780,
-            "currency": "USD",
-            "is_flagged": false,
-            "is_scheduled": false,
-            "is_paid": false
-        }
-    },
-    {
         "model": "timelyapp.order",
-        "pk": 115,
+        "pk": 96,
         "fields": {
             "invoice": 20,
             "discount_code": 1,
@@ -2122,110 +1879,19 @@
         }
     },
     {
-        "model": "timelyapp.order",
-        "pk": 116,
-        "fields": {
-            "invoice": 20,
-            "discount_code": 1,
-            "item_name": "A Different Widget",
-            "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 6,
-            "item_price": 20,
-            "item_total_price": 120
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 117,
-        "fields": {
-            "invoice": 20,
-            "discount_code": 1,
-            "item_name": "Some Widget",
-            "item_description": "A business widget for vertical synergy jargon",
-            "quantity_purchased": 2,
-            "item_price": 10,
-            "item_total_price": 20
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 118,
-        "fields": {
-            "invoice": 20,
-            "discount_code": 1,
-            "item_name": "Some Widget",
-            "item_description": "A business widget for vertical synergy jargon",
-            "quantity_purchased": 4,
-            "item_price": 10,
-            "item_total_price": 40
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 119,
-        "fields": {
-            "invoice": 20,
-            "discount_code": 1,
-            "item_name": "Infeasibility Consulting Study",
-            "item_description": "A big useless report on what you want to hear",
-            "quantity_purchased": 2,
-            "item_price": 20,
-            "item_total_price": 40
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 120,
-        "fields": {
-            "invoice": 20,
-            "discount_code": 1,
-            "item_name": "A Different Widget",
-            "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 8,
-            "item_price": 20,
-            "item_total_price": 160
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 121,
-        "fields": {
-            "invoice": 20,
-            "discount_code": 1,
-            "item_name": "Some Widget",
-            "item_description": "A business widget for vertical synergy jargon",
-            "quantity_purchased": 4,
-            "item_price": 10,
-            "item_total_price": 40
-        }
-    },
-    {
-        "model": "timelyapp.order",
-        "pk": 122,
-        "fields": {
-            "invoice": 20,
-            "discount_code": 1,
-            "item_name": "A Different Widget",
-            "item_description": "A widget for backward overflow jargon",
-            "quantity_purchased": 10,
-            "item_price": 20,
-            "item_total_price": 200
-        }
-    },
-    {
         "model": "timelyapp.invoice",
         "pk": 20,
         "fields": {
-            "invoice_name": "FS21000020",
-            "date_sent": "2021-10-25",
-            "date_due": null,
-            "bill_from": 4,
-            "bill_to": 4,
-            "terms": "COD",
-            "invoice_total_price": 680,
+            "invoice_name": "BA21000020",
+            "date_sent": "2021-08-27",
+            "date_due": "2021-10-26",
+            "bill_from": 1,
+            "bill_to": 3,
+            "terms": "NET60",
+            "invoice_total_price": 400,
             "currency": "USD",
             "is_flagged": false,
-            "is_scheduled": false,
+            "is_scheduled": true,
             "is_paid": false
         }
     }

@@ -4,6 +4,7 @@
     "pk": 1,
     "fields": {
       "is_member": true,
+      "is_individual": false,
       "managers": [1],
       "owner": 1,
       "business_name": "Business A",
@@ -20,6 +21,7 @@
     "pk": 2,
     "fields": {
       "is_member": true,
+      "is_individual": false,
       "managers": [2],
       "owner": 2,
       "business_name": "Business B",
@@ -36,6 +38,7 @@
     "pk": 3,
     "fields": {
       "is_member": true,
+      "is_individual": false,
       "managers": [3],
       "owner": 3,
       "business_name": "Third Business",
@@ -52,6 +55,7 @@
     "pk": 4,
     "fields": {
       "is_member": true,
+      "is_individual": false,
       "managers": [4],
       "owner": 4,
       "business_name": "Fourth Store",
