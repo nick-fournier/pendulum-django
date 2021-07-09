@@ -26,6 +26,8 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
 
+def xadr(s1, s2):
+    return s1 + '' if s2 is None else str(s2)
 
 TERM_CHOICES = [
     ('Custom', 'Custom due date'),
@@ -140,13 +142,12 @@ class Address(models.Model):
     country = models.CharField(_("country"), max_length=5, default="USA")
 
     def __str__(self):
-        return "%s %s, %s, %s %s, %s" %(self.address_1,
-                                        self.address_2,
-                                        self.city,
-                                        self.state,
-                                        self.zip_code,
-                                        self.country
-                                        )
+        return "%s, %s, %s %s, %s" %(xadr(self.address_1, self.address_2),
+                                     self.city,
+                                     self.state,
+                                     self.zip_code,
+                                     self.country
+                                     )
 
 class Payments(models.Model):
     type = models.CharField(default='ACH', null=True, max_length=64, choices=PAYMENT_CHOICES)
@@ -156,6 +157,8 @@ class Payments(models.Model):
 
 class Business(models.Model):
     is_member = models.BooleanField(default=False)
+    is_individual = models.BooleanField(default=False)
+    stripe_id = models.CharField(default=None, null=True, blank=True, max_length=255, unique=True)
     owner = models.ForeignKey(CustomUser, default=None, null=True, on_delete=models.CASCADE)
     managers = models.ManyToManyField(CustomUser, default=None, related_name='managers')
     business_name = models.CharField(default=None, max_length=64, unique=True)

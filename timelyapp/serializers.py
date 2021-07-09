@@ -108,8 +108,8 @@ class NewInvoiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Invoice
-        fields = ['bill_to_key', 'bill_to_name', 'terms', 'date_due', 'invoice_total_price', 'accepted_payments', 'notes',
-                  'items']
+        fields = ['bill_to_key', 'bill_to_name', 'terms', 'date_due',
+                  'invoice_total_price', 'accepted_payments', 'notes', 'items']
 
     def get_bill_to_name(self, obj):
         return Business.objects.get(id=obj.bill_to.id).business_name
@@ -226,7 +226,6 @@ class InvoiceSerializer(serializers.ModelSerializer):
         return Business.objects.get(id=obj.bill_from.id).email
     def get_from_phone(self, obj):
         return str(Business.objects.get(id=obj.bill_from.id).phone)
-
     def get_to_business_name(self, obj):
         return Business.objects.get(id=obj.bill_to.id).business_name
     def get_to_billing_address(self, obj):
