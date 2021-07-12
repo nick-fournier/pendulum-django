@@ -16,18 +16,13 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 
+# Stripe
+import stripe
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
 # Custom User
 from .managers import CustomUserManager
 import datetime
-
-# Automatically generates token for each user
-@receiver(post_save, sender=settings.AUTH_USER_MODEL)
-def create_auth_token(sender, instance=None, created=False, **kwargs):
-    if created:
-        Token.objects.create(user=instance)
-
-def xadr(s1, s2):
-    return s1 + '' if s2 is None else str(s2)
 
 TERM_CHOICES = [
     ('Custom', 'Custom due date'),
@@ -114,6 +109,14 @@ STATES_CHOICES = (
     ('PW', _('Palau')),
 )
 
+# Automatically generates token for each user
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)
+
+def xadr(s1, s2):
+    return s1 + '' if s2 is None else str(s2)
 
 # Create your models here.
 class CustomUser(AbstractBaseUser, PermissionsMixin):
@@ -173,6 +176,16 @@ class Business(models.Model):
         ''' On save, update timestamps '''
         if not self.id:
             self.date_joined = timezone.now()
+
+        ''' On save, create stripe account if does not exist yet '''
+        if not self.stripe_id:
+            stripe = stripe.Account.create(
+                type='standard',
+                name=self.business_name,
+                email=self.email
+            )
+            self.stripe_id = stripe.id
+
         return super(Business, self).save(*args, **kwargs)
 
     def __str__(self):

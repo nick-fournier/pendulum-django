@@ -1,7 +1,6 @@
 import datetime
 import json
 import numpy as np
-
 from .models import *
 
 def calculate_duedate(terms):

@@ -1,13 +1,89 @@
 from django.shortcuts import redirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from rest_framework import viewsets, status
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-
+from decimal import Decimal
 from .serializers import *
 from .forms import *
 from timelyapp.utils import get_business_id
+import stripe
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+timely_rate = Decimal(0.001)
+
+# Stripe views
+@api_view(['POST'])
+def stripe_pay_invoice(request):
+
+    # Check if invoice exists
+    try:
+        invoice = Invoice.objects.get(pk=request.data['id'])
+        business = Business.objects.get(business_name=invoice.bill_from)
+        timely_fee = round(timely_rate * 100 * invoice.invoice_total_price) # Calculate our fee
+    except Invoice.DoesNotExist:
+        content = {'Bad invoice': 'No matching invoice ID in records'}
+        return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+    # Check if the current user has authority to pay
+    if Business.objects.get(business_name=invoice.bill_to).id != get_business_id(request.user.id):
+        content = {'Bad invoice': 'You are not authorized to pay this invoice'}
+        return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+    # Check if other account is onboarded, if not we'll have to handle this somehow (hold money until they onboard?)
+    if not stripe.Account.retrieve(business.stripe_id).charges_enabled:
+        content = {'Bad invoice': 'Receivable account is not fully onboarded.'}
+        return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+    payment_intent = stripe.PaymentIntent.create(
+        payment_method_types=['card'],
+        amount=invoice.invoice_total_price,
+        currency=invoice.currency.lower(),
+        # application_fee_amount=timely_fee,
+        stripe_account=business.stripe_id,
+    )
+    return Response(status=status.HTTP_200_OK, data=payment_intent)
+
+@api_view(['GET'])
+def stripe_onboard(request):
+
+    # Query current business
+    business = Business.objects.get(id=get_business_id(request.user.id))
+
+    # Parse any data passed
+    data = request.data
+    if 'refresh_url' not in data:
+        data['refresh_url'] = request.build_absolute_uri('/invoices/')
+    if 'return_url' not in data:
+        data['return_url'] = request.build_absolute_uri('/invoices/')
+
+    # If no stripe account id, create one, else retrieve existing
+    print(business.stripe_id)
+    try:
+        stripe.Account.retrieve(business.stripe_id)
+    except stripe.error.PermissionError:
+        business.stripe_id = None
+
+    if not business.stripe_id:
+        account = stripe.Account.create(
+            type='standard',
+            email=business.email,
+        )
+        stripe_id = business.stripe_id = account.id
+        business.save()
+    else:
+        stripe_id = business.stripe_id
+
+    account_link = stripe.AccountLink.create(
+        account=stripe_id,
+        refresh_url=data['refresh_url'],
+        return_url=data['return_url'],
+        type="account_onboarding",
+    )
+
+    return Response(status=status.HTTP_200_OK, data=account_link)
+
 
 # Create your views here.
 def redirect_view(request):

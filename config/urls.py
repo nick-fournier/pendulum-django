@@ -37,7 +37,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('timelyapp.urls')),
 
-    #Endpoints
+    #Timely Endpoints
     path('api/', include((router.urls, 'timely'), namespace='api')), #The data API
     path('api-auth/', include('rest_framework.urls')), # DRF auth portal
     path('api/rest-auth/', include('rest_auth.urls')), # auth endpoint api
