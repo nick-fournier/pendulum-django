@@ -54,9 +54,9 @@ def stripe_onboard(request):
     # Parse any data passed
     data = request.data
     if 'refresh_url' not in data:
-        data['refresh_url'] = request.build_absolute_uri('/invoices/')
+        data['refresh_url'] = 'https://www.timelypay.app/invoices' # request.build_absolute_uri('/invoices/')
     if 'return_url' not in data:
-        data['return_url'] = request.build_absolute_uri('/invoices/')
+        data['return_url'] = 'https://www.timelypay.app/invoices' # request.build_absolute_uri('/invoices/')
 
     # If no stripe account id, create one, else retrieve existing
     print(business.stripe_id)
