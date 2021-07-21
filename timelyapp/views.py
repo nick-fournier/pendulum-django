@@ -42,7 +42,7 @@ def stripe_pay_invoice(request):
 
     # Check if other account is onboarded, if not we'll have to handle this somehow (hold money until they onboard?)
     if not stripe.Account.retrieve(business.stripe_id).charges_enabled:
-        content = {'Bad invoice': 'Receivable account is not fully onboarded.'}
+        content = {'Bad invoice': 'Stripe account ' + business.stripe_id + ' for receivable is not fully onboarded.'}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
     payment_intent = stripe.PaymentIntent.create(
