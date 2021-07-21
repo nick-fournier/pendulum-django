@@ -71,7 +71,7 @@ def stripe_onboard(request):
     try:
         stripe_account = stripe.Account.retrieve(business.stripe_id)
         if not stripe_account.charges_enabled:
-            data['type'] = 'update'
+            data['type'] = 'account_update'
     except stripe.error.PermissionError:
         business.stripe_id = None
         data['type'] = 'account_onboarding'
