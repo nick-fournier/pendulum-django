@@ -66,7 +66,6 @@ def stripe_onboard(request):
 
     # Query current business
     business = Business.objects.get(id=get_business_id(request.user.id))
-    print(business)
 
     # If no stripe account id, create one, else retrieve existing
     try:
@@ -74,7 +73,7 @@ def stripe_onboard(request):
     except stripe.error.PermissionError:
         business.stripe_id = None
 
-    if not business.stripe_id:
+    if business.stripe_id == None:
         account = stripe.Account.create(
             type='standard',
             email=business.email,
