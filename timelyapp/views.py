@@ -26,6 +26,15 @@ def stripe_pay_invoice(request):
         content = {'Bad invoice': 'No matching invoice ID in records'}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
+    # Extract request data
+    data = request.data
+
+    if 'payment_method_types' not in data:
+        data['payment_method_types'] = ['card']
+
+    if 'currency' not in data:
+        data['currency'] = invoice.currency.lower()
+
     # Check if the current user has authority to pay
     if Business.objects.get(business_name=invoice.bill_to).id != get_business_id(request.user.id):
         content = {'Bad invoice': 'You are not authorized to pay this invoice'}
@@ -37,9 +46,9 @@ def stripe_pay_invoice(request):
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
     payment_intent = stripe.PaymentIntent.create(
-        payment_method_types=['card'],
-        amount=invoice.invoice_total_price,
-        currency=invoice.currency.lower(),
+        payment_method_types=data['payment_method_types'],
+        amount=int(invoice.invoice_total_price*100),
+        currency=data['currency'],
         # application_fee_amount=timely_fee,
         stripe_account=business.stripe_id,
     )
@@ -48,9 +57,6 @@ def stripe_pay_invoice(request):
 @api_view(['GET'])
 def stripe_onboard(request):
 
-    # Query current business
-    business = Business.objects.get(id=get_business_id(request.user.id))
-
     # Parse any data passed
     data = request.data
     if 'refresh_url' not in data:
@@ -58,8 +64,10 @@ def stripe_onboard(request):
     if 'return_url' not in data:
         data['return_url'] = 'https://www.timelypay.app/invoices' # request.build_absolute_uri('/invoices/')
 
+    # Query current business
+    business = Business.objects.get(id=get_business_id(request.user.id))
+
     # If no stripe account id, create one, else retrieve existing
-    print(business.stripe_id)
     try:
         stripe.Account.retrieve(business.stripe_id)
     except stripe.error.PermissionError:
@@ -74,6 +82,7 @@ def stripe_onboard(request):
         business.save()
     else:
         stripe_id = business.stripe_id
+
 
     account_link = stripe.AccountLink.create(
         account=stripe_id,
