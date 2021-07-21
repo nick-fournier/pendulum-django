@@ -69,9 +69,12 @@ def stripe_onboard(request):
 
     # If no stripe account id, create one, else retrieve existing
     try:
-        stripe.Account.retrieve(business.stripe_id)
+        stripe_account = stripe.Account.retrieve(business.stripe_id)
+        if not stripe_account.charges_enabled:
+            data['type'] = 'update'
     except stripe.error.PermissionError:
         business.stripe_id = None
+        data['type'] = 'account_onboarding'
 
     if business.stripe_id == None:
         account = stripe.Account.create(
@@ -89,7 +92,7 @@ def stripe_onboard(request):
             account=stripe_id,
             refresh_url=data['refresh_url'],
             return_url=data['return_url'],
-            type="account_onboarding",
+            type=data['type'],
         ),
         **{'stripe_id': stripe_id}
     }
