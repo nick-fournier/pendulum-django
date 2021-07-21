@@ -66,6 +66,7 @@ def stripe_onboard(request):
 
     # Query current business
     business = Business.objects.get(id=get_business_id(request.user.id))
+    print(business)
 
     # If no stripe account id, create one, else retrieve existing
     try:
@@ -84,12 +85,15 @@ def stripe_onboard(request):
         stripe_id = business.stripe_id
 
 
-    account_link = stripe.AccountLink.create(
-        account=stripe_id,
-        refresh_url=data['refresh_url'],
-        return_url=data['return_url'],
-        type="account_onboarding",
-    )
+    account_link = {
+        **stripe.AccountLink.create(
+            account=stripe_id,
+            refresh_url=data['refresh_url'],
+            return_url=data['return_url'],
+            type="account_onboarding",
+        ),
+        **{'stripe_id': stripe_id}
+    }
 
     return Response(status=status.HTTP_200_OK, data=account_link)
 
