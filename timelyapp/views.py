@@ -60,6 +60,15 @@ def stripe_pay_invoice(request):
 
 @api_view(['GET'])
 def stripe_onboard(request):
+    # sub-func to create new stripe account and add to db
+    def create_stripe_account():
+        account = stripe.Account.create(
+            type='standard',
+            email=business.email,
+        )
+        business.stripe_id = account.id
+        business.save()
+        return account
 
     # Parse any data passed
     data = request.data
@@ -71,26 +80,21 @@ def stripe_onboard(request):
     # Query current business
     business = Business.objects.get(id=get_business_id(request.user.id))
 
-    # If no stripe account id, create one, else retrieve existing
-    try:
-        stripe.Account.retrieve(business.stripe_id)
-    except stripe.error.PermissionError:
-        business.stripe_id = None
-
-    if business.stripe_id == None:
-        account = stripe.Account.create(
-            type='standard',
-            email=business.email,
-        )
-        stripe_id = business.stripe_id = account.id
-        business.save()
+    # Check if stripe_id in database is not null
+    if business.stripe_id:
+        # Check if database stripe_id is on stripe API
+        try:
+            stripe_id = stripe.Account.retrieve(business.stripe_id)['id']
+        # If not, create a new account
+        except stripe.error.PermissionError:
+            create_stripe_account()
     else:
-        stripe_id = business.stripe_id
+        create_stripe_account()
 
 
     account_link = {
         **stripe.AccountLink.create(
-            account=stripe_id,
+            account=business.stripe_id,
             refresh_url=data['refresh_url'],
             return_url=data['return_url'],
             type='account_onboarding',
