@@ -11,9 +11,10 @@
       "billing_address": 1,
       "shipping_address": null,
       "date_joined": "2021-03-01",
-      "email": "businessemail@BizA.com",
+      "email": "nick.fournier@berkeley.edu",
       "phone": "555-555-5555",
-      "fax": null
+      "fax": null,
+      "stripe_id": "acct_1JDpru2Ex7Z79PyO"
     }
   },
   {
@@ -28,9 +29,10 @@
       "billing_address": 2,
       "shipping_address": null,
       "date_joined": "2021-03-01",
-      "email": "businessemail@BizB.com",
+      "email": "omar.mohamed@berkeley.edu",
       "phone": "555-555-5555",
-      "fax": null
+      "fax": null,
+      "stripe_id": "acct_1JDcak2HzyuoAy7h"
     }
   },
    {
