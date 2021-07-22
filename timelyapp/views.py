@@ -73,7 +73,6 @@ def stripe_onboard(request):
     except stripe.error.PermissionError:
         business.stripe_id = None
 
-    print(business.stripe_id)
     if business.stripe_id == None:
         account = stripe.Account.create(
             type='standard',
