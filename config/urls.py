@@ -39,6 +39,9 @@ urlpatterns = [
 
     #Timely Endpoints
     path('api/', include((router.urls, 'timely'), namespace='api')), #The data API
+    path('api/stripe/payinvoice', views.stripe_pay_invoice),
+    path('api/stripe/onboard', views.stripe_onboard),
+    path('api/userinfo', views.get_user_data),
     path('api-auth/', include('rest_framework.urls')), # DRF auth portal
     path('api/rest-auth/', include('rest_auth.urls')), # auth endpoint api
     path('api/rest-auth/registration/', include('rest_auth.registration.urls')), # registration api

@@ -8,6 +8,4 @@ from timelyapp import views
 
 urlpatterns = [
     path('', redirect_view),
-    path('pay/invoice', views.stripe_pay_invoice),
-    path('pay/onboard', views.stripe_onboard),
 ]

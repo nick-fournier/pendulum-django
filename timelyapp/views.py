@@ -13,7 +13,8 @@ import stripe
 stripe.api_key = settings.STRIPE_SECRET_KEY
 timely_rate = Decimal(0.001) #0.1%
 
-# Stripe views
+### Stripe views ###
+# This function takes invoice ID posted and sends back a payment intent
 @api_view(['POST'])
 def stripe_pay_invoice(request):
 
@@ -63,6 +64,8 @@ def stripe_pay_invoice(request):
     )
     return Response(status=status.HTTP_200_OK, data=payment_intent)
 
+
+#This function retrieves currently logged in user and returns the stripe AccountLink, no POST data is required
 @api_view(['GET'])
 def stripe_onboard(request):
     # sub-func to create new stripe account and add to db
@@ -96,7 +99,6 @@ def stripe_onboard(request):
     else:
         create_stripe_account()
 
-
     account_link = {
         **stripe.AccountLink.create(
             account=business.stripe_id,
@@ -116,6 +118,18 @@ def redirect_view(request):
     return response
 
 # Django REST framework endpoints
+@api_view(['GET'])
+def get_user_data(request):
+    business = Business.objects.get(pk = get_business_id(request.user.id))
+    user_info = {"user_email": request.user.email,
+            "business_email": business.email,
+            "business_name": business.business_name,
+            "stripe_id": business.stripe_id
+            }
+
+    return Response(status=status.HTTP_200_OK, data=user_info)
+
+
 class InvoiceViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = FullInvoiceSerializer
     queryset = Invoice.objects.all()
