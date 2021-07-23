@@ -54,7 +54,7 @@ def stripe_pay_invoice(request):
         amount=int(invoice.invoice_total_price*100),
         currency=data['currency'],
         description=invoice.invoice_name,
-        customer=business.business_name,
+        customer=Business.objects.get(pk=invoice.bill_to).business_name,
         # application_fee_amount=timely_fee,
         stripe_account=business.stripe_id,
     )
