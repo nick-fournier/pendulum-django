@@ -11,7 +11,7 @@ from timelyapp.utils import get_business_id
 import stripe
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
-timely_rate = Decimal(0.001)
+timely_rate = Decimal(0.001) #0.1%
 
 # Stripe views
 @api_view(['POST'])
@@ -53,6 +53,8 @@ def stripe_pay_invoice(request):
         payment_method_types=data['payment_method_types'],
         amount=int(invoice.invoice_total_price*100),
         currency=data['currency'],
+        description=invoice.invoice_name,
+        customer=business.business_name,
         # application_fee_amount=timely_fee,
         stripe_account=business.stripe_id,
     )
