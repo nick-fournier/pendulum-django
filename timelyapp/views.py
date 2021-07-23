@@ -49,12 +49,15 @@ def stripe_pay_invoice(request):
 
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
+    cust_desc = "Invoice: " + invoice.invoice_name + \
+                " from " + Business.objects.get(pk=invoice.bill_to.id).business_name
+
     payment_intent = stripe.PaymentIntent.create(
         payment_method_types=data['payment_method_types'],
         amount=int(invoice.invoice_total_price*100),
         currency=data['currency'],
-        description=invoice.invoice_name,
-        #customer=Business.objects.get(pk=invoice.bill_to).business_name,
+        description=cust_desc,
+        # customer=Business.objects.get(pk=invoice.bill_to.id).stripe_id,
         # application_fee_amount=timely_fee,
         stripe_account=business.stripe_id,
     )
