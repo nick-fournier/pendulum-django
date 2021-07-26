@@ -161,7 +161,9 @@ class Payments(models.Model):
 class Business(models.Model):
     is_member = models.BooleanField(default=False)
     is_individual = models.BooleanField(default=False)
-    stripe_id = models.CharField(default=None, null=True, blank=True, max_length=255, unique=True)
+    stripe_act_id = models.CharField(default=None, null=True, blank=True, max_length=255, unique=True)
+    stripe_cus_id = models.CharField(default=None, null=True, blank=True, max_length=255, unique=True)
+    stripe_def_pm = models.CharField(default=None, null=True, blank=True, max_length=255, unique=True)
     owner = models.ForeignKey(CustomUser, default=None, null=True, on_delete=models.CASCADE)
     managers = models.ManyToManyField(CustomUser, default=None, related_name='managers')
     business_name = models.CharField(default=None, max_length=64, unique=True)
@@ -178,13 +180,22 @@ class Business(models.Model):
             self.date_joined = timezone.now()
 
         ''' On save, create stripe account if does not exist yet '''
-        if not self.stripe_id:
-            stripe = stripe.Account.create(
+        if not self.stripe_act_id:
+            account = stripe.Account.create(
                 type='standard',
                 name=self.business_name,
                 email=self.email
             )
-            self.stripe_id = stripe.id
+            self.stripe_act_id = account.id
+
+        ''' On save, create stripe customer if does not exist yet '''
+        if not self.stripe_cus_id:
+            customer = stripe.Customer.create(
+                name=self.business_name,
+                email=self.email
+            )
+            self.stripe_cus_id = customer.stripe_id
+
 
         return super(Business, self).save(*args, **kwargs)
 

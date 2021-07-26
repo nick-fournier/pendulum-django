@@ -16,7 +16,8 @@
             "email": "nick.fournier@berkeley.edu",
             "phone": "555-555-5555",
             "fax": null,
-            "stripe_id": "acct_1JDpru2Ex7Z79PyO"
+            "stripe_act_id": "acct_1JDpru2Ex7Z79PyO",
+            "stripe_cus_id": "cus_JvPwFpPMrKdrNU"
         }
     },
     {
@@ -36,7 +37,8 @@
             "email": "omar.mohamed@berkeley.edu",
             "phone": "555-555-5555",
             "fax": null,
-            "stripe_id": "acct_1JDcak2HzyuoAy7h"
+            "stripe_act_id": "acct_1JDcak2HzyuoAy7h",
+            "stripe_cus_id": "cus_JvQ1UCAmTJt5nR"
         }
     },
     {
