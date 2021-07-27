@@ -245,6 +245,7 @@ def get_user_data(request):
                  "business_name": business.business_name,
                  "stripe_act_id": business.stripe_act_id,
                  "stripe_cus_id": business.stripe_cus_id,
+                 "stripe_def_pm": business.stripe_def_pm,
                  }
 
     return Response(status=status.HTTP_200_OK, data=user_info)
