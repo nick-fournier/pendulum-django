@@ -213,18 +213,16 @@ def payment_methods(request):
         }
 
     if request.method == 'POST':
-        if request.data['stripe_def_pm'] in pm_dict.keys():
+        if 'stripe_def_pm' in request.data:
             business.stripe_def_pm = request.data['stripe_def_pm']
+            return Response(status=status.HTTP_200_OK, data={"Sucessfully saved new default payment method"})
 
-        # if request.data['attach_all_methods']:
-        #     for pm in pm_dict.keys():
-        #         stripe.PaymentMethod.create(
-        #             customer=business.stripe_cus_id,
-        #             payment_method=pm,
-        #             stripe_account=business.stripe_act_id,
-        #         )
-
-            return Response(status=status.HTTP_200_OK, data={"Sucessfuly saved new default payment method"})
+        if 'attach_payment_method' in request.data:
+            stripe.PaymentMethod.attach(
+                request.data['attach_payment_method'],
+                customer=business.stripe_cus_id
+            )
+            return Response(status=status.HTTP_200_OK, data={"Sucessfully saved new default payment method"})
 
     return Response(status=status.HTTP_200_OK, data=pm_dict)
 

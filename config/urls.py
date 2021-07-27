@@ -41,7 +41,7 @@ urlpatterns = [
     path('api/', include((router.urls, 'timely'), namespace='api')), #The data API
     path('api/stripe/payinvoice', views.stripe_pay_invoice),
     path('api/stripe/onboard', views.stripe_onboard),
-    path('api/stripe/paymentmethods', views.payment_methods),
+    path('api/stripe/paymentmethod', views.attach_payment_method),
 
     path('api/userinfo', views.get_user_data),
     path('api-auth/', include('rest_framework.urls')), # DRF auth portal
