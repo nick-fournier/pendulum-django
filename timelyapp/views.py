@@ -222,7 +222,7 @@ def payment_methods(request):
                 request.data['attach_payment_method'],
                 customer=business.stripe_cus_id
             )
-            return Response(status=status.HTTP_200_OK, data={"Sucessfully saved new default payment method"})
+            return Response(status=status.HTTP_200_OK, data={"Sucessfully attached new payment method"})
 
     return Response(status=status.HTTP_200_OK, data=pm_dict)
 
