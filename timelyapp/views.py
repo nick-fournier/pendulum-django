@@ -121,38 +121,55 @@ def payment_methods(request):
     # Get the current business
     business = Business.objects.get(pk=get_business_id(request.user.id))
 
-    # Get payment methods, if any
+    if not business.stripe_cus_id or business.stripe_cus_id == "":
+        return Response(status=status.HTTP_200_OK,
+                    data={"Error": "Missing customer ID. User not yet onboarded?"})
+
+    # Get existing payment methods attached, if any
+    pm_dict = {}
     try:
         payment_methods = stripe.PaymentMethod.list(
             customer=business.stripe_cus_id,
             type="card",
         )['data']
+        for x in payment_methods:
+            info = [x['card'][i] for i in ['last4', 'brand', 'exp_month', 'exp_year']]
+            pm_dict[x['id']] = {
+                **{'summary': "{} ************{} exp:{}/{}".format(*info)},
+                **{i: x['card'][i] for i in ['brand', 'last4', 'exp_month', 'exp_year']}
+            }
     except stripe.error.InvalidRequestError:
-        payment_methods = []
-
-    pm_dict = {}
-    for x in payment_methods:
-        info = [x['card'][i] for i in ['last4', 'brand', 'exp_month', 'exp_year']]
-        pm_dict[x['id']] = {
-            **{'summary': "{} ************{} exp:{}/{}".format(*info)},
-            **{i: x['card'][i] for i in ['brand', 'last4', 'exp_month', 'exp_year']}
-        }
+        pass
 
     if request.method == 'POST':
+        if 'attach_payment_method' in request.data:
+            # Check if payment method exists
+            try:
+                stripe.PaymentMethod.retrieve(request.data['attach_payment_method'])
+            except stripe.error.InvalidRequestError:
+                return Response(status=status.HTTP_200_OK,
+                                data={"Error": "No such payment method"})
+            # Attach method to customer
+            payment_method = stripe.PaymentMethod.attach(
+                request.data['attach_payment_method'],
+                customer=business.stripe_cus_id
+            )
+            return Response(status=status.HTTP_200_OK,
+                            data={"Success": request.data['stripe_def_pm'] + " attached to " + business.stripe_cus_id})
+
         if 'stripe_def_pm' in request.data:
+            # Check if payment method is attached to customer
+            if request.data['stripe_def_pm'] not in pm_dict.keys():
+                return Response(status=status.HTTP_200_OK,
+                                data={"Error": request.data['stripe_def_pm'] + " not attached to customer"})
+            # Set default on stripe and in database
             business.stripe_def_pm = request.data['stripe_def_pm']
             stripe.Customer.modify(
                 business.stripe_cus_id,
                 invoice_settings={'default_payment_method': request.data['stripe_def_pm']}
             )
-            return Response(status=status.HTTP_200_OK, data={"Sucessfully saved new default payment method"})
-
-        if 'attach_payment_method' in request.data:
-            stripe.PaymentMethod.attach(
-                request.data['attach_payment_method'],
-                customer=business.stripe_cus_id
-            )
-            return Response(status=status.HTTP_200_OK, data={"Sucessfully attached new payment method"})
+            return Response(status=status.HTTP_200_OK,
+                            data={"Success": request.data['stripe_def_pm'] + " is default payment method"})
 
     return Response(status=status.HTTP_200_OK, data=pm_dict)
 
