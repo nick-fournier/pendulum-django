@@ -83,22 +83,15 @@ def stripe_pay_invoice(request):
 
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
+        cust_desc = "Invoice: " + invoice.invoice_name + \
+                    " from " + Business.objects.get(pk=invoice.bill_to.id).business_name
+
         # Clone customer to connected account
         payment_method = stripe.PaymentMethod.create(
             customer=this_business.stripe_cus_id,
             payment_method=data['payment_method'],
             stripe_account=billing_business.stripe_act_id,
         )
-
-        payment_method = stripe.PaymentMethod.create(
-            customer='cus_JvPwFpPMrKdrNU',
-            payment_method='pm_1JHZdPC6DO7oZMzw4zY5Tp3T',
-            stripe_account='acct_1JDcak2HzyuoAy7h',
-        )
-
-
-        cust_desc = "Invoice: " + invoice.invoice_name + \
-                    " from " + Business.objects.get(pk=invoice.bill_to.id).business_name
 
         payment_intent = stripe.PaymentIntent.create(
             amount=int(invoice.invoice_total_price*100),
@@ -119,6 +112,47 @@ def stripe_pay_invoice(request):
         # )
 
         return Response(status=status.HTTP_200_OK, data=payment_intent)
+
+    return Response(status=status.HTTP_200_OK, data=pm_dict)
+
+
+@api_view(['GET', 'POST'])
+def payment_methods(request):
+    # Get the current business
+    business = Business.objects.get(pk=get_business_id(request.user.id))
+
+    # Get payment methods, if any
+    try:
+        payment_methods = stripe.PaymentMethod.list(
+            customer=business.stripe_cus_id,
+            type="card",
+        )['data']
+    except stripe.error.InvalidRequestError:
+        payment_methods = []
+
+    pm_dict = {}
+    for x in payment_methods:
+        info = [x['card'][i] for i in ['last4', 'brand', 'exp_month', 'exp_year']]
+        pm_dict[x['id']] = {
+            **{'summary': "{} ************{} exp:{}/{}".format(*info)},
+            **{i: x['card'][i] for i in ['brand', 'last4', 'exp_month', 'exp_year']}
+        }
+
+    if request.method == 'POST':
+        if 'stripe_def_pm' in request.data:
+            business.stripe_def_pm = request.data['stripe_def_pm']
+            stripe.Customer.modify(
+                business.stripe_cus_id,
+                invoice_settings={'default_payment_method': request.data['stripe_def_pm']}
+            )
+            return Response(status=status.HTTP_200_OK, data={"Sucessfully saved new default payment method"})
+
+        if 'attach_payment_method' in request.data:
+            stripe.PaymentMethod.attach(
+                request.data['attach_payment_method'],
+                customer=business.stripe_cus_id
+            )
+            return Response(status=status.HTTP_200_OK, data={"Sucessfully attached new payment method"})
 
     return Response(status=status.HTTP_200_OK, data=pm_dict)
 
@@ -189,42 +223,6 @@ def stripe_onboard(request):
     }
 
     return Response(status=status.HTTP_200_OK, data=account_link)
-
-@api_view(['GET', 'POST'])
-def payment_methods(request):
-    # Get the current business
-    business = Business.objects.get(pk=get_business_id(request.user.id))
-
-    # Get payment methods, if any
-    try:
-        payment_methods = stripe.PaymentMethod.list(
-            customer=business.stripe_cus_id,
-            type="card",
-        )['data']
-    except stripe.error.InvalidRequestError:
-        payment_methods = []
-
-    pm_dict = {}
-    for x in payment_methods:
-        info = [x['card'][i] for i in ['last4', 'brand', 'exp_month', 'exp_year']]
-        pm_dict[x['id']] = {
-            **{'summary': "{} ************{} exp:{}/{}".format(*info)},
-            **{i: x['card'][i] for i in ['brand', 'last4', 'exp_month', 'exp_year']}
-        }
-
-    if request.method == 'POST':
-        if 'stripe_def_pm' in request.data:
-            business.stripe_def_pm = request.data['stripe_def_pm']
-            return Response(status=status.HTTP_200_OK, data={"Sucessfully saved new default payment method"})
-
-        if 'attach_payment_method' in request.data:
-            stripe.PaymentMethod.attach(
-                request.data['attach_payment_method'],
-                customer=business.stripe_cus_id
-            )
-            return Response(status=status.HTTP_200_OK, data={"Sucessfully attached new payment method"})
-
-    return Response(status=status.HTTP_200_OK, data=pm_dict)
 
 
 # Create your views here.

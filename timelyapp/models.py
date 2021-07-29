@@ -179,23 +179,23 @@ class Business(models.Model):
         if not self.id:
             self.date_joined = timezone.now()
 
-        ''' On save, create stripe account if does not exist yet '''
-        if not self.stripe_act_id:
-            account = stripe.Account.create(
-                type='standard',
-                name=self.business_name,
-                email=self.email
-            )
-            self.stripe_act_id = account.id
+        # ''' On save, create stripe account if does not exist yet '''
+        # if not self.stripe_act_id:
+        #     account = stripe.Account.create(
+        #         type='standard',
+        #         name=self.business_name,
+        #         email=self.email
+        #     )
+        #     self.stripe_act_id = account.id
 
-        ''' On save, create stripe customer if does not exist yet '''
-        if not self.stripe_cus_id:
-            customer = stripe.Customer.create(
-                name=self.business_name,
-                email=self.email
-            )
-            self.stripe_cus_id = customer.stripe_id
-
+        # ''' On save, create stripe customer if does not exist yet '''
+        # if not self.stripe_cus_id:
+        #     customer = stripe.Customer.create(
+        #         name=self.business_name,
+        #         email=self.email
+        #     )
+        #     self.stripe_cus_id = customer.stripe_id
+        #
 
         return super(Business, self).save(*args, **kwargs)
 
