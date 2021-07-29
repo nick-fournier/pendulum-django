@@ -64,7 +64,7 @@ def stripe_pay_invoice(request):
             data['payment_method'] = this_business.stripe_def_pm
 
         if data['payment_method'] == None:
-            content = {'Bad invoice': 'User does not have any payment methods for their account!'}
+            content = {'Bad invoice': 'User does not have a default payment method. Specify payment method or set a default.'}
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
         # Check if the current user has authority to pay
@@ -136,7 +136,8 @@ def payment_methods(request):
             info = [x['card'][i] for i in ['last4', 'brand', 'exp_month', 'exp_year']]
             pm_dict[x['id']] = {
                 **{'summary': "{} ************{} exp:{}/{}".format(*info)},
-                **{i: x['card'][i] for i in ['brand', 'last4', 'exp_month', 'exp_year']}
+                **{i: x['card'][i] for i in ['brand', 'last4', 'exp_month', 'exp_year']},
+                **{'default': True if x['id'] is business.stripe_def_pm else False}
             }
     except stripe.error.InvalidRequestError:
         pass
