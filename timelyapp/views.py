@@ -137,7 +137,7 @@ def payment_methods(request):
             pm_dict[x['id']] = {
                 **{'summary': "{} ************{} exp:{}/{}".format(*info)},
                 **{i: x['card'][i] for i in ['brand', 'last4', 'exp_month', 'exp_year']},
-                **{'default': True if x['id'] is business.stripe_def_pm else False}
+                **{'default': True if x['id'] == business.stripe_def_pm else False}
             }
     except stripe.error.InvalidRequestError:
         pass
