@@ -164,11 +164,12 @@ def payment_methods(request):
                 return Response(status=status.HTTP_200_OK,
                                 data={"Error": request.data['stripe_def_pm'] + " not attached to customer"})
             # Set default on stripe and in database
-            business.stripe_def_pm = request.data['stripe_def_pm']
             stripe.Customer.modify(
                 business.stripe_cus_id,
                 invoice_settings={'default_payment_method': request.data['stripe_def_pm']}
             )
+            business.stripe_def_pm = request.data['stripe_def_pm']
+            business.save()
             return Response(status=status.HTTP_200_OK,
                             data={"Success": request.data['stripe_def_pm'] + " is default payment method"})
 
