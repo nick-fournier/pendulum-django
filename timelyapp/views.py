@@ -149,7 +149,7 @@ def attach_payment_methods(request):
         if 'attach_payment_method' in request.data:
             # Check if payment method exists
             try:
-                stripe.PaymentMethod.retrieve(request.data['attach_payment_method'])
+                payment_method = stripe.PaymentMethod.retrieve(request.data['attach_payment_method'])
             except stripe.error.InvalidRequestError:
                 content = {"Error": "No such payment method"}
                 return Response(content, status=status.HTTP_404_NOT_FOUND)
