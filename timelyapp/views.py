@@ -147,18 +147,16 @@ def attach_payment_methods(request):
 
     if request.method == 'POST':
         if 'attach_payment_method' in request.data:
-            # Check if payment method exists
-            # try:
-            #     payment_method = stripe.PaymentMethod.retrieve(request.data['attach_payment_method'])
-            # except stripe.error.InvalidRequestError:
-            #     content = {"Error": "No such payment method"}
-            #     return Response(content, status=status.HTTP_404_NOT_FOUND)
-
             # Attach method to customer
-            payment_method = stripe.PaymentMethod.attach(
-                request.data['attach_payment_method'],
-                customer=business.stripe_cus_id
-            )
+            try:
+                payment_method = stripe.PaymentMethod.attach(
+                    request.data['attach_payment_method'],
+                    customer=business.stripe_cus_id
+                )
+            except stripe.error.InvalidRequestError:
+                content = {"Error": "No such payment method"}
+                return Response(content, status=status.HTTP_404_NOT_FOUND)
+
             # Update payment method list
             attached_methods = list_payment_methods(business)
             return Response(status=status.HTTP_200_OK, data=attached_methods)
@@ -181,31 +179,23 @@ def default_payment_methods(request):
 
     if request.method == 'POST':
         if 'default_payment_method' in request.data:
-            # Check if payment method exists
-            try:
-                stripe.PaymentMethod.retrieve(request.data['default_payment_method'])
-            except stripe.error.InvalidRequestError:
-                content = {"Error": "No such payment method"}
-                return Response(content, status=status.HTTP_404_NOT_FOUND)
-
             # Attach method to customer if not already
             if request.data['default_payment_method'] not in pm_dict.keys():
-                payment_method = stripe.PaymentMethod.attach(
-                    request.data['default_payment_method'],
-                    customer=business.stripe_cus_id
-                )
-            else:
-                payment_method = stripe.PaymentMethod.retrieve(
-                    request.data['default_payment_method'],
-                )
+                # Attach method to customer
+                try:
+                    payment_method = stripe.PaymentMethod.attach(
+                        request.data['default_payment_method'],
+                        customer=business.stripe_cus_id
+                    )
+                except stripe.error.InvalidRequestError:
+                    content = {"Error": "No such payment method"}
+                    return Response(content, status=status.HTTP_404_NOT_FOUND)
 
             # Set default on stripe and in database
-            stripe.Customer.modify(
+            payment_method = stripe.Customer.modify(
                 business.stripe_cus_id,
                 invoice_settings={'default_payment_method': payment_method.id}
             )
-            business.stripe_def_pm = payment_method.id
-            business.save()
 
             # Update they payment method list
             pm_dict = list_payment_methods(business)
@@ -299,8 +289,7 @@ def get_user_data(request):
                  "business_email": business.email,
                  "business_name": business.business_name,
                  "stripe_act_id": business.stripe_act_id,
-                 "stripe_cus_id": business.stripe_cus_id,
-                 "stripe_def_pm": business.stripe_def_pm,
+                 "stripe_cus_id": business.stripe_cus_id
                  }
 
     return Response(status=status.HTTP_200_OK, data=user_info)

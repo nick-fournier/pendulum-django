@@ -163,7 +163,6 @@ class Business(models.Model):
     is_individual = models.BooleanField(default=False)
     stripe_act_id = models.CharField(default=None, null=True, blank=True, max_length=255, unique=True)
     stripe_cus_id = models.CharField(default=None, null=True, blank=True, max_length=255, unique=True)
-    stripe_def_pm = models.CharField(default=None, null=True, blank=True, max_length=255, unique=True)
     owner = models.ForeignKey(CustomUser, default=None, null=True, on_delete=models.CASCADE)
     managers = models.ManyToManyField(CustomUser, default=None, related_name='managers')
     business_name = models.CharField(default=None, max_length=64, unique=True)
