@@ -70,7 +70,11 @@ def stripe_pay_invoice(request):
     if request.method == 'POST':
         # Check if invoice exists
         try:
-            invoice = Invoice.objects.get(pk=request.data['id'])
+            if 'invoice_id' in request.data:
+                invoice = Invoice.objects.get(pk=request.data['invoice_id'])
+            elif 'invoice_name' in request.data:
+                invoice = Invoice.objects.get(invoice_name=request.data['invoice_name'])
+
             billing_business = Business.objects.get(business_name=invoice.bill_from)
             timely_fee = round(timely_rate * 100 * invoice.invoice_total_price) # Calculate our fee
         except Invoice.DoesNotExist:
