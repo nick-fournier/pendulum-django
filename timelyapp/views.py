@@ -163,7 +163,7 @@ def attach_payment_methods(request):
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
     # Get existing payment methods attached, if any
-    attached_methods = list_payment_methods(business)
+    pm_dict, pm_list = list_payment_methods(business)
 
     if request.method == 'POST':
         if 'attach_payment_method' in request.data:
@@ -178,10 +178,10 @@ def attach_payment_methods(request):
                 return Response(content, status=status.HTTP_404_NOT_FOUND)
 
             # Update payment method list
-            attached_methods = list_payment_methods(business)
-            return Response(status=status.HTTP_200_OK, data=attached_methods)
+            pm_dict, pm_list = list_payment_methods(business)
+            return Response(status=status.HTTP_200_OK, data=pm_list)
 
-    return Response(status=status.HTTP_200_OK, data=attached_methods)
+    return Response(status=status.HTTP_200_OK, data=pm_list)
 
 # Set new default payment method
 @api_view(['GET', 'POST'])
