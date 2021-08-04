@@ -14,9 +14,15 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 timely_rate = Decimal(0.001) #0.1%
 
 
+from django.shortcuts import render
+def chart_view(request):
+    return render(request, 'chart.html')
+
+
 def list_payment_methods(business):
     # Get payment methods, if any
     pm_dict = {}
+    pm_list = []
     try:
         payment_methods = stripe.PaymentMethod.list(
             customer=business.stripe_cus_id,
@@ -26,10 +32,15 @@ def list_payment_methods(business):
         customer = stripe.Customer.retrieve(business.stripe_cus_id)
 
         for x in payment_methods:
-            info = [x['card'][i] for i in ['last4', 'brand', 'exp_month', 'exp_year']]
+            meta = {
+                **{'id': x['id']},
+                **{i: x['card'].get(i) for i in ['brand', 'last4', 'exp_month', 'exp_year']}
+             }
+            pm_list.append(meta)
+
             pm_dict[x['id']] = {
-                **{'summary': "{} ************{} exp:{}/{}".format(*info)},
-                **{i: x['card'][i] for i in ['brand', 'last4', 'exp_month', 'exp_year']},
+                **{"summary": "{brand} ************{last4} exp:{exp_month}/{exp_year}".format(**meta)},
+                **meta,
                 **{'default': True if x['id'] == customer.invoice_settings.default_payment_method else False}
             }
 
@@ -37,7 +48,7 @@ def list_payment_methods(business):
         content = {'Bad invoice': 'Not a valid customer ID'}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
-    return pm_dict
+    return pm_dict, pm_list
 
 
 ### Stripe views ###
@@ -49,7 +60,7 @@ def stripe_pay_invoice(request):
     this_business = Business.objects.get(pk=get_business_id(request.user.id))
 
     # Get payment methods, if any
-    pm_dict = list_payment_methods(this_business)
+    pm_dict, pm_list = list_payment_methods(this_business)
 
     if request.method == 'POST':
         # Check if invoice exists
@@ -130,7 +141,7 @@ def stripe_pay_invoice(request):
 
         return Response(status=status.HTTP_200_OK, data=payment_intent)
 
-    return Response(status=status.HTTP_200_OK, data=pm_dict)
+    return Response(status=status.HTTP_200_OK, data=pm_list)
 
 
 @api_view(['GET', 'POST'])
@@ -174,7 +185,7 @@ def default_payment_methods(request):
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
     # Get existing payment methods attached, if any
-    pm_dict = list_payment_methods(business)
+    pm_dict, pm_list = list_payment_methods(business)
     current_default = {x: pm_dict[x] for x in pm_dict if pm_dict[x]['default']}
 
     if request.method == 'POST':
@@ -198,7 +209,7 @@ def default_payment_methods(request):
             )
 
             # Update they payment method list
-            pm_dict = list_payment_methods(business)
+            pm_dict, pm_list = list_payment_methods(business)
             current_default = {x: pm_dict[x] for x in pm_dict if pm_dict[x]['default']}
             return Response(status=status.HTTP_200_OK, data=current_default)
 
@@ -279,7 +290,6 @@ def redirect_view(request):
     response = redirect('/api/')
     return response
 
-# Django REST framework endpoints
 @api_view(['GET'])
 def get_user_data(request):
     # Get the current business
@@ -294,7 +304,7 @@ def get_user_data(request):
 
     return Response(status=status.HTTP_200_OK, data=user_info)
 
-
+# Django REST framework endpoints
 class InvoiceViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = FullInvoiceSerializer
     queryset = Invoice.objects.all()
@@ -305,7 +315,6 @@ class InvoiceViewSet(viewsets.ReadOnlyModelViewSet):
         query_set = queryset.filter(Q(bill_from__id=business_id) | Q(bill_to__id=business_id)).order_by('id')
         return query_set
 
-# Django REST framework endpoints
 class NewInvoiceViewSet(viewsets.ModelViewSet):
     serializer_class = NewInvoiceSerializer
     queryset = Invoice.objects.all()

@@ -79,7 +79,8 @@ class GenerateData:
 
         if terms in ndays:
             return (sent_date + datetime.timedelta(ndays[terms])).strftime("%Y-%m-%d")
-        # elif terms in ['COD', 'CIA']:
+        elif terms in ['CIA']:
+            return sent_date.strftime("%Y-%m-%d")
         #     return {'COD': 'On delivery', 'CIA': 'Cash in advance'}[terms]
         else:
             return None

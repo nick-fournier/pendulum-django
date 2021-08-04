@@ -229,8 +229,10 @@ class Inventory(models.Model):
 
 class Invoice(models.Model):
     invoice_name = models.CharField(default=None, null=True, max_length=16)
+    date_purchase = models.DateField(null=True)
     date_sent = models.DateField(null=True)
     date_due = models.DateField(null=True)
+    date_paid = models.DateField(null=True)
     bill_from = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='bill_from')
     bill_to = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='bill_to')
     terms = models.CharField(default='NET30', null=True, max_length=24, choices=TERM_CHOICES)

@@ -42,6 +42,7 @@ class CustomTokenSerializer(serializers.ModelSerializer):
 class BusinessSerializer(serializers.ModelSerializer):
     billing_address = serializers.CharField(read_only=True)
     shipping_address = serializers.CharField(read_only=True)
+
     class Meta:
         model = Business
         exclude = ['owner', 'date_joined', 'managers']
@@ -100,7 +101,7 @@ class NewOrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ['item_name', 'quantity_purchased', 'item_price', 'item_total_price', 'is_new']
 
-
+# CREATE NEW INVOICE SERIALIZER
 class NewInvoiceSerializer(serializers.ModelSerializer):
     bill_to_key = ToBusinessKeyField(source="bill_to")
     bill_to_name = serializers.SerializerMethodField(required=False)
@@ -157,7 +158,7 @@ class NewInvoiceSerializer(serializers.ModelSerializer):
 
         return invoice
 
-
+# SERIALIZER FOR FULL INVOICE DATA
 class FullInvoiceSerializer(serializers.ModelSerializer):
     bill_from = BusinessSerializer(read_only=True)
     bill_to = BusinessSerializer(read_only=True)
