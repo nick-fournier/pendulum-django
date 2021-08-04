@@ -34,8 +34,13 @@ def list_payment_methods(business):
         for x in payment_methods:
             meta = {
                 **{'id': x['id']},
-                **{i: x['card'].get(i) for i in ['brand', 'last4', 'exp_month', 'exp_year']}
+                **{i: x['card'].get(i) for i in ['brand', 'last4', 'exp_month', 'exp_year']},
+                **{'default': True if x['id'] == customer.invoice_settings.default_payment_method else False}
              }
+            meta = {
+                **meta,
+                **{"summary": "{brand} ************{last4} exp:{exp_month}/{exp_year}".format(**meta)}
+            }
             pm_list.append(meta)
 
             pm_dict[x['id']] = {
