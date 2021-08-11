@@ -42,10 +42,7 @@ class CustomTokenSerializer(serializers.ModelSerializer):
 class UserInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['first_name', 'last_name', 'role', 'is_active']
-
-    def get_user_email(self, obj):
-        return self.context.get("request").user.email
+        fields = ['email', 'first_name', 'last_name', 'role', 'is_active']
 
 
 class BusinessInfoSerializer(serializers.ModelSerializer):
