@@ -31,6 +31,8 @@ router.register(r'new_invoices', views.NewInvoiceViewSet, basename='api-new_invo
 router.register(r'payables', views.PayablesViewSet, basename='api-payables')
 router.register(r'receivables', views.ReceivablesViewSet, basename='api-receivables')
 router.register(r'newsletter', views.NewsletterViewSet, basename='api-newsletter')
+router.register(r'userinfo', views.UserInfo, basename='api-userinfo')
+router.register(r'businessinfo', views.BusinessInfo, basename='api-businessinfo')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -43,7 +45,7 @@ urlpatterns = [
     path('api/stripe/paymentmethods/attach', views.attach_payment_methods),
     path('api/stripe/paymentmethods/default', views.default_payment_methods),
 
-    path('api/userinfo', views.get_user_data),
+    #path('api/userinfo', views.get_user_data),
     path('api-auth/', include('rest_framework.urls')), # DRF auth portal
     path('api/rest-auth/', include('rest_auth.urls')), # auth endpoint api
     path('api/rest-auth/registration/', include('rest_auth.registration.urls')), # registration api

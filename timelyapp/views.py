@@ -313,6 +313,38 @@ def get_user_data(request):
 
     return Response(status=status.HTTP_200_OK, data=user_info)
 
+
+class BusinessInfo(viewsets.ModelViewSet):
+    serializer_class = BusinessInfoSerializer
+    queryset = Business.objects.all()
+
+    #business_phone
+    #Contact name
+    #Legal business name
+    #Legal business address
+    #Tax ID Type
+    #Tax ID number
+
+    def get_queryset(self):
+        queryset = self.queryset
+        business = Business.objects.get(id=get_business_id(self.request.user.id))
+        queryset = queryset.filter(owner__id=business.id)
+
+        # Checking if data is current
+        # account_info = stripe.Account.retrieve(queryset.get().stripe_act_id)
+
+        return queryset
+
+
+class UserInfo(viewsets.ModelViewSet):
+    serializer_class = UserInfoSerializer
+    queryset = CustomUser.objects.all()
+
+    def get_queryset(self):
+        queryset = self.queryset.filter(pk=self.request.user.id)
+        return queryset
+
+
 # Django REST framework endpoints
 class InvoiceViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = FullInvoiceSerializer

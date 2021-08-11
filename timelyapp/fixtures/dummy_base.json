@@ -11,9 +11,9 @@
       "billing_address": 1,
       "shipping_address": null,
       "date_joined": "2021-03-01",
-      "email": "nick.fournier@berkeley.edu",
-      "phone": "555-555-5555",
-      "fax": null,
+      "business_email": "nick.fournier@berkeley.edu",
+      "business_phone": "555-555-5555",
+      "business_fax": null,
       "stripe_act_id": "acct_1JDpru2Ex7Z79PyO",
       "stripe_cus_id": "cus_JvPwFpPMrKdrNU"
     }
@@ -30,9 +30,9 @@
       "billing_address": 2,
       "shipping_address": null,
       "date_joined": "2021-03-01",
-      "email": "omar.mohamed@berkeley.edu",
-      "phone": "555-555-5555",
-      "fax": null,
+      "business_email": "omar.mohamed@berkeley.edu",
+      "business_phone": "555-555-5555",
+      "business_fax": null,
       "stripe_act_id": "acct_1JDcak2HzyuoAy7h",
       "stripe_cus_id": "cus_JvQ1UCAmTJt5nR"
     }
@@ -49,9 +49,9 @@
       "billing_address": 3,
       "shipping_address": null,
       "date_joined": "2021-03-01",
-      "email": "businessemail@three.com",
-      "phone": "555-555-5555",
-      "fax": null
+      "business_email": "businessemail@three.com",
+      "business_phone": "555-555-5555",
+      "business_fax": null
     }
   },
    {
@@ -66,9 +66,9 @@
       "billing_address": 4,
       "shipping_address": null,
       "date_joined": "2021-03-01",
-      "email": "businessemail@FOUR.com",
-      "phone": "555-555-5555",
-      "fax": null
+      "business_email": "businessemail@FOUR.com",
+      "business_phone": "555-555-5555",
+      "business_fax": null
     }
   },
   {

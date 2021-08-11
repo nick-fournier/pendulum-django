@@ -44,6 +44,17 @@ PAYMENT_CHOICES = [
     ('FINANCE', 'Invoice financing with Timely'),
 ]
 
+ROLE_CHOICES = [
+    ('SALES STAFF', 'Sales Staff can view receivables only'),
+    ('PURCHASING STAFF', 'Purchasing Staff can view payables only'),
+    ('STAFF', 'Staff can view all invoices, but only view'),
+    ('SALES MANAGER', 'Sales Manager can generate invoices / approve purchase orders'),
+    ('PURCHASING MANAGER', 'Purchasing Manager can approve invoices / generate purchase order'),
+    ('MANAGER', 'Manager has full access to payables and receivables'),
+    ('CONTROLLER', 'Controller has full access to payables/receivables and can change user permissions'),
+    ('OWNER', 'Owner has full access and is irrevocable'),
+]
+
 STATES_CHOICES = (
     ('AL', _('Alabama')),
     ('AZ', _('Arizona')),
@@ -129,7 +140,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     objects = CustomUserManager()
     first_name = models.CharField(default=None, max_length=64)
     last_name = models.CharField(default=None, max_length=64)
-    is_staff = models.BooleanField(default=False)
+    role = models.CharField(default='STAFF', null=True, max_length=64, choices=ROLE_CHOICES)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)
 
@@ -166,9 +177,9 @@ class Business(models.Model):
     owner = models.ForeignKey(CustomUser, default=None, null=True, on_delete=models.CASCADE)
     managers = models.ManyToManyField(CustomUser, default=None, related_name='managers')
     business_name = models.CharField(default=None, max_length=64, unique=True)
-    email = models.EmailField(_('email address'), unique=True)
-    phone = PhoneNumberField(default=None, blank=True, null=True)
-    fax = PhoneNumberField(default=None, blank=True, null=True)
+    business_email = models.EmailField(_('email address'), unique=True)
+    business_phone = PhoneNumberField(default=None, blank=True, null=True)
+    business_fax = PhoneNumberField(default=None, blank=True, null=True)
     billing_address = models.ForeignKey(Address, default=None, null=True, on_delete=models.CASCADE, related_name='billing_address')
     shipping_address = models.ForeignKey(Address, default=None, null=True, on_delete=models.CASCADE, related_name='shipping_address')
     date_joined = models.DateTimeField()
@@ -177,25 +188,6 @@ class Business(models.Model):
         ''' On save, update timestamps '''
         if not self.id:
             self.date_joined = timezone.now()
-
-        # ''' On save, create stripe account if does not exist yet '''
-        # if not self.stripe_act_id:
-        #     account = stripe.Account.create(
-        #         type='standard',
-        #         name=self.business_name,
-        #         email=self.email
-        #     )
-        #     self.stripe_act_id = account.id
-
-        # ''' On save, create stripe customer if does not exist yet '''
-        # if not self.stripe_cus_id:
-        #     customer = stripe.Customer.create(
-        #         name=self.business_name,
-        #         email=self.email
-        #     )
-        #     self.stripe_cus_id = customer.stripe_id
-        #
-
         return super(Business, self).save(*args, **kwargs)
 
     def __str__(self):

@@ -39,6 +39,37 @@ class CustomTokenSerializer(serializers.ModelSerializer):
     def get_business_id(self, obj):
         return Business.objects.get(id=obj.user.id).id
 
+class UserInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['first_name', 'last_name', 'role', 'is_active']
+
+    def get_user_email(self, obj):
+        return self.context.get("request").user.email
+
+
+class BusinessInfoSerializer(serializers.ModelSerializer):
+    business_email = serializers.CharField(read_only=True)
+    business_name = serializers.CharField(read_only=True)
+    business_phone = serializers.CharField(read_only=True)
+    billing_address = serializers.CharField(read_only=True)
+    stripe_act_id = serializers.CharField(read_only=True)
+    stripe_cus_id = serializers.CharField(read_only=True)
+    user_email = serializers.SerializerMethodField(required=False)
+
+    class Meta:
+        user_id = serializers.SerializerMethodField(required=False)
+        model = Business
+        fields = ['user_email', 'business_email', 'business_name', 'business_phone',
+                  'billing_address', 'stripe_act_id', 'stripe_cus_id']
+
+    def get_user_email(self, obj):
+        return self.context.get("request").user.email
+
+    def get_user_id(self, obj):
+        return self.context.get("request").user.id
+
+
 class BusinessSerializer(serializers.ModelSerializer):
     billing_address = serializers.CharField(read_only=True)
     shipping_address = serializers.CharField(read_only=True)
@@ -202,6 +233,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
 
                   'date_sent',
                   'date_due',
+                  'date_paid',
                   'terms',
                   'invoice_total_price',
                   'notes',
