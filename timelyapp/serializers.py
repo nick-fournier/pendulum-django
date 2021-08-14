@@ -35,7 +35,7 @@ class CustomTokenSerializer(serializers.ModelSerializer):
     def get_business_name(self, obj):
         return Business.objects.get(id=obj.user.id).business_name
     def get_business_email(self, obj):
-        return Business.objects.get(id=obj.user.id).email
+        return Business.objects.get(id=obj.user.id).business_email
     def get_business_id(self, obj):
         return Business.objects.get(id=obj.user.id).id
 
