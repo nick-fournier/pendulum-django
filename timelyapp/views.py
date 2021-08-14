@@ -4,9 +4,12 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.generics import GenericAPIView
+from rest_framework.mixins import UpdateModelMixin
 from decimal import Decimal
 from .serializers import *
 from .forms import *
+from .permissions import *
 from timelyapp.utils import get_business_id
 import stripe
 
@@ -18,7 +21,7 @@ from django.shortcuts import render
 def chart_view(request):
     return render(request, 'chart.html')
 
-
+#### General Functions ####
 def list_payment_methods(business):
     # Get payment methods, if any
     pm_dict = {}
@@ -152,7 +155,6 @@ def stripe_pay_invoice(request):
 
     return Response(status=status.HTTP_200_OK, data=pm_list)
 
-
 @api_view(['GET', 'POST'])
 def attach_payment_methods(request):
     # Get the current business
@@ -224,8 +226,6 @@ def default_payment_methods(request):
 
     return Response(status=status.HTTP_200_OK, data=current_default)
 
-
-
 #This function retrieves currently logged in user and returns the stripe AccountLink, no POST data is required
 @api_view(['GET'])
 def stripe_onboard(request):
@@ -293,26 +293,11 @@ def stripe_onboard(request):
 
     return Response(status=status.HTTP_200_OK, data=account_link)
 
-
+#### Timely Views ####
 # Create your views here.
 def redirect_view(request):
     response = redirect('/api/')
     return response
-
-@api_view(['GET'])
-def get_user_data(request):
-    # Get the current business
-    business = Business.objects.get(pk=get_business_id(request.user.id))
-
-    user_info = {"user_email": request.user.email,
-                 "business_email": business.email,
-                 "business_name": business.business_name,
-                 "stripe_act_id": business.stripe_act_id,
-                 "stripe_cus_id": business.stripe_cus_id
-                 }
-
-    return Response(status=status.HTTP_200_OK, data=user_info)
-
 
 class BusinessInfo(viewsets.ModelViewSet):
     serializer_class = BusinessInfoSerializer
@@ -337,34 +322,32 @@ class BusinessInfo(viewsets.ModelViewSet):
 
 
 class UserInfo(viewsets.ModelViewSet):
-    serializer_class = UserInfoSerializer
-    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+    #permission_classes = (UserPermissions, )
 
     def get_queryset(self):
-        queryset = self.queryset.filter(pk=self.request.user.id)
-        return queryset
+        return CustomUser.objects.filter(pk=self.request.user.id)
+
+    def put(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
 
 
 # Django REST framework endpoints
 class InvoiceViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = FullInvoiceSerializer
-    queryset = Invoice.objects.all()
 
     def get_queryset(self):
-        queryset = self.queryset
         business_id = get_business_id(self.request.user.id)
-        query_set = queryset.filter(Q(bill_from__id=business_id) | Q(bill_to__id=business_id)).order_by('id')
-        return query_set
+        queryset = Invoice.objects.filter(Q(bill_from__id=business_id) | Q(bill_to__id=business_id)).order_by('id')
+        return queryset
 
 class NewInvoiceViewSet(viewsets.ModelViewSet):
     serializer_class = NewInvoiceSerializer
-    queryset = Invoice.objects.all()
 
     def get_queryset(self):
-        queryset = self.queryset
         business_id = get_business_id(self.request.user.id)
-        query_set = queryset.filter(bill_from__id=business_id)
-        return query_set
+        queryset = Invoice.objects.filter(bill_from__id=business_id)
+        return queryset
 
 
 class BusinessViewSet(viewsets.ModelViewSet):
@@ -374,51 +357,43 @@ class BusinessViewSet(viewsets.ModelViewSet):
 
 class InventoryViewSet(viewsets.ModelViewSet):
     serializer_class = InventorySerializer
-    queryset = Inventory.objects.all()
 
     def get_queryset(self):
-        queryset = self.queryset
         business_id = get_business_id(self.request.user.id)
-        query_set = queryset.filter(Q(business__id=business_id)).order_by('last_updated')
-        return query_set
+        queryset = Inventory.objects.filter(Q(business__id=business_id)).order_by('last_updated')
+        return queryset
 
 
 class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
-    queryset = Order.objects.all()
 
     def get_queryset(self):
-        queryset = self.queryset
         business_id = get_business_id(self.request.user.id)
         item_list = Inventory.objects.filter(Q(business__id=business_id)).values_list('id', flat=True)
-        query_set = queryset.filter(pk__in=item_list)
+        query_set = Order.objects.filter(pk__in=item_list)
         return query_set
 
 
 class PayablesViewSet(viewsets.ModelViewSet):
     serializer_class = InvoiceSerializer
-    queryset = Invoice.objects.all().order_by('-pk')
     success_url = reverse_lazy('home')
 
     # Overrides the internal function
     def get_queryset(self):
-        queryset = self.queryset
         business_id = get_business_id(self.request.user.id)
-        query_set = queryset.filter(bill_to__id=business_id)
-        return query_set
+        queryset = Invoice.objects.filter(bill_to__id=business_id).order_by('date_due')
+        return queryset
 
 
 class ReceivablesViewSet(viewsets.ModelViewSet):
     serializer_class = InvoiceSerializer
-    queryset = Invoice.objects.all().order_by('-pk')
     success_url = reverse_lazy('home')
 
     # Overrides the internal function
     def get_queryset(self):
-        queryset = self.queryset
         business_id = get_business_id(self.request.user.id)
-        query_set = queryset.filter(bill_from__id=business_id)
-        return query_set
+        queryset = Invoice.objects.filter(bill_from__id=business_id).order_by('date_due')
+        return queryset
 
 class NewsletterViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]

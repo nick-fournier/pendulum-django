@@ -12,9 +12,12 @@ from timelyapp.utils import calculate_duedate, generate_invoice_name, get_busine
 
 
 class UserSerializer(serializers.ModelSerializer):
+    is_active = serializers.CharField(read_only=True)
+    date_joined = serializers.CharField(read_only=True)
+
     class Meta:
         model = CustomUser
-        fields = ['id', 'email', 'first_name', 'last_name', 'date_joined']
+        fields = ['id', 'email', 'first_name', 'last_name', 'is_active', 'date_joined']
 
 
 class CustomTokenSerializer(serializers.ModelSerializer):
@@ -39,16 +42,10 @@ class CustomTokenSerializer(serializers.ModelSerializer):
     def get_business_id(self, obj):
         return Business.objects.get(id=obj.user.id).id
 
-class UserInfoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = ['email', 'first_name', 'last_name', 'role', 'is_active']
-
-
 class BusinessInfoSerializer(serializers.ModelSerializer):
-    business_email = serializers.CharField(read_only=True)
-    business_name = serializers.CharField(read_only=True)
-    business_phone = serializers.CharField(read_only=True)
+    business_email = serializers.CharField()
+    business_name = serializers.CharField()
+    business_phone = serializers.CharField()
     billing_address = serializers.CharField(read_only=True)
     stripe_act_id = serializers.CharField(read_only=True)
     stripe_cus_id = serializers.CharField(read_only=True)
