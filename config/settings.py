@@ -214,8 +214,10 @@ VENV_PATH = os.path.dirname(BASE_DIR)
 STATIC_ROOT = os.path.join(VENV_PATH, 'static_root')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-LOGIN_REDIRECT_URL = 'home'
-LOGOUT_REDIRECT_URL = 'home'
+#LOGIN_REDIRECT_URL = 'home'
+#LOGOUT_REDIRECT_URL = '/api/'
+
+
 
 # Activate Django-Heroku.
 django_heroku.settings(locals())
