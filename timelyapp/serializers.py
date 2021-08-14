@@ -203,13 +203,13 @@ class InvoiceSerializer(serializers.ModelSerializer):
 
     from_business_name = serializers.SerializerMethodField()
     from_billing_address = serializers.SerializerMethodField()
-    from_email = serializers.SerializerMethodField()
-    from_phone = serializers.SerializerMethodField()
+    from_business_email = serializers.SerializerMethodField()
+    from_business_phone = serializers.SerializerMethodField()
 
     to_business_name = serializers.SerializerMethodField()
     to_billing_address = serializers.SerializerMethodField()
-    to_email = serializers.SerializerMethodField()
-    to_phone = serializers.SerializerMethodField()
+    to_business_email = serializers.SerializerMethodField()
+    to_business_phone = serializers.SerializerMethodField()
 
     class Meta:
         model = Invoice
@@ -219,14 +219,14 @@ class InvoiceSerializer(serializers.ModelSerializer):
                   'bill_from_id',
                   'from_business_name',
                   'from_billing_address',
-                  'from_email',
-                  'from_phone',
+                  'from_business_email',
+                  'from_business_phone',
 
                   'bill_to_id',
                   'to_business_name',
                   'to_billing_address',
-                  'to_email',
-                  'to_phone',
+                  'to_business_email',
+                  'to_business_phone',
 
                   'date_sent',
                   'date_due',
@@ -252,18 +252,18 @@ class InvoiceSerializer(serializers.ModelSerializer):
         return Business.objects.get(id=obj.bill_from.id).business_name
     def get_from_billing_address(self, obj):
         return str(Business.objects.get(id=obj.bill_from.id).billing_address)
-    def get_from_email(self, obj):
-        return Business.objects.get(id=obj.bill_from.id).email
-    def get_from_phone(self, obj):
-        return str(Business.objects.get(id=obj.bill_from.id).phone)
+    def get_from_business_email(self, obj):
+        return Business.objects.get(id=obj.bill_from.id).business_email
+    def get_from_business_phone(self, obj):
+        return str(Business.objects.get(id=obj.bill_from.id).business_phone)
     def get_to_business_name(self, obj):
         return Business.objects.get(id=obj.bill_to.id).business_name
     def get_to_billing_address(self, obj):
         return str(Business.objects.get(id=obj.bill_to.id).billing_address)
-    def get_to_email(self, obj):
-        return Business.objects.get(id=obj.bill_to.id).email
-    def get_to_phone(self, obj):
-        return str(Business.objects.get(id=obj.bill_to.id).phone)
+    def get_to_business_email(self, obj):
+        return Business.objects.get(id=obj.bill_to.id).business_email
+    def get_to_business_phone(self, obj):
+        return str(Business.objects.get(id=obj.bill_to.id).business_phone)
 
 class NewsletterSerializer(serializers.ModelSerializer):
     special_key = serializers.CharField(write_only=True)
