@@ -64,21 +64,6 @@ def list_payment_methods(business):
 
 
 ### Stripe views ###
-@api_view(['POST'])
-def update_invoice_status(request):
-
-    try:
-        # request['data']['object']['payment_intent']
-        invoice = Invoice.objects.get(recent_pi=request.data.object.payment_intent)
-        invoice.is_paid = True
-        invoice.date_paid = datetime.date.today()
-
-    except Invoice.DoesNotExist:
-        content = {'Bad invoice': 'No matching invoice ID in records'}
-        Response(content, status=status.HTTP_404_NOT_FOUND)
-
-    return Response(status=status.HTTP_200_OK, data=invoice)
-
 
 # This function takes invoice ID posted and sends back a payment intent
 @api_view(['GET', 'POST'])
@@ -171,8 +156,10 @@ def stripe_pay_invoice(request):
         #     payment_method=payment_method,
         # )
 
-        invoice.recent_pi = payment_intent.id
-        invoice.save()
+        if payment_intent.status == 'succeeded':
+            invoice.is_paid = True
+            invoice.date_paid = datetime.date.today()
+            invoice.save()
 
         return Response(status=status.HTTP_200_OK, data=payment_intent)
 

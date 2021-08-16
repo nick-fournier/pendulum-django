@@ -236,7 +236,6 @@ class Invoice(models.Model):
     is_scheduled = models.BooleanField(default=False)
     is_paid = models.BooleanField(default=False)
     invoice_only = models.BooleanField(default=False)
-    recent_pi = models.CharField(default=None, null=True, max_length=28)
 
     def __str__(self):
         return "%s, $%s, due: %s" %(self.invoice_name,
