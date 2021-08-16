@@ -42,6 +42,7 @@ urlpatterns = [
     #Timely Endpoints
     path('api/', include((router.urls, 'timely'), namespace='api')), #The data API
     path('api/stripe/payinvoice', views.stripe_pay_invoice),
+    path('api/stripe/payinvoice/status', views.update_invoice_status),
     path('api/stripe/onboard', views.stripe_onboard),
     path('api/stripe/paymentmethods/attach', views.attach_payment_methods),
     path('api/stripe/paymentmethods/default', views.default_payment_methods),
