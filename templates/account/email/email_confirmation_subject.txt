@@ -1,0 +1,4 @@
+{% load i18n %}
+{% autoescape off %}
+{% blocktrans %} e-mail confirmation {% endblocktrans %}
+{% endautoescape %}

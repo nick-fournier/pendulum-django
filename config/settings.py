@@ -146,28 +146,35 @@ AUTHENTICATION_BACKENDS = (
  "allauth.account.auth_backends.AuthenticationBackend",
 )
 
+SITE_ID = 1
 
 AUTH_USER_MODEL = 'timelyapp.CustomUser'
 
-#This is required otherwise it asks for email server
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
-# AUTHENTICATION_METHOD = 'EMAIL'
-# ACCOUNT_EMAIL_VERIFICATION = 'mandatory' # 'optional'
-# ACCOUNT_CONFIRM_EMAIL_ON_GET = True
-# ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = '/?verification=1'
-# ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = '/?verification=1'
-#
-# Will need to replace this with actual mailer thing
-# EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
-# EMAIL_FILE_PATH = str(BASE_DIR.joinpath('sent_emails'))
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = '/?verification=1'
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = '/?verification=1'
+ACCOUNT_EMAIL_SUBJECT_PREFIX = None
 
-SITE_ID = 1
+
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+#EMAIL_FILE_PATH = '/sent_emails'
+
+EMAIL_HOST = 'smtp.mailgun.org'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = os.environ.get("EMAIL_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_PASSWORD")
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
 
 REST_AUTH_SERIALIZERS = {
     'USER_DETAILS_SERIALIZER': 'timelyapp.serializers.UserSerializer',

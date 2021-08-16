@@ -1,9 +1,11 @@
 from django.shortcuts import redirect
+from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse_lazy, reverse
 from rest_framework import viewsets, status
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import UpdateModelMixin
 from decimal import Decimal
@@ -12,6 +14,7 @@ from .forms import *
 from .permissions import *
 from timelyapp.utils import get_business_id
 import stripe
+
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 timely_rate = Decimal(0.001) #0.1%
@@ -301,19 +304,15 @@ def redirect_view(request):
 
 class BusinessInfo(viewsets.ModelViewSet):
     serializer_class = BusinessInfoSerializer
-    queryset = Business.objects.all()
-
-    #business_phone
-    #Contact name
-    #Legal business name
-    #Legal business address
-    #Tax ID Type
-    #Tax ID number
 
     def get_queryset(self):
         queryset = self.queryset
-        business = Business.objects.get(id=get_business_id(self.request.user.id))
-        queryset = queryset.filter(owner__id=business.id)
+
+        try:
+            business = Business.objects.get(id=get_business_id(self.request.user.id))
+            queryset = queryset.filter(owner__id=business.id)
+        except Business.DoesNotExist:
+            queryset = []
 
         # Checking if data is current
         # account_info = stripe.Account.retrieve(queryset.get().stripe_act_id)

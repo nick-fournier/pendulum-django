@@ -1,0 +1,14 @@
+{% extends "account/email/base_message.txt" %}
+{% load account %}
+{% load i18n %}
+
+{% block content %}{% autoescape off %}{% user_display user as user_display %}{% blocktrans with site_name=current_site.name site_domain=current_site.domain %}
+An account on {{ site_domain }} was created using your email {{ user_display }}.
+
+To begin using your new account you must confirm this is correct by going to:
+
+{{ activate_url }}
+
+This e-mail can be safely ignored if you did not create an account.
+
+{% endblocktrans %}{% endautoescape %}{% endblock %}

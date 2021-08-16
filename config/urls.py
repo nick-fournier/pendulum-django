@@ -13,11 +13,12 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-
-from allauth.account.views import confirm_email
+import allauth.account.views
 from django.conf.urls import url
 from django.contrib import admin
 from django.urls import path, include
+from allauth.account.views import confirm_email
+from django.contrib.auth import views as auth_views
 from rest_framework.authtoken import views
 from rest_framework import routers
 from timelyapp import views
@@ -45,8 +46,12 @@ urlpatterns = [
     path('api/stripe/paymentmethods/attach', views.attach_payment_methods),
     path('api/stripe/paymentmethods/default', views.default_payment_methods),
 
-    #path('api/userinfo', views.get_user_data),
     path('api-auth/', include('rest_framework.urls')), # DRF auth portal
     path('api/rest-auth/', include('rest_auth.urls')), # auth endpoint api
     path('api/rest-auth/registration/', include('rest_auth.registration.urls')), # registration api
+    path('account/', include('allauth.urls')),
+    path('api/rest-auth/registration/account-confirm-email/<key>', confirm_email, name='account_confirm_email'),
+    #path('api/rest-auth/password/reset', auth_views.PasswordResetView.as_view(), name='reset_password'),
+    path('api/rest-auth/password/reset/confirm/<uidb64>/<token>', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+
 ]
