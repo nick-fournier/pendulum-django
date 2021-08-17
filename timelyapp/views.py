@@ -316,13 +316,14 @@ class BusinessInfo(viewsets.ModelViewSet):
         queryset = self.queryset
 
         try:
-            business = Business.objects.get(id=get_business_id(self.request.user.id))
-            queryset = queryset.filter(owner__id=business.id)
+            queryset = Business.objects.filter(id=get_business_id(self.request.user.id))
         except Business.DoesNotExist:
             queryset = []
 
         # Checking if data is current
         # account_info = stripe.Account.retrieve(queryset.get().stripe_act_id)
+        # print(account_info)
+        # print(queryset)
 
         return queryset
 
