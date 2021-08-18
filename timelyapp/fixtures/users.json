@@ -17,6 +17,16 @@
     }
 },
 {
+    "model": "account.emailaddress",
+    "pk": 1,
+    "fields": {
+        "verified": true,
+        "primary": true,
+        "user_id": 1,
+        "email": "nick@nick.com"
+    }
+},
+{
     "model": "timelyapp.customuser",
     "pk": 2,
     "fields": {
@@ -31,6 +41,16 @@
         "date_joined": "2021-04-29T16:24:50.849Z",
         "groups": [],
         "user_permissions": []
+    }
+},
+{
+    "model": "account.emailaddress",
+    "pk": 2,
+    "fields": {
+        "verified": true,
+        "primary": true,
+        "user_id": 2,
+        "email": "omar@omar.com"
     }
 },
 {
@@ -51,6 +71,16 @@
     }
 },
 {
+    "model": "account.emailaddress",
+    "pk": 3,
+    "fields": {
+        "verified": true,
+        "primary": true,
+        "user_id": 3,
+        "email": "adel@adel.com"
+    }
+},
+{
     "model": "timelyapp.customuser",
     "pk": 4,
     "fields": {
@@ -65,6 +95,16 @@
         "date_joined": "2021-04-29T16:24:50.849Z",
         "groups": [],
         "user_permissions": []
+    }
+},
+{
+    "model": "account.emailaddress",
+    "pk": 4,
+    "fields": {
+        "verified": true,
+        "primary": true,
+        "user_id": 4,
+        "email": "test@test.com"
     }
 }
 ]

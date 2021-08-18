@@ -1,3 +1,4 @@
+import allauth.account.models
 from django.shortcuts import redirect
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse_lazy, reverse
@@ -309,6 +310,12 @@ def redirect_view(request):
     response = redirect('/api/')
     return response
 
+class EmailVerifyView(viewsets.ReadOnlyModelViewSet):
+    serializer_class = EmailVerifySerializer
+
+    def get_queryset(self):
+        return EmailAddress.objects.filter(user_id=self.request.user.id)
+
 class BusinessInfo(viewsets.ModelViewSet):
     serializer_class = BusinessInfoSerializer
 
@@ -326,17 +333,6 @@ class BusinessInfo(viewsets.ModelViewSet):
         # print(queryset)
 
         return queryset
-
-
-class UserInfo(viewsets.ModelViewSet):
-    serializer_class = UserSerializer
-    #permission_classes = (UserPermissions, )
-
-    def get_queryset(self):
-        return CustomUser.objects.filter(pk=self.request.user.id)
-
-    def put(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
 
 
 # Django REST framework endpoints
@@ -377,8 +373,8 @@ class OrderViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         business_id = get_business_id(self.request.user.id)
         item_list = Inventory.objects.filter(Q(business__id=business_id)).values_list('id', flat=True)
-        query_set = Order.objects.filter(pk__in=item_list)
-        return query_set
+        queryset = Order.objects.filter(pk__in=item_list)
+        return queryset
 
 
 class PayablesViewSet(viewsets.ModelViewSet):

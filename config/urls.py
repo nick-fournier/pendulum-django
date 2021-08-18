@@ -32,8 +32,9 @@ router.register(r'new_invoices', views.NewInvoiceViewSet, basename='api-new_invo
 router.register(r'payables', views.PayablesViewSet, basename='api-payables')
 router.register(r'receivables', views.ReceivablesViewSet, basename='api-receivables')
 router.register(r'newsletter', views.NewsletterViewSet, basename='api-newsletter')
-router.register(r'userinfo', views.UserInfo, basename='api-userinfo')
 router.register(r'businessinfo', views.BusinessInfo, basename='api-businessinfo')
+router.register(r'accountemails', views.EmailVerifyView, basename='api-accountemails')
+#router.register(r'userinfo', views.UserInfo, basename='api-userinfo')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -49,9 +50,13 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')), # DRF auth portal
     path('api/rest-auth/', include('rest_auth.urls')), # auth endpoint api
     path('api/rest-auth/registration/', include('rest_auth.registration.urls')), # registration api
-    path('account/', include('allauth.urls')),
-    path('api/rest-auth/registration/account-confirm-email/<key>', confirm_email, name='account_confirm_email'),
-    #path('api/rest-auth/password/reset', auth_views.PasswordResetView.as_view(), name='reset_password'),
+    #path('api/rest-auth/user/', views.UserInfo), # update user info
+    path('api/account/', include('allauth.urls')),
+    path('api/rest-auth/registration/account-confirm-email/<key>', allauth.account.views.confirm_email, name='account_confirm_email'),
+    #path('api/rest-auth/password/reset/confirm/<uidb64>/<token>', allauth.account.views.password_reset_from_key, name='password_reset_confirm'),
     path('api/rest-auth/password/reset/confirm/<uidb64>/<token>', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+
+
+#allauth.account.views.EmailView
 
 ]

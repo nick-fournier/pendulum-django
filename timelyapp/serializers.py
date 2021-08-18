@@ -1,6 +1,7 @@
 # serializers.py
 from allauth.account.adapter import get_adapter
 from allauth.account.utils import setup_user_email
+from allauth.account.models import EmailAddress
 from rest_auth.registration.serializers import RegisterSerializer
 from rest_auth.serializers import LoginSerializer as RestAuthLoginSerializer
 from phonenumber_field import serializerfields
@@ -11,6 +12,14 @@ from .models import *
 from timelyapp.utils import calculate_duedate, generate_invoice_name, get_business_id
 
 
+class EmailVerifySerializer(serializers.ModelSerializer):
+    verified = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = EmailAddress
+        fields = ['id', 'email', 'primary', 'verified', 'user']
+
+
 class UserSerializer(serializers.ModelSerializer):
     is_active = serializers.CharField(read_only=True)
     date_joined = serializers.CharField(read_only=True)
@@ -18,6 +27,26 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['id', 'email', 'first_name', 'last_name', 'is_active', 'date_joined']
+
+    def update(self, instance, validated_data):
+        user_id = self.context.get("request").user.id
+        verified = EmailAddress.objects.filter(user_id=user_id)
+
+        try:
+            if not verified.filter(email=validated_data['email']).exists():
+                EmailAddress.objects.create(email=validated_data['email'], primary=True, verified=True, user_id=user_id)
+            if verified.get(email=validated_data['email']).verified:
+                for email in verified:
+                    if email.email == validated_data['email']:
+                        email.primary = True
+                    else:
+                        email.primary = False
+                EmailAddress.objects.bulk_update(verified, ['primary'])
+
+            return super().update(instance, validated_data)
+
+        except EmailAddress.DoesNotExist:
+            raise serializers.ValidationError({'email': 'Email does not exist'})
 
 
 class CustomTokenSerializer(serializers.ModelSerializer):
