@@ -155,8 +155,8 @@ class NewOrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ['item_name', 'quantity_purchased', 'item_price', 'item_total_price', 'is_new']
 
-# CREATE NEW INVOICE SERIALIZER
-class NewInvoiceSerializer(serializers.ModelSerializer):
+# CREATE NEW RECEIVABLE INVOICE SERIALIZER
+class NewReceivableSerializer(serializers.ModelSerializer):
     bill_to_key = ToBusinessKeyField(source="bill_to")
     bill_to_name = serializers.SerializerMethodField(required=False)
     items = NewOrderSerializer(many=True, allow_null=True, required=False)
@@ -211,6 +211,64 @@ class NewInvoiceSerializer(serializers.ModelSerializer):
             invoice.accepted_payments.add(payment)
 
         return invoice
+
+
+# CREATE NEW PAYABLE INVOICE SERIALIZER
+class NewPayableSerializer(serializers.ModelSerializer):
+    bill_from_key = ToBusinessKeyField(source="bill_from")
+    bill_from_name = serializers.SerializerMethodField(required=False)
+    items = NewOrderSerializer(many=True, allow_null=True, required=False)
+
+    class Meta:
+        model = Invoice
+        fields = ['bill_from_key', 'bill_from_name', 'terms', 'date_due',
+                  'invoice_total_price', 'accepted_payments', 'notes', 'items']
+
+    def get_bill_to_name(self, obj):
+        return Business.objects.get(id=obj.bill_to.id).business_name
+
+    # Custom create()
+    def create(self, validated_data):
+        validated_data['bill_to'] = Business.objects.get(owner__id=self.context['request'].user.id)
+        validated_data['date_sent'] = datetime.date.today()
+        if validated_data['terms'] != "Custom":
+            validated_data['date_due'] = calculate_duedate(validated_data['terms'])
+        validated_data['invoice_name'] = generate_invoice_name(validated_data['bill_to'].pk)
+
+        # Pop out many-to-many payment field. Need to create invoice before assigning
+        accepted_payments = validated_data.pop('accepted_payments')
+
+        # If itemized, pop out. Need to create invoice before linking
+        if 'items' in validated_data:
+            items_data = validated_data.pop('items')
+            validated_data['invoice_only'] = False
+
+            # Calculate total price if missing
+            if not validated_data['invoice_total_price']:
+                validated_data['invoice_total_price'] = 0
+                for i in range(len(items_data)):
+                    validated_data['invoice_total_price'] += items_data[i]['item_total_price']
+
+            # Now create invoice and assign linked orders
+            invoice = Invoice.objects.create(**validated_data)
+
+            for item in items_data:
+                # If new item, add to inventory
+                if item['is_new']:
+                    new_item = {'item_name': item['item_name'], 'item_price': item['item_price']}
+                    Inventory.objects.create(business=validated_data['bill_to'], **new_item)
+                item.pop('is_new')
+                Order.objects.create(invoice=invoice, **item)
+        else:
+            validated_data['invoice_only'] = True
+            invoice = Invoice.objects.create(**validated_data)
+
+        #Once invoice is created, assign payment M2M field
+        for payment in accepted_payments:
+            invoice.accepted_payments.add(payment)
+
+        return invoice
+
 
 # SERIALIZER FOR FULL INVOICE DATA
 class FullInvoiceSerializer(serializers.ModelSerializer):
@@ -291,14 +349,15 @@ class InvoiceSerializer(serializers.ModelSerializer):
     def get_to_business_phone(self, obj):
         return str(Business.objects.get(id=obj.bill_to.id).business_phone)
 
-class NewsletterSerializer(serializers.ModelSerializer):
-    special_key = serializers.CharField(write_only=True)
+class OutreachSerializer(serializers.ModelSerializer):
+    #special_key = serializers.CharField(write_only=True)
     class Meta:
-        model = Newsletter
-        fields = ['email', 'first_name', 'last_name', 'special_key']
+        model = Outreach
+        #fields = "__all__"
+        exclude = ["date_joined", "special_key"]
 
-    def validate(self, data):
-        key = data.pop('special_key')
-        if key != settings.NEWSLETTER_KEY:
-            raise serializers.ValidationError({'special_key': 'Invalid special key'})
-        return data
+    # def validate(self, data):
+    #     key = data.pop('special_key')
+    #     if key != settings.NEWSLETTER_KEY:
+    #         raise serializers.ValidationError({'special_key': 'Invalid special key'})
+    #     return data

@@ -22,103 +22,8 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 # Custom User
 from .managers import CustomUserManager
+from .choices import *
 import datetime
-
-TERM_CHOICES = [
-    ('Custom', 'Custom due date'),
-    ('COD', 'Cash on delivery'),
-    ('CIA', 'Cash in advance'),
-    ('NET7', 'Net 7 days'),
-    ('NET10', 'Net 10 days'),
-    ('NET30', 'Net 30 days'),
-    ('NET60', 'Net 60 days'),
-    ('NET90', 'Net 90 days'),
-    ('NET120', 'Net 120 days'),
-]
-
-PAYMENT_CHOICES = [
-    ('ACH', 'Bank transfer'),
-    ('CHECK', 'Check'),
-    ('CREDIT', 'Credit card'),
-    ('LATER', 'Pay later with Timely'),
-    ('FINANCE', 'Invoice financing with Timely'),
-]
-
-ROLE_CHOICES = [
-    ('SALES STAFF', 'Sales Staff can view receivables only'),
-    ('PURCHASING STAFF', 'Purchasing Staff can view payables only'),
-    ('STAFF', 'Staff can view all invoices, but only view'),
-    ('SALES MANAGER', 'Sales Manager can generate invoices / approve purchase orders'),
-    ('PURCHASING MANAGER', 'Purchasing Manager can approve invoices / generate purchase order'),
-    ('MANAGER', 'Manager has full access to payables and receivables'),
-    ('CONTROLLER', 'Controller has full access to payables/receivables and can change user permissions'),
-    ('OWNER', 'Owner has full access and is irrevocable'),
-]
-
-STATES_CHOICES = (
-    ('AL', _('Alabama')),
-    ('AZ', _('Arizona')),
-    ('AR', _('Arkansas')),
-    ('CA', _('California')),
-    ('CO', _('Colorado')),
-    ('CT', _('Connecticut')),
-    ('DE', _('Delaware')),
-    ('DC', _('District of Columbia')),
-    ('FL', _('Florida')),
-    ('GA', _('Georgia')),
-    ('ID', _('Idaho')),
-    ('IL', _('Illinois')),
-    ('IN', _('Indiana')),
-    ('IA', _('Iowa')),
-    ('KS', _('Kansas')),
-    ('KY', _('Kentucky')),
-    ('LA', _('Louisiana')),
-    ('ME', _('Maine')),
-    ('MD', _('Maryland')),
-    ('MA', _('Massachusetts')),
-    ('MI', _('Michigan')),
-    ('MN', _('Minnesota')),
-    ('MS', _('Mississippi')),
-    ('MO', _('Missouri')),
-    ('MT', _('Montana')),
-    ('NE', _('Nebraska')),
-    ('NV', _('Nevada')),
-    ('NH', _('New Hampshire')),
-    ('NJ', _('New Jersey')),
-    ('NM', _('New Mexico')),
-    ('NY', _('New York')),
-    ('NC', _('North Carolina')),
-    ('ND', _('North Dakota')),
-    ('OH', _('Ohio')),
-    ('OK', _('Oklahoma')),
-    ('OR', _('Oregon')),
-    ('PA', _('Pennsylvania')),
-    ('RI', _('Rhode Island')),
-    ('SC', _('South Carolina')),
-    ('SD', _('South Dakota')),
-    ('TN', _('Tennessee')),
-    ('TX', _('Texas')),
-    ('UT', _('Utah')),
-    ('VT', _('Vermont')),
-    ('VA', _('Virginia')),
-    ('WA', _('Washington')),
-    ('WV', _('West Virginia')),
-    ('WI', _('Wisconsin')),
-    ('WY', _('Wyoming')),
-    ('AK', _('Alaska')),
-    ('HI', _('Hawaii')),
-    ('AS', _('American Samoa')),
-    ('GU', _('Guam')),
-    ('MP', _('Northern Mariana Islands')),
-    ('PR', _('Puerto Rico')),
-    ('VI', _('Virgin Islands')),
-    ('AA', _('Armed Forces Americas')),
-    ('AE', _('Armed Forces Europe')),
-    ('AP', _('Armed Forces Pacific')),
-    ('FM', _('Federated States of Micronesia')),
-    ('MH', _('Marshall Islands')),
-    ('PW', _('Palau')),
-)
 
 # Automatically generates token for each user
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
@@ -252,9 +157,11 @@ class Order(models.Model):
     item_price = models.DecimalField(max_digits=12, decimal_places=2)
     item_total_price = models.DecimalField(max_digits=12, decimal_places=2)
 
-class Newsletter(models.Model):
+class Outreach(models.Model):
     email = models.EmailField(unique=True)
-    first_name = models.CharField(default=None, null=True, max_length=64)
-    last_name = models.CharField(default=None, null=True, max_length=64)
+    name = models.CharField(default=None, null=True, max_length=64)
+    business_name = models.CharField(default=None, null=True, max_length=64)
+    employees = models.CharField(default=None, null=True, max_length=24, choices=EMPLOYEES_CHOICES)
+    role = models.CharField(default=None, null=True, max_length=24, choices=QROLE_CHOICES)
     date_joined = models.DateTimeField(default=timezone.now)
     # key = models.CharField(default="p!OOR&E[WnxP(o6?p~m$AOi1d]Gc_`", null=False, max_length=64)

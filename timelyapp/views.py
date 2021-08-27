@@ -344,14 +344,21 @@ class InvoiceViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = Invoice.objects.filter(Q(bill_from__id=business_id) | Q(bill_to__id=business_id)).order_by('id')
         return queryset
 
-class NewInvoiceViewSet(viewsets.ModelViewSet):
-    serializer_class = NewInvoiceSerializer
+class NewReceivableViewSet(viewsets.ModelViewSet):
+    serializer_class = NewReceivableSerializer
 
     def get_queryset(self):
         business_id = get_business_id(self.request.user.id)
         queryset = Invoice.objects.filter(bill_from__id=business_id)
         return queryset
 
+class NewPayableViewSet(viewsets.ModelViewSet):
+    serializer_class = NewReceivableSerializer
+
+    def get_queryset(self):
+        business_id = get_business_id(self.request.user.id)
+        queryset = Invoice.objects.filter(bill_to__id=business_id)
+        return queryset
 
 class BusinessViewSet(viewsets.ModelViewSet):
     serializer_class = BusinessSerializer
@@ -398,8 +405,10 @@ class ReceivablesViewSet(viewsets.ModelViewSet):
         queryset = Invoice.objects.filter(bill_from__id=business_id).order_by('date_due')
         return queryset
 
-class NewsletterViewSet(viewsets.ModelViewSet):
+class OutreachViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
-    serializer_class = NewsletterSerializer
-    queryset = Newsletter.objects.none()
+    serializer_class = OutreachSerializer
+    queryset = Outreach.objects.none()
     success_url = reverse_lazy('home')
+    throttle_scope = 'outreach'
+

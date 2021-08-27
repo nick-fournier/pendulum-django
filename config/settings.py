@@ -196,6 +196,10 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
+    'DEFAULT_THROTTLE_RATES': {
+        'outreach': '10/day'
+    }
+
 }
 
 AUTHENTICATION_BACKENDS = [
