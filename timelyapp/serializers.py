@@ -224,8 +224,8 @@ class NewPayableSerializer(serializers.ModelSerializer):
         fields = ['bill_from_key', 'bill_from_name', 'terms', 'date_due',
                   'invoice_total_price', 'accepted_payments', 'notes', 'items']
 
-    def get_bill_to_name(self, obj):
-        return Business.objects.get(id=obj.bill_to.id).business_name
+    def get_bill_from_name(self, obj):
+        return Business.objects.get(id=obj.bill_from.id).business_name
 
     # Custom create()
     def create(self, validated_data):
