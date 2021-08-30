@@ -346,19 +346,21 @@ class InvoiceViewSet(viewsets.ReadOnlyModelViewSet):
 
 class NewReceivableViewSet(viewsets.ModelViewSet):
     serializer_class = NewReceivableSerializer
+    queryset = []
 
-    def get_queryset(self):
-        business_id = get_business_id(self.request.user.id)
-        queryset = Invoice.objects.filter(bill_from__id=business_id)
-        return queryset
+    # def get_queryset(self):
+    #     business_id = get_business_id(self.request.user.id)
+    #     queryset = Invoice.objects.filter(bill_from__id=business_id)
+    #     return queryset
 
 class NewPayableViewSet(viewsets.ModelViewSet):
-    serializer_class = NewReceivableSerializer
+    serializer_class = NewPayableSerializer
+    queryset = []
 
-    def get_queryset(self):
-        business_id = get_business_id(self.request.user.id)
-        queryset = Invoice.objects.filter(bill_to__id=business_id)
-        return queryset
+    # def get_queryset(self):
+    #     business_id = get_business_id(self.request.user.id)
+    #     queryset = Invoice.objects.filter(bill_to__id=business_id)
+    #     return queryset
 
 class BusinessViewSet(viewsets.ModelViewSet):
     serializer_class = BusinessSerializer
