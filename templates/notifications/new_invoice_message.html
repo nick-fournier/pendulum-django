@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<body>
+<p>Hi {{ user_name }},</p>
+
+<p>You've received a new invoice from {{ invoice.bill_from }} for ${{ invoice.invoice_total_price }}.</p>
+<p>{{ due_statement }}</p>
+
+<p>Click link to pay: {{ payment_url }}</p>
+</body>
+</html>

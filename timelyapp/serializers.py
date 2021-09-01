@@ -9,6 +9,7 @@ from django.db.models.query_utils import Q
 
 from rest_framework import serializers
 from .models import *
+from .mail import *
 from timelyapp.utils import calculate_duedate, generate_invoice_name, get_business_id
 
 
@@ -209,6 +210,9 @@ class NewReceivableSerializer(serializers.ModelSerializer):
         #Once invoice is created, assign payment M2M field
         for payment in accepted_payments:
             invoice.accepted_payments.add(payment)
+
+        #Send email
+        send_new_invoice_email(invoice)
 
         return invoice
 

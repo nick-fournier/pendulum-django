@@ -1,0 +1,8 @@
+Hi {{ user_name }},
+
+You've received a new invoice from {{ invoice.bill_from }} for ${{ invoice.invoice_total_price }}.
+{{ due_statement }}
+
+Click link to pay: {{ payment_url }}
+
+
