@@ -222,12 +222,12 @@ class NewPayableSerializer(serializers.ModelSerializer):
     bill_from_key = ToBusinessKeyField(source="bill_from")
     bill_from_name = serializers.SerializerMethodField(required=False)
     items = NewOrderSerializer(many=True, allow_null=True, required=False)
-    invoice_name = serializers.CharField()
+    invoice_name = serializers.CharField(required=False)
 
     class Meta:
         model = Invoice
         fields = ['invoice_name', 'bill_from_key', 'bill_from_name', 'terms', 'date_due',
-                  'invoice_total_price', 'accepted_payments', 'notes', 'items']
+                  'invoice_total_price', 'notes', 'items']
 
     def get_bill_from_name(self, obj):
         return Business.objects.get(id=obj.bill_from.id).business_name
@@ -239,11 +239,14 @@ class NewPayableSerializer(serializers.ModelSerializer):
         if validated_data['terms'] != "Custom":
             validated_data['date_due'] = calculate_duedate(validated_data['terms'])
 
-        if not validated_data['invoice_name'] or validated_data['invoice_name'] == "":
+        if 'invoice_name' not in validated_data or validated_data['invoice_name'] == "":
             validated_data['invoice_name'] = generate_invoice_name(validated_data['bill_to'].pk)
 
         # Pop out many-to-many payment field. Need to create invoice before assigning
-        accepted_payments = validated_data.pop('accepted_payments')
+        if 'accepted_payments' in validated_data:
+            accepted_payments = validated_data.pop('accepted_payments')
+        else:
+            accepted_payments = []
 
         # If itemized, pop out. Need to create invoice before linking
         if 'items' in validated_data:
