@@ -1,12 +1,98 @@
-<!DOCTYPE html>
-<html lang="en">
+{% load static %}
+{% load inlinecss %}
+{% inlinecss "css/email.css" %}
 
-<body>
-<p>Hi {{ user_name }},</p>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="viewport" content="width=device-width" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>New invoice received</title>
+</head>
 
-<p>You've received a new invoice from {{ invoice.bill_from }} for ${{ invoice.invoice_total_price }}.</p>
-<p>{{ due_statement }}</p>
+<body itemscope itemtype="http://schema.org/EmailMessage">
 
-<p>Click link to pay: {{ payment_url }}</p>
+<table class="body-wrap">
+	<tr>
+		<td></td>
+		<td class="container" width="600">
+			<div class="content">
+				<table class="main" width="100%" cellpadding="0" cellspacing="0">
+					<tr>
+						<td class="content-wrap aligncenter">
+							<table width="100%" cellpadding="0" cellspacing="0">
+								<tr>
+									<td class="content-block">
+										<h1 class="aligncenter">${{ invoice.invoice_total_price }} due</h1>
+									</td>
+								</tr>
+								<tr>
+									<td class="content-block">
+										<h2 class="aligncenter">Thanks for using {{invoice.bill_from.business_name }}</h2>
+									</td>
+								</tr>
+                                <tr>
+									<td class="content-block aligncenter" itemprop="handler" itemscope itemtype="http://schema.org/HttpActionHandler">
+										<a href="{{ payment_url }}" class="btn-primary" itemprop="url">Pay now</a>
+									</td>
+								</tr>
+								<tr>
+									<td class="content-block aligncenter">
+										Payment url: <br>
+										<a href="{{ payment_url }}"> {{ payment_url }}</a>
+									</td>
+								</tr>
+								<tr>
+									<td class="content-block aligncenter">
+										<table class="invoice">
+											<tr>
+												<td>{{ invoice.bill_to.business_name }} <br>Invoice #{{ invoice.invoice_name }} <br> {{ due_statement }}</td>
+											</tr>
+											<tr>
+												<td>
+													<table class="invoice-items" cellpadding="0" cellspacing="0">
+                                                        {% if items %}
+                                                        {% for item in items %}
+                                                            <tr>
+                                                                <td>{{ item.item_name }}</td>
+                                                                <td>${{ item.item_price }}</td>
+                                                                <td>x{{ item.quantity_purchased }}</td>
+                                                                <td class="alignright">${{ item.item_total_price }}</td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                        {% endif %}
+														<tr class="total">
+															<td class="alignright" width="80%">Total</td>
+															<td class="alignright">${{ invoice.invoice_total_price }} </td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+										</table>
+									</td>
+								</tr>
+								<tr>
+									<td class="content-block aligncenter">
+										{{ invoice.bill_from.business_name }} <br>
+										{{ invoice.bill_from.billing_address }}
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+				</table>
+				<div class="footer">
+					<table width="100%">
+						<tr>
+							<td class="aligncenter content-block">Questions? Email <a href="mailto:">support@pendulumapp.com</a></td>
+						</tr>
+					</table>
+				</div></div>
+		</td>
+		<td></td>
+	</tr>
+</table>
+
 </body>
 </html>
+{% endinlinecss %}

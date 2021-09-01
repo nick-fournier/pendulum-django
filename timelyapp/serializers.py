@@ -204,6 +204,7 @@ class NewReceivableSerializer(serializers.ModelSerializer):
                 item.pop('is_new')
                 Order.objects.create(invoice=invoice, **item)
         else:
+            items_data = None
             validated_data['invoice_only'] = True
             invoice = Invoice.objects.create(**validated_data)
 
@@ -212,7 +213,7 @@ class NewReceivableSerializer(serializers.ModelSerializer):
             invoice.accepted_payments.add(payment)
 
         #Send email
-        send_new_invoice_email(invoice)
+        send_new_invoice_email(invoice, items_data)
 
         return invoice
 
