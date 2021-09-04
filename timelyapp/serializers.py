@@ -156,23 +156,51 @@ class NewOrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ['item_name', 'quantity_purchased', 'item_price', 'item_total_price', 'is_new']
 
+# PAY INVOICE SERIALIZER
+class PayInvoiceSerializer(serializers.ModelSerializer):
+    invoice_id = serializers.CharField(required=True)
+    payment_method = serializers.CharField(required=True)
+
+    class Meta:
+        model = Invoice
+        fields = ['invoice_id', 'payment_method']
+
+# ATTACH PAYMENT METHOD SERIALIZER
+class AttachPaymentMethodSerializer(serializers.ModelSerializer):
+    attach_payment_method = serializers.CharField(required=True)
+
+    class Meta:
+        model = Business
+        fields = ['attach_payment_method']
+
+# DEFAULT PAYMENT METHOD SERIALIZER
+class AttachPaymentMethodSerializer(serializers.ModelSerializer):
+    default_payment_method = serializers.CharField(required=True)
+
+    class Meta:
+        model = Business
+        fields = ['default_payment_method']
+
 # CREATE NEW RECEIVABLE INVOICE SERIALIZER
 class NewReceivableSerializer(serializers.ModelSerializer):
+    invoice_id = serializers.SerializerMethodField(required=False)
     bill_to_key = ToBusinessKeyField(source="bill_to")
     bill_to_name = serializers.SerializerMethodField(required=False)
     items = NewOrderSerializer(many=True, allow_null=True, required=False)
 
     class Meta:
         model = Invoice
-        fields = ['bill_to_key', 'bill_to_name', 'terms', 'date_due',
+        fields = ['invoice_id', 'bill_to_key', 'bill_to_name', 'terms', 'date_due',
                   'invoice_total_price', 'accepted_payments', 'notes', 'items']
 
     def get_bill_to_name(self, obj):
         return Business.objects.get(id=obj.bill_to.id).business_name
 
+    def get_invoice_id(self, obj):
+        return obj.id
+
     # Custom create()
     def create(self, validated_data):
-        # validated_data['bill_to'] = validated_data.pop('bill_to_key')
         validated_data['bill_from'] = Business.objects.get(owner__id=self.context['request'].user.id)
         validated_data['date_sent'] = datetime.date.today()
         if validated_data['terms'] != "Custom":
@@ -220,6 +248,7 @@ class NewReceivableSerializer(serializers.ModelSerializer):
 
 # CREATE NEW PAYABLE INVOICE SERIALIZER
 class NewPayableSerializer(serializers.ModelSerializer):
+    invoice_id = serializers.SerializerMethodField(required=False)
     bill_from_key = ToBusinessKeyField(source="bill_from")
     bill_from_name = serializers.SerializerMethodField(required=False)
     items = NewOrderSerializer(many=True, allow_null=True, required=False)
@@ -227,7 +256,7 @@ class NewPayableSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Invoice
-        fields = ['invoice_name', 'bill_from_key', 'bill_from_name', 'terms', 'date_due',
+        fields = ['invoice_id', 'invoice_name', 'bill_from_key', 'bill_from_name', 'terms', 'date_due',
                   'invoice_total_price', 'notes', 'items']
 
     def get_bill_from_name(self, obj):
@@ -293,7 +322,7 @@ class FullInvoiceSerializer(serializers.ModelSerializer):
 
 # INVOICE SERIALIZER FOR PAYABLES / RECEIVABLES
 class InvoiceSerializer(serializers.ModelSerializer):
-    invoice_id = serializers.IntegerField(source='id')
+    invoice_id = serializers.CharField(source='id')
     items = OrderSerializer(many=True, read_only=True)
 
     from_business_name = serializers.SerializerMethodField()

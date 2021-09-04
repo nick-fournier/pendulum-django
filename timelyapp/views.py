@@ -84,8 +84,8 @@ class OrderViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         business_id = get_business_id(self.request.user.id)
-        item_list = Inventory.objects.filter(Q(business__id=business_id)).values_list('id', flat=True)
-        queryset = Order.objects.filter(pk__in=item_list)
+        invoice_list = Invoice.objects.filter(bill_from__id=business_id)
+        queryset = Order.objects.filter(invoice__in=invoice_list)
         return queryset
 
 class PayablesViewSet(viewsets.ModelViewSet):

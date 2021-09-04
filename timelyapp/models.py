@@ -1,9 +1,14 @@
+
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.utils import timezone
 # from address.models import AddressField
 from phonenumber_field.modelfields import PhoneNumberField
+
+#from shortuuidfield import ShortUUIDField
+from customshortuuidfield import CustomShortUUIDField
+import shortuuid
 
 # Address stuff
 # from django.contrib.gis.db import models
@@ -38,6 +43,7 @@ def xadr(s1, s2):
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     username = None
     email = models.EmailField(_('email address'), unique=True)
+    id = models.CharField(primary_key=True, default="usr_" + shortuuid.uuid(), max_length=32, editable=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -75,6 +81,7 @@ class Payments(models.Model):
         return u"%s [%s]" % (self.get_type_display(), self.type)
 
 class Business(models.Model):
+    id = CustomShortUUIDField(primary_key=True, prefix="itm_")
     is_member = models.BooleanField(default=False)
     is_individual = models.BooleanField(default=False)
     stripe_act_id = models.CharField(default=None, null=True, blank=True, max_length=255, unique=True)
@@ -108,6 +115,7 @@ class Discount(models.Model):
         return "%s" %(self.description)
 
 class Inventory(models.Model):
+    id = CustomShortUUIDField(primary_key=True, prefix="itm_")
     business = models.ForeignKey(Business, default=None, null=True, on_delete=models.CASCADE)
     last_updated = models.DateField(null=True)
     item_name = models.CharField(default=None, null=True, max_length=100)
@@ -125,6 +133,7 @@ class Inventory(models.Model):
         return "%s" %(self.name)
 
 class Invoice(models.Model):
+    id = CustomShortUUIDField(primary_key=True, prefix="inv_")
     invoice_name = models.CharField(default=None, null=True, max_length=16)
     date_purchase = models.DateField(null=True)
     date_sent = models.DateField(null=True)
@@ -149,6 +158,7 @@ class Invoice(models.Model):
 
 
 class Order(models.Model):
+    id = CustomShortUUIDField(primary_key=True, prefix="itm_")
     invoice = models.ForeignKey(Invoice, null=True, on_delete=models.CASCADE, related_name='items')
     discount_code = models.ForeignKey(Discount, default=1, on_delete=models.CASCADE)
     item_name = models.CharField(default=None, null=True, max_length=100)
