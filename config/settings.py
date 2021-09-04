@@ -80,7 +80,8 @@ MIDDLEWARE = [
 # CORS_ALLOWED_ORIGINS = [
 #     "http://localhost:3000",
 #     "http://127.0.0.1:3000",
-#     "https://timely-invoicing.herokuapp.com"
+#     "https://timely-invoicing.herokuapp.com",
+#     "https://dash.pendulumapp.com"
 # ]
 
 CORS_ALLOW_CREDENTIALS = True
