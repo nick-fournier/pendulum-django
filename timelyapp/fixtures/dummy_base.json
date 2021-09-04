@@ -1,12 +1,12 @@
 [
   {
     "model": "timelyapp.business",
-    "pk": 1,
+    "pk": "biz_4iCyEKhCFaNBGGahn3Rn4i",
     "fields": {
       "is_member": true,
       "is_individual": false,
-      "managers": [1],
-      "owner": 1,
+      "managers": ["usr_ggAYZRZkbM2aqw4zR6k5wT"],
+      "owner": "usr_ggAYZRZkbM2aqw4zR6k5wT",
       "business_name": "Business A",
       "billing_address": 1,
       "shipping_address": null,
@@ -20,12 +20,12 @@
   },
   {
     "model": "timelyapp.business",
-    "pk": 2,
+    "pk": "biz_XhLAvUW63VuD4vfuCtEZKw",
     "fields": {
       "is_member": true,
       "is_individual": false,
-      "managers": [2],
-      "owner": 2,
+      "managers": ["usr_C82raN5JFCoWVQGAeDLRxa"],
+      "owner": "usr_C82raN5JFCoWVQGAeDLRxa",
       "business_name": "Business B",
       "billing_address": 2,
       "shipping_address": null,
@@ -39,12 +39,12 @@
   },
    {
     "model": "timelyapp.business",
-    "pk": 3,
+    "pk": "biz_Cz9xETFw7mt6edtQdUYKhJ",
     "fields": {
       "is_member": true,
       "is_individual": false,
-      "managers": [3],
-      "owner": 3,
+      "managers": ["usr_hsgrVXy6qPYKLeq9Y7GaK2"],
+      "owner": "usr_hsgrVXy6qPYKLeq9Y7GaK2",
       "business_name": "Third Business",
       "billing_address": 3,
       "shipping_address": null,
@@ -56,12 +56,12 @@
   },
    {
     "model": "timelyapp.business",
-    "pk": 4,
+    "pk": "biz_D3FraiLKpJicT9CdJhwwYc",
     "fields": {
       "is_member": true,
       "is_individual": false,
-      "managers": [4],
-      "owner": 4,
+      "managers": ["usr_BfTQQwPGfk9ubvskvx4uzB"],
+      "owner": "usr_BfTQQwPGfk9ubvskvx4uzB",
       "business_name": "Fourth Store",
       "billing_address": 4,
       "shipping_address": null,
@@ -151,9 +151,9 @@
   },
   {
     "model": "timelyapp.inventory",
-    "pk": 1,
+    "pk": "itm_SZFxbfXaTJBWwjWExtnVfu",
     "fields": {
-      "business": 1,
+      "business": "biz_4iCyEKhCFaNBGGahn3Rn4i",
       "last_updated": "2021-03-03",
       "item_name": "Some Widget",
       "description": "A business widget for vertical synergy jargon",
@@ -165,9 +165,9 @@
   },
   {
     "model": "timelyapp.inventory",
-    "pk": 2,
+    "pk": "itm_VaDg3wAD9GaCWQQm3QyVNF",
     "fields": {
-      "business": 1,
+      "business": "biz_4iCyEKhCFaNBGGahn3Rn4i",
       "last_updated": "2021-03-03",
       "item_name": "A Different Widget",
       "description": "A widget for backward overflow jargon",
@@ -179,9 +179,9 @@
   },
   {
     "model": "timelyapp.inventory",
-    "pk": 3,
+    "pk": "itm_apbLZLTJKfECq39JKDhNVz",
     "fields": {
-      "business": 2,
+      "business": "biz_XhLAvUW63VuD4vfuCtEZKw",
       "last_updated": "2021-03-13",
       "item_name": "Professional Services",
       "description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
@@ -193,9 +193,9 @@
   },
   {
     "model": "timelyapp.inventory",
-    "pk": 4,
+    "pk": "itm_kiTehBv64Fay8LwZ7dHVHk",
     "fields": {
-      "business": 2,
+      "business": "biz_XhLAvUW63VuD4vfuCtEZKw",
       "last_updated": "2021-03-13",
       "item_name": "Infeasibility Consulting Study",
       "description": "A big useless report on what you want to hear",
@@ -207,9 +207,9 @@
   },
   {
     "model": "timelyapp.order",
-    "pk": 1,
+    "pk": "ord_2qHr6HMgNarXRzBqrgFWyW",
     "fields": {
-      "invoice": 1,
+      "invoice": "inv_HkeuxfmJfLQ2krrgA4me7u",
       "discount_code": 1,
       "item_name": "Some Widget",
       "item_description": null,
@@ -220,13 +220,13 @@
   },
    {
     "model": "timelyapp.invoice",
-    "pk": 1,
+    "pk": "inv_HkeuxfmJfLQ2krrgA4me7u",
     "fields": {
       "invoice_name": "BA21000001",
       "date_sent": "2021-03-30",
       "date_due": "2021-04-30",
-      "bill_from": 1,
-      "bill_to": 2,
+      "bill_from": "biz_4iCyEKhCFaNBGGahn3Rn4i",
+      "bill_to": "biz_XhLAvUW63VuD4vfuCtEZKw",
       "terms": "NET30",
       "invoice_total_price": 100,
       "currency": "USD",

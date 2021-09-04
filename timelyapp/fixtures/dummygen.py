@@ -3,6 +3,7 @@ import random
 import datetime
 import copy
 import os
+import shortuuid
 
 class GenerateData:
     """
@@ -64,14 +65,14 @@ class GenerateData:
 
         return data
 
-    def get_invoice_name(self, bill_from, pk):
+    def get_invoice_name(self, bill_from, num):
         words = bill_from['fields']['business_name'].split(" ")
         if len(words) > 1:
             name = ''.join([x[0] for x in words[:2]]).upper()
         else:
             name = bill_from['fields']['business_name'][:2].upper()
         name += str(datetime.date.today().year)[-2:]
-        name += str(pk).zfill(6)
+        name += str(num).zfill(6)
         return name
 
     def get_duedate(self, sent_date, terms):
@@ -97,8 +98,10 @@ class GenerateData:
             bill_to, bill_from = random.choices(self.businesses, k=2)
             date_sent = today + datetime.timedelta(random.randint(0, 180))
 
-            new_invoice['pk'] = i+1
-            new_invoice['fields']['invoice_name'] = self.get_invoice_name(bill_from, pk=i+1)
+            inv_id = "inv_" + shortuuid.uuid()
+
+            new_invoice['pk'] = inv_id
+            new_invoice['fields']['invoice_name'] = self.get_invoice_name(bill_from, num=i+1)
             new_invoice['fields']['terms'] = random.choice(TERM_CHOICES)
             new_invoice['fields']['date_sent'] = date_sent.strftime("%Y-%m-%d")
             new_invoice['fields']['bill_to'] = bill_to['pk']
@@ -112,12 +115,13 @@ class GenerateData:
             n_orders = random.randint(1, ordermax)
             items = random.choices(self.inventory, k=n_orders)
             subtotal = 0
+            #ord_id = "ord_" + shortuuid.uuid()
 
             for j in range(len(items)):
                 quantity = random.randint(1, ordermax)
                 new_order = copy.deepcopy(self.base_order)
-                new_order['pk'] = orderpk
-                new_order['fields']['invoice'] = i+1
+                new_order['pk'] = "ord_" + shortuuid.uuid()
+                new_order['fields']['invoice'] = inv_id
                 new_order['fields']['discount_code'] = 1
                 new_order['fields']['item_name'] = items[j]['fields']['item_name']
                 new_order['fields']['item_description'] = items[j]['fields']['description']
@@ -127,7 +131,6 @@ class GenerateData:
 
                 output_data.append(new_order)
                 subtotal += new_order['fields']['item_total_price']
-                orderpk += 1
 
             # Update total price
             new_invoice['fields']['invoice_total_price'] = subtotal
