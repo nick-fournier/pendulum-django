@@ -15,9 +15,9 @@ def send_new_invoice_email(invoice, items):
         url_dict = {'subdomain': 'dash.',
                     'domain': Site.objects.get_current().domain,
                     'path': '/invoice-payment',
-                    'pk': '/id=' + str(invoice.pk),
-                    'name': '/name=' + invoice.invoice_name}
-        payment_url = 'http://{subdomain}{domain}{path}{pk}{name}'.format(**url_dict)
+                    'name': '/name=' + invoice.invoice_name,
+                    'pk': '/id=' + str(invoice.pk)}
+        payment_url = 'https://{subdomain}{domain}{path}{name}{pk}'.format(**url_dict)
 
         context = {'user_name': invoice.bill_to.owner.first_name,
                    'invoice': invoice,
@@ -35,6 +35,8 @@ def send_new_invoice_email(invoice, items):
 
         text_content = text.render(context)
         html_content = html.render(context)
+
+        print(html_content)
 
         msg = EmailMultiAlternatives(subject, text_content, from_email, [to_email])
         msg.attach_alternative(html_content, "text/html")
