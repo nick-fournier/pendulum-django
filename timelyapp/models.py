@@ -43,7 +43,7 @@ def xadr(s1, s2):
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     username = None
     email = models.EmailField(_('email address'), unique=True)
-    id = models.CharField(primary_key=True, default="usr_" + shortuuid.uuid(), max_length=32, editable=False)
+    id = CustomShortUUIDField(primary_key=True, prefix="usr_")
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -81,7 +81,7 @@ class Payments(models.Model):
         return u"%s [%s]" % (self.get_type_display(), self.type)
 
 class Business(models.Model):
-    id = CustomShortUUIDField(primary_key=True, prefix="itm_")
+    id = CustomShortUUIDField(primary_key=True, prefix="biz_")
     is_member = models.BooleanField(default=False)
     is_individual = models.BooleanField(default=False)
     stripe_act_id = models.CharField(default=None, null=True, blank=True, max_length=255, unique=True)
@@ -158,7 +158,7 @@ class Invoice(models.Model):
 
 
 class Order(models.Model):
-    id = CustomShortUUIDField(primary_key=True, prefix="itm_")
+    id = CustomShortUUIDField(primary_key=True, prefix="ord_")
     invoice = models.ForeignKey(Invoice, null=True, on_delete=models.CASCADE, related_name='items')
     discount_code = models.ForeignKey(Discount, default=1, on_delete=models.CASCADE)
     item_name = models.CharField(default=None, null=True, max_length=100)
