@@ -66,11 +66,12 @@ class CustomTokenSerializer(serializers.ModelSerializer):
     def get_email(self, obj):
         return obj.user.email
     def get_business_name(self, obj):
-        return Business.objects.get(id=obj.user.id).business_name
+        return Business.objects.get(owner__id=obj.user.id).business_name
     def get_business_email(self, obj):
-        return Business.objects.get(id=obj.user.id).business_email
+        return Business.objects.get(owner__id=obj.user.id).business_email
     def get_business_id(self, obj):
-        return Business.objects.get(id=obj.user.id).id
+
+        return Business.objects.get(owner__id=obj.user.id).id
 
 class BusinessInfoSerializer(serializers.ModelSerializer):
     business_email = serializers.CharField()
