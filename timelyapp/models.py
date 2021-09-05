@@ -44,7 +44,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     username = None
     email = models.EmailField(_('email address'), unique=True)
     id = CustomShortUUIDField(primary_key=True, prefix="usr_")
-    business = models.ForeignKey
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
