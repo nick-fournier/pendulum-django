@@ -70,7 +70,7 @@ class StripePayInvoice(APIView):
         billing_business = Business.objects.get(business_name=invoice.bill_from)
         timely_fee = round(timely_rate * 100 * invoice.invoice_total_price)  # Calculate our fee
 
-        data['currency'] = invoice.currency.lower()
+        data['currency'] = 'USD'#invoice.currency.lower()
         payment_method = stripe.PaymentMethod.retrieve(data['payment_method'])
         stripe_cus_id = payment_method.customer
 
@@ -139,8 +139,6 @@ class StripePayInvoice(APIView):
             # send_payment_confirmation()
 
         return Response(status=status.HTTP_200_OK, data=payment_intent)
-
-
 
 class StripeAttachPaymentMethod(APIView):
     serializer_class = AttachPaymentMethodSerializer

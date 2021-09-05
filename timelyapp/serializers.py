@@ -70,7 +70,6 @@ class CustomTokenSerializer(serializers.ModelSerializer):
     def get_business_email(self, obj):
         return Business.objects.get(owner__id=obj.user.id).business_email
     def get_business_id(self, obj):
-
         return Business.objects.get(owner__id=obj.user.id).id
 
 class BusinessInfoSerializer(serializers.ModelSerializer):
@@ -175,7 +174,7 @@ class AttachPaymentMethodSerializer(serializers.ModelSerializer):
         fields = ['attach_payment_method']
 
 # DEFAULT PAYMENT METHOD SERIALIZER
-class AttachPaymentMethodSerializer(serializers.ModelSerializer):
+class DefaultPaymentMethodSerializer(serializers.ModelSerializer):
     default_payment_method = serializers.CharField(required=True)
 
     class Meta:
