@@ -70,9 +70,8 @@ class StripePayInvoice(APIView):
         billing_business = Business.objects.get(business_name=invoice.bill_from)
         timely_fee = round(timely_rate * 100 * invoice.invoice_total_price)  # Calculate our fee
 
-        data['currency'] = 'USD'#invoice.currency.lower()
-        payment_method = stripe.PaymentMethod.retrieve(data['payment_method'])
-        stripe_cus_id = payment_method.customer
+        data._mutable = True
+        data['currency'] = invoice.currency.lower()
 
         # Check if other account is onboarded, if not we'll have to handle this somehow (hold money until they onboard?)
         if not stripe.Account.retrieve(billing_business.stripe_act_id).charges_enabled:
@@ -86,7 +85,7 @@ class StripePayInvoice(APIView):
 
         # If user is authenticated, check if correct payer and optionally pull default payment method if none specified
         if request.user.is_authenticated:
-            stripe_cus_id = Business.objects.get(pk=get_business_id(request.user.id))['stripe_cus_id']
+            stripe_cus_id = Business.objects.get(pk=get_business_id(request.user.id)).stripe_cus_id
 
             try:
                 customer = stripe.Customer.retrieve(stripe_cus_id)
@@ -99,9 +98,14 @@ class StripePayInvoice(APIView):
                 content = {'Bad invoice': 'You are not authorized to pay this invoice'}
                 return Response(content, status=status.HTTP_404_NOT_FOUND)
 
+            # Use default method if not provided
             if 'payment_method' not in data:
                 data['payment_method'] = customer.invoice_settings.default_payment_method
-            data['payment_method_types'] = [data['payment_method'].type]
+
+        # Fill in the method type once populated
+        payment_method = stripe.PaymentMethod.retrieve(data['payment_method'])
+        stripe_cus_id = payment_method.customer
+        data['payment_method_types'] = [payment_method.type]
 
         # Clone customer to connected account
         payment_method = stripe.PaymentMethod.create(
