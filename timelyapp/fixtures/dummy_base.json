@@ -5,8 +5,6 @@
     "fields": {
       "is_member": true,
       "is_individual": false,
-      "managers": ["usr_ggAYZRZkbM2aqw4zR6k5wT"],
-      "owner": "usr_ggAYZRZkbM2aqw4zR6k5wT",
       "business_name": "Business A",
       "billing_address": 1,
       "shipping_address": null,
@@ -24,8 +22,6 @@
     "fields": {
       "is_member": true,
       "is_individual": false,
-      "managers": ["usr_C82raN5JFCoWVQGAeDLRxa"],
-      "owner": "usr_C82raN5JFCoWVQGAeDLRxa",
       "business_name": "Business B",
       "billing_address": 2,
       "shipping_address": null,
@@ -43,8 +39,6 @@
     "fields": {
       "is_member": true,
       "is_individual": false,
-      "managers": ["usr_hsgrVXy6qPYKLeq9Y7GaK2"],
-      "owner": "usr_hsgrVXy6qPYKLeq9Y7GaK2",
       "business_name": "Third Business",
       "billing_address": 3,
       "shipping_address": null,
@@ -60,8 +54,6 @@
     "fields": {
       "is_member": true,
       "is_individual": false,
-      "managers": ["usr_BfTQQwPGfk9ubvskvx4uzB"],
-      "owner": "usr_BfTQQwPGfk9ubvskvx4uzB",
       "business_name": "Fourth Store",
       "billing_address": 4,
       "shipping_address": null,

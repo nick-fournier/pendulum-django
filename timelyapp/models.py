@@ -39,25 +39,6 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 def xadr(s1, s2):
     return s1 + '' if s2 is None else str(s2)
 
-# Create your models here.
-class CustomUser(AbstractBaseUser, PermissionsMixin):
-    username = None
-    email = models.EmailField(_('email address'), unique=True)
-    id = CustomShortUUIDField(primary_key=True, prefix="usr_")
-
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
-
-    objects = CustomUserManager()
-    first_name = models.CharField(default=None, max_length=64)
-    last_name = models.CharField(default=None, max_length=64)
-    role = models.CharField(default='OWNER', null=True, max_length=64, choices=ROLE_CHOICES)
-    is_active = models.BooleanField(default=True)
-    date_joined = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return self.email
-
 class Address(models.Model):
     address_1 = models.CharField(_("address"), max_length=128)
     address_2 = models.CharField(_("address cont'd"), null=True, default=None, max_length=128, blank=True)
@@ -74,11 +55,6 @@ class Address(models.Model):
                                      self.country
                                      )
 
-class Payments(models.Model):
-    type = models.CharField(default='ACH', null=True, max_length=64, choices=PAYMENT_CHOICES)
-
-    def __str__(self):
-        return u"%s [%s]" % (self.get_type_display(), self.type)
 
 class Business(models.Model):
     id = CustomShortUUIDField(primary_key=True, prefix="biz_")
@@ -86,8 +62,8 @@ class Business(models.Model):
     is_individual = models.BooleanField(default=False)
     stripe_act_id = models.CharField(default=None, null=True, blank=True, max_length=255, unique=True)
     stripe_cus_id = models.CharField(default=None, null=True, blank=True, max_length=255, unique=True)
-    owner = models.ForeignKey(CustomUser, default=None, null=True, on_delete=models.CASCADE)
-    managers = models.ManyToManyField(CustomUser, default=None, related_name='managers')
+    #owner = models.ForeignKey(CustomUser, default=None, null=True, on_delete=models.CASCADE)
+    #managers = models.ManyToManyField(CustomUser, default=None, related_name='managers')
     business_name = models.CharField(default=None, max_length=64, unique=True)
     business_email = models.EmailField(_('email address'), unique=True)
     business_phone = PhoneNumberField(default=None, blank=True, null=True)
@@ -104,6 +80,35 @@ class Business(models.Model):
 
     def __str__(self):
         return "%s" %(self.business_name)
+
+
+# Create your models here.
+class CustomUser(AbstractBaseUser, PermissionsMixin):
+    username = None
+    email = models.EmailField(_('email address'), unique=True)
+    id = CustomShortUUIDField(primary_key=True, prefix="usr_")
+    business = models.ForeignKey(Business, default=None, null=True, on_delete=models.CASCADE, related_name='business_user')
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    objects = CustomUserManager()
+    first_name = models.CharField(default=None, max_length=64)
+    last_name = models.CharField(default=None, max_length=64)
+    role = models.CharField(default='OWNER', null=True, max_length=64, choices=ROLE_CHOICES)
+    is_active = models.BooleanField(default=True)
+    date_joined = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.email
+
+
+class Payments(models.Model):
+    type = models.CharField(default='ACH', null=True, max_length=64, choices=PAYMENT_CHOICES)
+
+    def __str__(self):
+        return u"%s [%s]" % (self.get_type_display(), self.type)
+
 
 class Discount(models.Model):
     business = models.ForeignKey(Business, default=None, null=True, on_delete=models.CASCADE)

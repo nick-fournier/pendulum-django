@@ -58,7 +58,7 @@ class StripePayInvoice(APIView):
 
     def get(self, request):
         if request.user.is_authenticated:
-            pm_dict, pm_list = list_payment_methods(Business.objects.get(pk=get_business_id(request.user.id)))
+            pm_dict, pm_list = list_payment_methods(Business.objects.get(pk=request.user.business.id))
         else:
             pm_list = {'No payment methods': 'User is not logged in.'}
         return Response(status=status.HTTP_200_OK, data=pm_list)
@@ -85,7 +85,7 @@ class StripePayInvoice(APIView):
 
         # If user is authenticated, check if correct payer and optionally pull default payment method if none specified
         if request.user.is_authenticated:
-            stripe_cus_id = Business.objects.get(pk=get_business_id(request.user.id)).stripe_cus_id
+            stripe_cus_id = Business.objects.get(pk=request.user.business.id).stripe_cus_id
 
             try:
                 customer = stripe.Customer.retrieve(stripe_cus_id)
@@ -94,7 +94,7 @@ class StripePayInvoice(APIView):
                 return Response(content, status=status.HTTP_404_NOT_FOUND)
 
             # Check if the current user has authority to pay
-            if Business.objects.get(business_name=invoice.bill_to).id != get_business_id(request.user.id):
+            if Business.objects.get(business_name=invoice.bill_to).id != request.user.business.id:
                 content = {'Bad invoice': 'You are not authorized to pay this invoice'}
                 return Response(content, status=status.HTTP_404_NOT_FOUND)
 
@@ -148,12 +148,12 @@ class StripeAttachPaymentMethod(APIView):
     serializer_class = AttachPaymentMethodSerializer
 
     def get(self, request):
-        pm_dict, pm_list = list_payment_methods(Business.objects.get(pk=get_business_id(request.user.id)))
+        pm_dict, pm_list = list_payment_methods(Business.objects.get(pk=request.user.business.id))
         return Response(status=status.HTTP_200_OK, data=pm_list)
 
     def post(self, request):
         # Get the current business
-        business = Business.objects.get(pk=get_business_id(request.user.id))
+        business = Business.objects.get(pk=request.user.business.id)
 
         if not business.stripe_cus_id or business.stripe_cus_id == "":
             content = {"Error": "Missing customer ID. User not yet onboarded?"}
@@ -173,18 +173,17 @@ class StripeAttachPaymentMethod(APIView):
         pm_dict, pm_list = list_payment_methods(business)
         return pm_list
 
-
 class StripeDefaultPaymentMethod(APIView):
-    serializer_class = AttachPaymentMethodSerializer
+    serializer_class = DefaultPaymentMethodSerializer
 
     def get(self, request):
-        pm_dict, pm_list = list_payment_methods(Business.objects.get(pk=get_business_id(request.user.id)))
+        pm_dict, pm_list = list_payment_methods(Business.objects.get(pk=request.user.business.id))
         current_default = {x: pm_dict[x] for x in pm_dict if pm_dict[x]['default']}
         return Response(status=status.HTTP_200_OK, data=current_default)
 
     def post(self, request):
         # Get the current business
-        business = Business.objects.get(pk=get_business_id(request.user.id))
+        business = Business.objects.get(pk=request.user.business.id)
 
         if not business.stripe_cus_id or business.stripe_cus_id == "":
             content = {"Error": "Missing customer ID. User not yet onboarded?"}
@@ -206,6 +205,7 @@ class StripeDefaultPaymentMethod(APIView):
                 return Response(content, status=status.HTTP_404_NOT_FOUND)
 
         # Set default on stripe and in database
+        payment_method = stripe.PaymentMethod.retrieve(request.data['default_payment_method'])
         payment_method = stripe.Customer.modify(
             business.stripe_cus_id,
             invoice_settings={'default_payment_method': payment_method.id}
@@ -246,7 +246,7 @@ class StripeOnboard(APIView):
             data['return_url'] = 'https://dash.pendululapp.com/'  # request.build_absolute_uri('/invoices/')
 
         # Query current business
-        business = Business.objects.get(id=get_business_id(request.user.id))
+        business = Business.objects.get(id=request.user.business.id)
 
         # Check if stripe_act_id in database is not null
         if business.stripe_act_id:

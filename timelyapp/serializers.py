@@ -66,11 +66,14 @@ class CustomTokenSerializer(serializers.ModelSerializer):
     def get_email(self, obj):
         return obj.user.email
     def get_business_name(self, obj):
-        return Business.objects.get(owner__id=obj.user.id).business_name
+        #return Business.objects.get(owner__id=obj.user.id).business_name
+        return obj.user.business.business_name
     def get_business_email(self, obj):
-        return Business.objects.get(owner__id=obj.user.id).business_email
+        #return Business.objects.get(owner__id=obj.user.id).business_email
+        return obj.user.business.business_email
     def get_business_id(self, obj):
-        return Business.objects.get(owner__id=obj.user.id).id
+        #return Business.objects.get(owner__id=obj.user.id).id
+        return obj.user.business.id
 
 class BusinessInfoSerializer(serializers.ModelSerializer):
     business_email = serializers.CharField()
@@ -100,7 +103,10 @@ class BusinessSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Business
-        exclude = ['owner', 'date_joined', 'managers']
+        #exclude = ['owner', 'date_joined', 'managers']
+        fields = ["id", "billing_address", "shipping_address", "is_member",
+                  "is_individual", "stripe_act_id", "stripe_cus_id", "business_name",
+                  "business_email", "business_phone", "business_fax"]
 
 
 class CustomLoginSerializer(RestAuthLoginSerializer):
@@ -135,7 +141,7 @@ class ToBusinessKeyField(serializers.PrimaryKeyRelatedField):
     queryset = Business.objects.all()
 
     def get_queryset(self):
-        return self.queryset.exclude(owner__id=self.context['request'].user.id)
+        return self.queryset.exclude(business_user__id=self.context['request'].user.id)
 
 
 class InventorySerializer(serializers.ModelSerializer):
@@ -201,7 +207,8 @@ class NewReceivableSerializer(serializers.ModelSerializer):
 
     # Custom create()
     def create(self, validated_data):
-        validated_data['bill_from'] = Business.objects.get(owner__id=self.context['request'].user.id)
+        #validated_data['bill_from'] = Business.objects.get(owner__id=self.context['request'].user.id)
+        validated_data['bill_from'] = self.context['request'].user.business.id
         validated_data['date_sent'] = datetime.date.today()
         if validated_data['terms'] != "Custom":
             validated_data['date_due'] = calculate_duedate(validated_data['terms'])
@@ -264,7 +271,8 @@ class NewPayableSerializer(serializers.ModelSerializer):
 
     # Custom create()
     def create(self, validated_data):
-        validated_data['bill_to'] = Business.objects.get(owner__id=self.context['request'].user.id)
+        #validated_data['bill_to'] = Business.objects.get(owner__id=self.context['request'].user.id)
+        validated_data['bill_to'] = self.context['request'].user.business.id
         validated_data['date_sent'] = datetime.date.today()
         if validated_data['terms'] != "Custom":
             validated_data['date_due'] = calculate_duedate(validated_data['terms'])
