@@ -171,7 +171,8 @@ class StripeAttachPaymentMethod(APIView):
 
         # Update payment method list
         pm_dict, pm_list = list_payment_methods(business)
-        return pm_list
+
+        return Response(status=status.HTTP_200_OK, data=pm_list)
 
 class StripeDefaultPaymentMethod(APIView):
     serializer_class = DefaultPaymentMethodSerializer

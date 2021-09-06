@@ -52,7 +52,7 @@ def list_payment_methods(business):
     return pm_dict, pm_list
 
 ### Stripe views ###
-This function takes invoice ID posted and sends back a payment intent
+#This function takes invoice ID posted and sends back a payment intent
 @api_view(['GET', 'POST'])
 def stripe_pay_invoice(request):
 

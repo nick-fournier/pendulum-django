@@ -27,10 +27,7 @@ class BusinessInfo(viewsets.ModelViewSet):
     serializer_class = BusinessInfoSerializer
 
     def get_queryset(self):
-        queryset = self.queryset
-
         try:
-            #queryset = Business.objects.filter(id=get_business_id(self.request.user.id))
             queryset = Business.objects.filter(id=self.request.user.business.id)
         except Business.DoesNotExist:
             queryset = []
@@ -53,21 +50,19 @@ class InvoiceViewSet(viewsets.ReadOnlyModelViewSet):
 
 class NewReceivableViewSet(viewsets.ModelViewSet):
     serializer_class = NewReceivableSerializer
-    queryset = []
 
-    # def get_queryset(self):
-    #     business_id = get_business_id(self.request.user.id)
-    #     queryset = Invoice.objects.filter(bill_from__id=business_id)
-    #     return queryset
+    def get_queryset(self):
+        business_id = self.request.user.business.id
+        queryset = Invoice.objects.filter(bill_from__id=business_id).order_by('date_due')
+        return queryset
 
 class NewPayableViewSet(viewsets.ModelViewSet):
     serializer_class = NewPayableSerializer
-    queryset = []
 
-    # def get_queryset(self):
-    #     business_id = get_business_id(self.request.user.id)
-    #     queryset = Invoice.objects.filter(bill_to__id=business_id)
-    #     return queryset
+    def get_queryset(self):
+        business_id = self.request.user.business.id
+        queryset = Invoice.objects.filter(bill_to__id=business_id).order_by('date_due')
+        return queryset
 
 class BusinessViewSet(viewsets.ModelViewSet):
     serializer_class = BusinessSerializer
@@ -77,40 +72,34 @@ class InventoryViewSet(viewsets.ModelViewSet):
     serializer_class = InventorySerializer
 
     def get_queryset(self):
-        #business_id = get_business_id(self.request.user.id)
         print(self.request.user.business)
         business_id = self.request.user.business.id
         queryset = Inventory.objects.filter(Q(business__id=business_id)).order_by('last_updated')
         return queryset
 
-class OrderViewSet(viewsets.ModelViewSet):
+class OrderViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = OrderSerializer
 
     def get_queryset(self):
-        #business_id = get_business_id(self.request.user.id)
         business_id = self.request.user.business.id
         invoice_list = Invoice.objects.filter(bill_from__id=business_id)
         queryset = Order.objects.filter(invoice__in=invoice_list)
         return queryset
 
-class PayablesViewSet(viewsets.ModelViewSet):
+class PayablesViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = InvoiceSerializer
     success_url = reverse_lazy('home')
 
-    # Overrides the internal function
     def get_queryset(self):
-        #business_id = get_business_id(self.request.user.id)
         business_id = self.request.user.business.id
         queryset = Invoice.objects.filter(bill_to__id=business_id).order_by('date_due')
         return queryset
 
-class ReceivablesViewSet(viewsets.ModelViewSet):
+class ReceivablesViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = InvoiceSerializer
     success_url = reverse_lazy('home')
 
-    # Overrides the internal function
     def get_queryset(self):
-        #business_id = get_business_id(self.request.user.id)
         business_id = self.request.user.business.id
         queryset = Invoice.objects.filter(bill_from__id=business_id).order_by('date_due')
         return queryset
