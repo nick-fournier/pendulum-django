@@ -207,7 +207,6 @@ class NewReceivableSerializer(serializers.ModelSerializer):
 
     # Custom create()
     def create(self, validated_data):
-        #validated_data['bill_from'] = Business.objects.get(owner__id=self.context['request'].user.id)
         validated_data['bill_from'] = self.context['request'].user.business
         validated_data['date_sent'] = datetime.date.today()
         if validated_data['terms'] != "Custom":
