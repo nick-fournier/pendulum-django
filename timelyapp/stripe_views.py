@@ -64,13 +64,13 @@ class StripePayInvoice(APIView):
         return Response(status=status.HTTP_200_OK, data=pm_list)
 
     def post(self, request):
-        # Extract request data
-        data = request.data
+        # Extract request
+        data = request.data.copy()
         invoice = Invoice.objects.get(pk=request.data['invoice_id'])
         billing_business = Business.objects.get(business_name=invoice.bill_from)
         timely_fee = round(timely_rate * 100 * invoice.invoice_total_price)  # Calculate our fee
 
-        data._mutable = True
+        #data._mutable = True
         data['currency'] = invoice.currency.lower()
 
         # Check if other account is onboarded, if not we'll have to handle this somehow (hold money until they onboard?)
