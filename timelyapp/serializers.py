@@ -208,7 +208,7 @@ class NewReceivableSerializer(serializers.ModelSerializer):
     # Custom create()
     def create(self, validated_data):
         #validated_data['bill_from'] = Business.objects.get(owner__id=self.context['request'].user.id)
-        validated_data['bill_from'] = self.context['request'].user.business.id
+        validated_data['bill_from'] = self.context['request'].user.business
         validated_data['date_sent'] = datetime.date.today()
         if validated_data['terms'] != "Custom":
             validated_data['date_due'] = calculate_duedate(validated_data['terms'])
@@ -275,7 +275,7 @@ class NewPayableSerializer(serializers.ModelSerializer):
     # Custom create()
     def create(self, validated_data):
         #validated_data['bill_to'] = Business.objects.get(owner__id=self.context['request'].user.id)
-        validated_data['bill_to'] = self.context['request'].user.business.id
+        validated_data['bill_to'] = self.context['request'].user.business
         validated_data['date_sent'] = datetime.date.today()
         if validated_data['terms'] != "Custom":
             validated_data['date_due'] = calculate_duedate(validated_data['terms'])
