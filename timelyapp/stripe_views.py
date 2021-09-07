@@ -217,7 +217,6 @@ class StripeDefaultPaymentMethod(APIView):
         current_default = {x: pm_dict[x] for x in pm_dict if pm_dict[x]['default']}
         return Response(status=status.HTTP_200_OK, data=current_default)
 
-
 class StripeOnboard(APIView):
     def get(self, request):
         # sub-func to create new stripe account and add to db
