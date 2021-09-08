@@ -166,17 +166,20 @@ ACCOUNT_EMAIL_SUBJECT_PREFIX = None
 OLD_PASSWORD_FIELD_ENABLED = True
 LOGOUT_ON_PASSWORD_CHANGE = True
 
-EMAIL_HOST = 'smtp.mailgun.org'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = os.environ.get("MAILGUN_SMTP_LOGIN")
-EMAIL_HOST_PASSWORD = os.environ.get("MAILGUN_SMTP_PASSWORD")
+
 EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-# EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND")
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.environ.get('MAILGUN_SMTP_SERVER', '')
+EMAIL_PORT = os.environ.get('MAILGUN_SMTP_PORT', '')
+EMAIL_HOST_USER = os.environ.get('MAILGUN_SMTP_LOGIN', '')
+EMAIL_HOST_PASSWORD = os.environ.get('MAILGUN_SMTP_PASSWORD', '')
+
+#DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+# EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND")
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 # EMAIL_FILE_PATH = '/sent_emails'
+
 
 REST_AUTH_SERIALIZERS = {
     'USER_DETAILS_SERIALIZER': 'timelyapp.serializers.UserSerializer',
