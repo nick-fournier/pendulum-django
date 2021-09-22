@@ -1,8 +1,7 @@
-from rest_framework import viewsets, status, generics
+from rest_framework import viewsets, status, generics, mixins
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from rest_framework.decorators import authentication_classes, permission_classes
+from rest_framework.decorators import api_view, authentication_classes, permission_classes, action
 from .serializers import *
 
 from .mail import *
@@ -52,21 +51,143 @@ def list_payment_methods(business):
     return pm_dict, pm_list
 
 ### Stripe views ###
-class StripePayInvoice(APIView):
+
+class StripePayInvoice_old(APIView):
     serializer_class = PayInvoiceSerializer
     permission_classes = []
 
     def get(self, request):
+        if request.user.is_authenticated:
+            pm_dict, pm_list = list_payment_methods(Business.objects.get(pk=get_business_id(request.user.id)))
+        else:
+            pm_list = {'No payment methods': 'User is not logged in.'}
+        return Response(status=status.HTTP_200_OK, data=pm_list)
+
+    def post(self, request):
+        # Extract request data
+        data = request.data
+        invoice = Invoice.objects.get(pk=request.data['invoice_id'])
+        billing_business = Business.objects.get(business_name=invoice.bill_from)
+        timely_fee = round(timely_rate * 100 * invoice.invoice_total_price)  # Calculate our fee
+
+        data['currency'] = invoice.currency.lower()
+        payment_method = stripe.PaymentMethod.retrieve(data['payment_method'])
+        stripe_cus_id = payment_method.customer
+
+        # Check if other account is onboarded, if not we'll have to handle this somehow (hold money until they onboard?)
+        if not stripe.Account.retrieve(billing_business.stripe_act_id).charges_enabled:
+            if not billing_business.stripe_act_id:
+                content = {'Bad invoice': 'Account for ' + billing_business.business_name +
+                                          ' has no stripe account'}
+            else:
+                content = {'Bad invoice': 'Stripe account ' + billing_business.stripe_act_id +
+                                          ' for receivable is not fully onboarded.'}
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+        # If user is authenticated, check if correct payer and optionally pull default payment method if none specified
+        if request.user.is_authenticated:
+            stripe_cus_id = Business.objects.get(pk=get_business_id(request.user.id))['stripe_cus_id']
+
+            try:
+                customer = stripe.Customer.retrieve(stripe_cus_id)
+            except stripe.error.InvalidRequestError:
+                content = {'Bad invoice': 'Not a valid customer ID'}
+                return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+            # Check if the current user has authority to pay
+            if Business.objects.get(business_name=invoice.bill_to).id != get_business_id(request.user.id):
+                content = {'Bad invoice': 'You are not authorized to pay this invoice'}
+                return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+            if 'payment_method' not in data:
+                data['payment_method'] = customer.invoice_settings.default_payment_method
+            data['payment_method_types'] = [data['payment_method'].type]
+
+        # Clone customer to connected account
+        payment_method = stripe.PaymentMethod.create(
+            customer=stripe_cus_id,
+            payment_method=data['payment_method'],
+            stripe_account=billing_business.stripe_act_id,
+        )
+
+        invoice_desc = "Invoice: " + invoice.invoice_name + \
+                    " from " + Business.objects.get(pk=invoice.bill_from.id).business_name +\
+                    " to " + Business.objects.get(pk=invoice.bill_to.id).business_name
+
+        payment_intent = stripe.PaymentIntent.create(
+            amount=int(invoice.invoice_total_price * 100),
+            currency=data['currency'],
+            description=invoice_desc,
+            payment_method_types=data['payment_method_types'],
+            payment_method=payment_method,
+            # customer=this_business.stripe_cus_id,
+            stripe_account=billing_business.stripe_act_id,
+            confirm=True,
+            application_fee_amount=timely_fee,
+        )
+
+        # # Confirmation
+        # payment_intent = stripe.PaymentIntent.confirm(
+        #     payment_intent.id,
+        #     payment_method=payment_method,
+        # )
+
+        if payment_intent.status == 'succeeded':
+            invoice.is_paid = True
+            invoice.date_paid = datetime.date.today()
+            invoice.save()
+            # send_payment_confirmation()
+
+        return Response(status=status.HTTP_200_OK, data=payment_intent)
+
+
+class StripePayInvoice(mixins.CreateModelMixin,
+                       mixins.UpdateModelMixin,
+                       mixins.ListModelMixin,
+                       mixins.RetrieveModelMixin,
+                       viewsets.GenericViewSet):
+    # # This exposes the endpoint
+    permission_classes = []
+    # This creates the input form
+    # serializer_class = PayInvoiceObjectSerializer
+    queryset = Invoice.objects.all()
+
+    def get_serializer_class(self):
+        print(self.action)
+        if self.action == 'update':
+            return PayInvoiceObjectSerializer
+        return PayInvoiceSerializer
+
+    def list(self, request):
         if request.user.is_authenticated:
             pm_dict, pm_list = list_payment_methods(Business.objects.get(pk=request.user.business.id))
         else:
             pm_list = {'No payment methods': 'User is not logged in.'}
         return Response(status=status.HTTP_200_OK, data=pm_list)
 
-    def post(self, request):
+    def retrieve(self, request, pk=None):
+        invoice = Invoice.objects.filter(pk=pk)
+        if invoice.exists():
+            serializer = InvoiceSerializer(invoice, many=True)
+            return Response(serializer.data)
+        else:
+            return Response({"No invoice matching this request"}, status=status.HTTP_404_NOT_FOUND)
+
+    def create(self, request, pk=None):
+        return self.pay_invoice(request, pk=None)
+
+    def update(self, request, pk=None):
+        return self.pay_invoice(request, pk)
+
+    def pay_invoice(self, request, pk=None):
         # Extract request
         data = request.data.copy()
-        invoice = Invoice.objects.get(pk=request.data['invoice_id'])
+
+        if pk:
+            invoice = Invoice.objects.get(pk=pk)
+        else:
+            invoice = Invoice.objects.get(pk=request.data['invoice_id'])
+
         billing_business = Business.objects.get(business_name=invoice.bill_from)
         timely_fee = round(timely_rate * 100 * invoice.invoice_total_price)  # Calculate our fee
 

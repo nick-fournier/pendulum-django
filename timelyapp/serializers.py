@@ -171,6 +171,14 @@ class PayInvoiceSerializer(serializers.ModelSerializer):
         model = Invoice
         fields = ['invoice_id', 'payment_method']
 
+class PayInvoiceObjectSerializer(serializers.ModelSerializer):
+    payment_method = serializers.CharField(required=True)
+
+    class Meta:
+        model = Invoice
+        fields = ['payment_method']
+
+
 # ATTACH PAYMENT METHOD SERIALIZER
 class AttachPaymentMethodSerializer(serializers.ModelSerializer):
     attach_payment_method = serializers.CharField(required=True)

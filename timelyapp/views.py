@@ -72,7 +72,6 @@ class InventoryViewSet(viewsets.ModelViewSet):
     serializer_class = InventorySerializer
 
     def get_queryset(self):
-        print(self.request.user.business)
         business_id = self.request.user.business.id
         queryset = Inventory.objects.filter(Q(business__id=business_id)).order_by('last_updated')
         return queryset

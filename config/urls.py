@@ -20,7 +20,6 @@ from django.contrib.auth import views as auth_views
 from rest_framework import routers
 from timelyapp import views
 
-
 router = routers.DefaultRouter()
 router.register(r'businesses', views.BusinessViewSet, basename='api-businesses')
 router.register(r'inventory', views.InventoryViewSet, basename='api-inventory')
@@ -34,14 +33,22 @@ router.register(r'outreach', views.OutreachViewSet, basename='api-newsletter')
 router.register(r'businessinfo', views.BusinessInfo, basename='api-businessinfo')
 router.register(r'accountemails', views.EmailVerifyView, basename='api-accountemails')
 
+router.register(r'stripe/payinvoice', views.StripePayInvoice, basename='payinvoice')
+
+
+user_list = views.StripePayInvoice.as_view({'get': 'list'})
+user_detail = views.StripePayInvoice.as_view({'get': 'retrieve'})
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('timelyapp.urls')),
 
     # Timely Endpoints
     path('api/', include((router.urls, 'timely'), namespace='api')),  # The data API
-    path('api/stripe/payinvoice', views.StripePayInvoice.as_view()),
     path('api/stripe/onboard', views.StripeOnboard.as_view()),
+    # path('api/stripe/payinvoice/', views.StripePayInvoice),
+    # path('api/stripe/payinvoice/<pk>', views.StripePayInvoice),
     path('api/stripe/paymentmethods/attach', views.StripeAttachPaymentMethod.as_view()),
     path('api/stripe/paymentmethods/default', views.StripeDefaultPaymentMethod.as_view()),
 
