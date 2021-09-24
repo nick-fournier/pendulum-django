@@ -13,10 +13,10 @@ def send_new_invoice_email(invoice, items):
 
         url_dict = {'subdomain': 'dash.',
                     'domain': Site.objects.get_current().domain,
-                    'path': '/invoice-payment',
-                    'name': '/name=' + invoice.invoice_name,
-                    'pk': '/id=' + str(invoice.pk)}
-        payment_url = 'https://{subdomain}{domain}{path}{name}{pk}'.format(**url_dict)
+                    'path': '/pay/',
+                    #'name': invoice.invoice_name,
+                    'pk': str(invoice.pk)}
+        payment_url = 'https://{subdomain}{domain}{path}{pk}'.format(**url_dict)
 
         #context = {'user_name': invoice.bill_to.owner.first_name,
         context = {'user_name': CustomUser.objects.get(business=invoice.bill_to).first_name,
