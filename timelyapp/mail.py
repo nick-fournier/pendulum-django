@@ -5,6 +5,7 @@ from django.template.loader import get_template
 from django.template import Context
 from .models import *
 import datetime
+import sib_api_v3_sdk
 
 def send_new_invoice_email(invoice, items):
     if not invoice.terms == 'CIA':
@@ -30,7 +31,7 @@ def send_new_invoice_email(invoice, items):
             context['due_statement'] = 'Please pay by ' + due_string + '.'
 
         subject = ' '.join(['New invoice from', invoice.bill_from.business_name, '[#' + invoice.invoice_name + ']'])
-        from_email = settings.EMAIL_HOST_USER
+        from_email = 'notification@pendulumapp.com' #settings.EMAIL_HOST_USER
         to_email = invoice.bill_to.business_email
 
         text_content = text.render(context)
