@@ -4,11 +4,8 @@ from allauth.account.utils import setup_user_email
 from allauth.account.models import EmailAddress
 from rest_auth.registration.serializers import RegisterSerializer
 from rest_auth.serializers import LoginSerializer as RestAuthLoginSerializer
-from phonenumber_field import serializerfields
-from django.db.models.query_utils import Q
 
 from rest_framework import serializers
-from .models import *
 from .mail import *
 from timelyapp.utils import calculate_duedate, generate_invoice_name, get_business_id
 
@@ -162,6 +159,16 @@ class NewOrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ['item_name', 'quantity_purchased', 'item_price', 'item_total_price', 'is_new']
 
+# NOTIFICATION SERIALIZER
+class NotificationSerializer(serializers.ModelSerializer):
+    invoice_id = serializers.CharField(required=True)
+    type = serializers.CharField(required=True)
+
+    class Meta:
+        model = Invoice
+        fields = ['invoice_id', 'type']
+
+
 # PAY INVOICE SERIALIZER
 class PayInvoiceSerializer(serializers.ModelSerializer):
     invoice_id = serializers.CharField(required=True)
@@ -177,7 +184,6 @@ class PayInvoiceObjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invoice
         fields = ['payment_method']
-
 
 # ATTACH PAYMENT METHOD SERIALIZER
 class AttachPaymentMethodSerializer(serializers.ModelSerializer):
@@ -255,7 +261,7 @@ class NewReceivableSerializer(serializers.ModelSerializer):
             invoice.accepted_payments.add(payment)
 
         #Send email
-        send_new_invoice_email(invoice, items_data)
+        send_notification(invoice.id, type='new')
 
         return invoice
 

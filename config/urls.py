@@ -32,6 +32,7 @@ router.register(r'receivables', views.ReceivablesViewSet, basename='api-receivab
 router.register(r'outreach', views.OutreachViewSet, basename='api-newsletter')
 router.register(r'businessinfo', views.BusinessInfo, basename='api-businessinfo')
 router.register(r'accountemails', views.EmailVerifyView, basename='api-accountemails')
+router.register(r'notifications', views.NotificationViewset, basename='notifications')
 
 # Stripe views
 router.register(r'stripe/payinvoice', views.StripePayInvoice, basename='payinvoice')
@@ -50,7 +51,7 @@ urlpatterns = [
 
     # Timely Endpoints
     path('api/', include((router.urls, 'timely'), namespace='api')),  # The data API
-    #path('api/stripe/onboard', views.StripeOnboard.as_view()),
+    # path('api/stripe/onboard', views.StripeOnboard.as_view()),
     # path('api/stripe/payinvoice/', views.StripePayInvoice),
     # path('api/stripe/payinvoice/<pk>', views.StripePayInvoice),
     # path('api/stripe/paymentmethods/attach', views.StripeAttachPaymentMethod.as_view()),

@@ -1,0 +1,7 @@
+Hi {{ user_name }},
+
+This is a confirmation email for your payment of ${{ invoice.invoice_total_price }} to {{ invoice.bill_to.business_name }} for Invoice #{{ invoice.invoice_name }}.
+
+Thanks for using {{invoice.bill_from.business_name }}
+
+Click link to pay: {{ payment_url }}

@@ -4,5 +4,3 @@ You've received a new invoice from {{ invoice.bill_from }} for ${{ invoice.invoi
 {{ due_statement }}
 
 Click link to pay: {{ payment_url }}
-
-

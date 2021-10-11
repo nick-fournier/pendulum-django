@@ -1,11 +1,8 @@
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.shortcuts import render
-from rest_framework import viewsets, status
 from rest_framework.permissions import AllowAny
-from .serializers import *
 from .stripe_views import *
-from timelyapp.utils import get_business_id
 
 def chart_view(request):
     return render(request, 'chart.html')
@@ -43,7 +40,6 @@ class InvoiceViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = FullInvoiceSerializer
 
     def get_queryset(self):
-        #business_id = get_business_id(self.request.user.id)
         business_id = self.request.user.business.id
         queryset = Invoice.objects.filter(Q(bill_from__id=business_id) | Q(bill_to__id=business_id)).order_by('id')
         return queryset
@@ -110,3 +106,34 @@ class OutreachViewSet(viewsets.ModelViewSet):
     success_url = reverse_lazy('home')
     throttle_scope = 'outreach'
 
+class NotificationViewset(mixins.ListModelMixin,
+                          mixins.CreateModelMixin,
+                          viewsets.GenericViewSet):
+
+    serializer_class = NotificationSerializer
+    queryset = Invoice.objects.none()
+    throttle_scope = 'remind'
+
+    actions = ['remind']
+
+    def list(self, request):
+        actions = {
+            'notification types': {'remind': 'Sends reminder email to payee account of invoice.'}
+                   }
+        return Response(status=status.HTTP_200_OK, data=actions)
+
+
+    def create(self, request):
+        data = request.data
+
+        if not Invoice.objects.filter(pk=data['invoice_id']).exists():
+            return Response({'invoice not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if data['type'] not in self.actions:
+            return Response({'bad action type.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if data['type'] == 'remind':
+            send_notification(data['invoice_id'], type='remind')
+
+        return Response(status=status.HTTP_200_OK,
+                        data={'Success': data['type'] + ' notification sent for invoice ' + data['invoice_id']})

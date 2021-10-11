@@ -201,7 +201,8 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'outreach': '10/day'
+        'outreach': '10/day',
+        'remind': '1/day'
     }
 
 }

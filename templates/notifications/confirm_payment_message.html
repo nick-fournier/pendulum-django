@@ -23,52 +23,12 @@
 							<table width="100%" cellpadding="0" cellspacing="0">
 								<tr>
 									<td class="content-block">
-										<h1 class="aligncenter">${{ invoice.invoice_total_price }} due</h1>
+										<h1 class="aligncenter">Thank you for our payment!</h1>
 									</td>
 								</tr>
 								<tr>
 									<td class="content-block">
-										<h2 class="aligncenter">Thanks for using {{invoice.bill_from.business_name }}</h2>
-									</td>
-								</tr>
-                                <tr>
-									<td class="content-block aligncenter" itemprop="handler" itemscope itemtype="http://schema.org/HttpActionHandler">
-										<a href="{{ payment_url }}" class="btn-primary" itemprop="url">Pay now</a>
-									</td>
-								</tr>
-								<tr>
-									<td class="content-block aligncenter">
-										Payment url: <br>
-										<a href="{{ payment_url }}"> {{ payment_url }}</a>
-									</td>
-								</tr>
-								<tr>
-									<td class="content-block aligncenter">
-										<table class="invoice">
-											<tr>
-												<td>{{ invoice.bill_to.business_name }} <br>Invoice #{{ invoice.invoice_name }} <br> {{ due_statement }}</td>
-											</tr>
-											<tr>
-												<td>
-													<table class="invoice-items" cellpadding="0" cellspacing="0">
-                                                        {% if items %}
-                                                        {% for item in items %}
-                                                            <tr>
-                                                                <td>{{ item.item_name }}</td>
-                                                                <td>${{ item.item_price }}</td>
-                                                                <td>x{{ item.quantity_purchased }}</td>
-                                                                <td class="alignright">${{ item.item_total_price }}</td>
-                                                            </tr>
-                                                        {% endfor %}
-                                                        {% endif %}
-														<tr class="total">
-															<td class="alignright" width="80%">Total</td>
-															<td class="alignright">${{ invoice.invoice_total_price }} </td>
-														</tr>
-													</table>
-												</td>
-											</tr>
-										</table>
+										<h2 class="aligncenter">This is a confirmation email for your payment of ${{ invoice.invoice_total_price }} to {{ invoice.bill_to.business_name }} for Invoice #{{ invoice.invoice_name }}. </h2>
 									</td>
 								</tr>
 								<tr>

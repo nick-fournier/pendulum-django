@@ -1,7 +1,6 @@
-from rest_framework import viewsets, status, generics, mixins
+from rest_framework import viewsets, status, mixins
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, authentication_classes, permission_classes, action
 from .serializers import *
 
 from .mail import *
@@ -170,7 +169,7 @@ class StripePayInvoice(mixins.CreateModelMixin,
             invoice.is_paid = True
             invoice.date_paid = datetime.date.today()
             invoice.save()
-            # send_payment_confirmation()
+            send_notification(invoice.id, type='confirm')
 
         return Response(status=status.HTTP_200_OK, data=payment_intent)
 

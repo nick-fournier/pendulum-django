@@ -1,0 +1,7 @@
+Hi {{ user_name }},
+
+This is just a friendly reminder that you have an invoice of ${{ invoice.invoice_total_price }} due by {{ due_string }}.
+
+Thanks for using {{invoice.bill_from.business_name }}
+
+Click link to pay: {{ payment_url }}
