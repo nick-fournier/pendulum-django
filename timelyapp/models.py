@@ -168,7 +168,8 @@ class Order(models.Model):
     discount_code = models.ForeignKey(Discount, default=1, on_delete=models.CASCADE)
     item_name = models.CharField(default=None, null=True, max_length=100)
     item_description = models.CharField(default=None, null=True, max_length=500)
-    quantity_purchased = models.DecimalField(max_digits=18, decimal_places=6)
+    #quantity_purchased = models.DecimalField(max_digits=18, decimal_places=6)
+    quantity_purchased = models.IntegerField()
     item_price = models.DecimalField(max_digits=12, decimal_places=2)
     item_total_price = models.DecimalField(max_digits=12, decimal_places=2)
 
