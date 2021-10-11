@@ -111,9 +111,8 @@ class NotificationViewset(mixins.ListModelMixin,
                           viewsets.GenericViewSet):
 
     serializer_class = NotificationSerializer
-    queryset = Invoice.objects.none()
+    # queryset = Invoice.objects.none()
     throttle_scope = 'remind'
-
     actions = ['remind']
 
     def list(self, request):
@@ -125,6 +124,9 @@ class NotificationViewset(mixins.ListModelMixin,
 
     def create(self, request):
         data = request.data
+
+        business_id = self.request.user.business.id
+        Invoice.objects.filter(bill_from__id=business_id).filter(pk=data['invoice_id']).exists()
 
         if not Invoice.objects.filter(pk=data['invoice_id']).exists():
             return Response({'invoice not found.'}, status=status.HTTP_404_NOT_FOUND)

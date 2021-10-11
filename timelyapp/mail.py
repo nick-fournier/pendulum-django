@@ -12,15 +12,17 @@ def send_notification(invoice_id, type):
     invoice = Invoice.objects.get(pk=invoice_id)
     items = Order.objects.filter(invoice=invoice)
 
-    templates = {'new': 'new_invoice_message',
-                 'remind': 'remind_invoice_message',
-                 'confirm': 'confirm_payment_message'}
+    templates = {
+        'new': 'new_invoice_message',
+        'remind': 'remind_invoice_message',
+        'confirm': 'confirm_payment_message'
+    }
 
     subjects = {
-        'New invoice from {biz} [# {id}]'.format(biz=invoice.bill_from.business_name, id=invoice.invoice_name),
-        'Invoice reminder [# {id}]'.format(biz=invoice.bill_from.business_name, id=invoice.invoice_name),
-        'Payment confirmation [# {id}]'.format(biz=invoice.bill_from.business_name, id=invoice.invoice_name)
-                }
+        'new': 'New invoice from {biz} [# {id}]'.format(biz=invoice.bill_from.business_name, id=invoice.invoice_name),
+        'remind': 'Invoice reminder [# {id}]'.format(biz=invoice.bill_from.business_name, id=invoice.invoice_name),
+        'confirm': 'Payment confirmation [# {id}]'.format(biz=invoice.bill_from.business_name, id=invoice.invoice_name)
+    }
 
 
     if not invoice.terms == 'CIA':
@@ -39,7 +41,7 @@ def send_notification(invoice_id, type):
                    'payment_url': payment_url}
 
         if not invoice.terms in ['COD', 'CIA']:
-            due_string = datetime.datetime.strptime(invoice.date_due, "%Y-%m-%d").date().strftime("%B %d, %Y")
+            due_string = invoice.date_due.strftime("%B %d, %Y")
             context['due_string'] = due_string
             context['due_statement'] = 'Please pay by ' + due_string + '.'
 
