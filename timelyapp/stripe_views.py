@@ -51,7 +51,6 @@ def list_payment_methods(business):
     return pm_dict, pm_list
 
 ### Stripe views ###
-
 class StripePayInvoice(mixins.CreateModelMixin,
                        mixins.UpdateModelMixin,
                        mixins.ListModelMixin,
