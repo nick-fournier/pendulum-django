@@ -157,7 +157,7 @@ class NewOrderSerializer(serializers.ModelSerializer):
     is_new = serializers.BooleanField(default=False)
     class Meta:
         model = Order
-        fields = ['item_name', 'quantity_purchased', 'item_price', 'item_total_price', 'is_new']
+        fields = ['item_name', 'item_description', 'quantity_purchased', 'item_price', 'item_total_price', 'is_new']
 
 # NOTIFICATION SERIALIZER
 class NotificationSerializer(serializers.ModelSerializer):
