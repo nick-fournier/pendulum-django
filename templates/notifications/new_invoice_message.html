@@ -53,15 +53,15 @@
 													<table class="invoice-items" cellpadding="0" cellspacing="0">
                                                         {% if items %}
 															<tr>
-                                                                <td>Item </td>
-																<td>Description </td>
-                                                                <td class="alignright">Item total</td>
+                                                                <td> Item </td>
+																<td> Description </td>
+                                                                <td class="alignright"> Item total </td>
                                                             </tr>
                                                         {% for item in items %}
                                                             <tr>
-                                                                <td>{{ item.item_name }}</td>
-																<td>{{ item.item_description }}</td>
-                                                                <td class="alignright">${{ item.item_total_price }}</td>
+                                                                <td> {{ item.item_name }} </td>
+																<td> {{ item.item_description }} </td>
+                                                                <td class="alignright"> ${{ item.item_total_price }} </td>
                                                             </tr>
                                                         {% endfor %}
                                                         {% endif %}
