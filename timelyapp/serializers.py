@@ -163,10 +163,12 @@ class NewOrderSerializer(serializers.ModelSerializer):
 class NotificationSerializer(serializers.ModelSerializer):
     invoice_id = serializers.CharField(required=True)
     type = serializers.CharField(required=True)
+    cc = serializers.CharField(required=False)
+    custom_text = serializers.CharField(required=False)
 
     class Meta:
         model = Invoice
-        fields = ['invoice_id', 'type']
+        fields = ['invoice_id', 'cc', 'type', 'custom_text']
 
 
 # PAY INVOICE SERIALIZER
@@ -261,7 +263,7 @@ class NewReceivableSerializer(serializers.ModelSerializer):
             invoice.accepted_payments.add(payment)
 
         #Send email
-        send_notification(invoice.id, type='new')
+        send_notification(invoice.id, notif_type='new')
 
         return invoice
 
