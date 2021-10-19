@@ -58,7 +58,7 @@ def send_notification(invoice_id, notif_type, cc=None, custom_text=None):
                                               str(round(invoice.invoice_total_price,2)),
                                               ' due. ',
                                               context['due_statement'],
-                                              '\nThank you for using',
+                                              '\nThank you for using ',
                                               invoice.bill_from.business_name])
 
         # Checking if CC emails are valid
