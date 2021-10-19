@@ -55,7 +55,7 @@ def send_notification(invoice_id, notif_type, cc=None, custom_text=None):
             context['custom_text'] = custom_text
         else:
             context['custom_text'] = ''.join(['This is just a friendly reminder that you have an invoice of $',
-                                              invoice.invoice_total_price,
+                                              str(round(invoice.invoice_total_price,2)),
                                               ' due. ',
                                               context['due_statement'],
                                               '\nThank you for using',
