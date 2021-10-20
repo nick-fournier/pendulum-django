@@ -163,8 +163,8 @@ class NewOrderSerializer(serializers.ModelSerializer):
 class NotificationSerializer(serializers.ModelSerializer):
     invoice_id = serializers.CharField(required=True)
     type = serializers.CharField(required=True)
-    #cc = serializers.CharField(required=False)
-    cc = serializers.ListField(required=False)
+    cc = serializers.CharField(required=False)
+    #cc = serializers.ListField(required=False)
     custom_text = serializers.CharField(required=False)
 
     class Meta:

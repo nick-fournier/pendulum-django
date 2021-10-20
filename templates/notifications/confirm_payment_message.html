@@ -23,12 +23,14 @@
 							<table width="100%" cellpadding="0" cellspacing="0">
 								<tr>
 									<td class="content-block">
-										<h1 class="aligncenter">Thank you for our payment!</h1>
+										<h1 class="aligncenter">Thank you for your payment!</h1>
 									</td>
 								</tr>
 								<tr>
 									<td class="content-block">
-										<h2 class="aligncenter">This is a confirmation email for your payment of ${{ invoice.invoice_total_price }} to {{ invoice.bill_to.business_name }} for Invoice #{{ invoice.invoice_name }}. </h2>
+										<h2 class="aligncenter">
+											{{ custom_text }}
+										</h2>
 									</td>
 								</tr>
 								<tr>

@@ -27,6 +27,10 @@ def send_notification(invoice_id, notif_type, cc=None, custom_text=None):
         'confirm': 'Payment confirmation [# {id}]'.format(biz=invoice.bill_from.business_name, id=invoice.invoice_name)
     }
 
+    default_text = {'new': 'Thanks for using {biz}',
+                    'remind': 'This is just a friendly reminder that you have an invoice of ${amt} due. \nThank you for using {biz}',
+                    'confirm': 'This is a confirmation email for your payment of ${amt} to {biz} for Invoice #{id}.'
+                    }
 
     if not invoice.terms == 'CIA':
         text = get_template('notifications/{type}.txt'.format(type=templates[notif_type]))
@@ -54,19 +58,17 @@ def send_notification(invoice_id, notif_type, cc=None, custom_text=None):
         if custom_text:
             context['custom_text'] = custom_text
         else:
-            context['custom_text'] = ''.join(['This is just a friendly reminder that you have an invoice of $',
-                                              str(round(invoice.invoice_total_price,2)),
-                                              ' due. ',
-                                              context['due_statement'],
-                                              '\nThank you for using ',
-                                              invoice.bill_from.business_name])
+            context['custom_text'] = default_text[notif_type].format(amt=str(round(invoice.invoice_total_price, 2)),
+                                                                     biz=invoice.bill_from.business_name,
+                                                                     id=invoice.id)
 
         # Checking if CC emails are valid
         invalid = []
         valid = []
         if cc:
+            cc_list = [x.strip() for x in cc.split(",")]
             regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-            for email in list(cc):
+            for email in cc_list:
                 if (re.fullmatch(regex, email)):
                     valid.append(email)
                 else:
