@@ -60,7 +60,7 @@ def send_notification(invoice_id, notif_type, cc=None, custom_text=None):
         else:
             context['custom_text'] = default_text[notif_type].format(amt=str(round(invoice.invoice_total_price, 2)),
                                                                      biz=invoice.bill_from.business_name,
-                                                                     id=invoice.id)
+                                                                     id=invoice.invoice_name)
 
         # Checking if CC emails are valid
         invalid = []
