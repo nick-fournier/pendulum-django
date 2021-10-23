@@ -1,7 +1,7 @@
 import datetime
 import json
 import numpy as np
-from .models import *
+from .mail import *
 
 def calculate_duedate(terms):
     today = datetime.date.today()
@@ -103,3 +103,53 @@ def get_invoices(biz_id, type):
 
         return data
 
+# Create invoice function
+def create_invoice(validated_data, business, bill_to_from):
+    validated_data[bill_to_from] = business
+    validated_data['date_sent'] = datetime.date.today()
+    if validated_data['terms'] != "Custom":
+        validated_data['date_due'] = calculate_duedate(validated_data['terms'])
+
+    if 'invoice_name' not in validated_data or validated_data['invoice_name'] == "":
+        validated_data['invoice_name'] = generate_invoice_name(business.pk)
+
+    # Pop out many-to-many payment field. Need to create invoice before assigning
+    if 'accepted_payments' in validated_data:
+        accepted_payments = validated_data.pop('accepted_payments')
+    else:
+        accepted_payments = []
+
+    # If itemized, pop out. Need to create invoice before linking
+    if 'items' in validated_data:
+        items_data = validated_data.pop('items')
+        validated_data['invoice_only'] = False
+
+        # Calculate total price if missing
+        if not validated_data['invoice_total_price']:
+            validated_data['invoice_total_price'] = 0
+            for i in range(len(items_data)):
+                validated_data['invoice_total_price'] += items_data[i]['item_total_price']
+
+        # Now create invoice and assign linked orders
+        invoice = Invoice.objects.create(**validated_data)
+
+        for item in items_data:
+            # If new item, add to inventory
+            if item['is_new']:
+                new_item = {'item_name': item['item_name'], 'item_price': item['item_price']}
+                Inventory.objects.create(business=business, **new_item)
+            item.pop('is_new')
+            Order.objects.create(invoice=invoice, **item)
+    else:
+        validated_data['invoice_only'] = True
+        invoice = Invoice.objects.create(**validated_data)
+
+    # Once invoice is created, assign payment M2M field
+    for payment in accepted_payments:
+        invoice.accepted_payments.add(payment)
+
+    # Send email
+    if bill_to_from == 'bill_from':
+        send_notification(invoice.id, notif_type='new')
+
+    return invoice

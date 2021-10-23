@@ -7,7 +7,8 @@ from rest_auth.serializers import LoginSerializer as RestAuthLoginSerializer
 
 from rest_framework import serializers
 from .mail import *
-from timelyapp.utils import calculate_duedate, generate_invoice_name, get_business_id
+from timelyapp.utils import calculate_duedate, generate_invoice_name, create_invoice, get_business_id
+
 
 
 class EmailVerifySerializer(serializers.ModelSerializer):
@@ -173,6 +174,13 @@ class NotificationSerializer(serializers.ModelSerializer):
 
 
 # PAY INVOICE SERIALIZER
+class PayInvoiceObjectSerializer(serializers.ModelSerializer):
+    payment_method = serializers.CharField(required=True)
+
+    class Meta:
+        model = Invoice
+        fields = ['payment_method']
+
 class PayInvoiceSerializer(serializers.ModelSerializer):
     invoice_id = serializers.CharField(required=True)
     payment_method = serializers.CharField(required=True)
@@ -181,12 +189,7 @@ class PayInvoiceSerializer(serializers.ModelSerializer):
         model = Invoice
         fields = ['invoice_id', 'payment_method']
 
-class PayInvoiceObjectSerializer(serializers.ModelSerializer):
-    payment_method = serializers.CharField(required=True)
 
-    class Meta:
-        model = Invoice
-        fields = ['payment_method']
 
 # ATTACH PAYMENT METHOD SERIALIZER
 class AttachPaymentMethodSerializer(serializers.ModelSerializer):
@@ -222,52 +225,9 @@ class NewReceivableSerializer(serializers.ModelSerializer):
     def get_invoice_id(self, obj):
         return obj.id
 
-    # Custom create()
     def create(self, validated_data):
-        validated_data['bill_from'] = self.context['request'].user.business
-        validated_data['date_sent'] = datetime.date.today()
-        if validated_data['terms'] != "Custom":
-            validated_data['date_due'] = calculate_duedate(validated_data['terms'])
-        validated_data['invoice_name'] = generate_invoice_name(validated_data['bill_from'].pk)
-
-        # Pop out many-to-many payment field. Need to create invoice before assigning
-        accepted_payments = validated_data.pop('accepted_payments')
-
-        # If itemized, pop out. Need to create invoice before linking
-        if 'items' in validated_data:
-            items_data = validated_data.pop('items')
-            validated_data['invoice_only'] = False
-
-            # Calculate total price if missing
-            if not validated_data['invoice_total_price']:
-                validated_data['invoice_total_price'] = 0
-                for i in range(len(items_data)):
-                    validated_data['invoice_total_price'] += items_data[i]['item_total_price']
-
-            # Now create invoice and assign linked orders
-            invoice = Invoice.objects.create(**validated_data)
-
-            for item in items_data:
-                # If new item, add to inventory
-                if item['is_new']:
-                    new_item = {'item_name': item['item_name'], 'item_price': item['item_price']}
-                    Inventory.objects.create(business=validated_data['bill_from'], **new_item)
-                item.pop('is_new')
-                Order.objects.create(invoice=invoice, **item)
-        else:
-            items_data = None
-            validated_data['invoice_only'] = True
-            invoice = Invoice.objects.create(**validated_data)
-
-        #Once invoice is created, assign payment M2M field
-        for payment in accepted_payments:
-            invoice.accepted_payments.add(payment)
-
-        #Send email
-        send_notification(invoice.id, notif_type='new')
-
-        return invoice
-
+        business = self.context['request'].user.business
+        return create_invoice(validated_data, business, 'bill_from')
 
 # CREATE NEW PAYABLE INVOICE SERIALIZER
 class NewPayableSerializer(serializers.ModelSerializer):
@@ -290,51 +250,8 @@ class NewPayableSerializer(serializers.ModelSerializer):
 
     # Custom create()
     def create(self, validated_data):
-        #validated_data['bill_to'] = Business.objects.get(owner__id=self.context['request'].user.id)
-        validated_data['bill_to'] = self.context['request'].user.business
-        validated_data['date_sent'] = datetime.date.today()
-        if validated_data['terms'] != "Custom":
-            validated_data['date_due'] = calculate_duedate(validated_data['terms'])
-
-        if 'invoice_name' not in validated_data or validated_data['invoice_name'] == "":
-            validated_data['invoice_name'] = generate_invoice_name(validated_data['bill_to'].pk)
-
-        # Pop out many-to-many payment field. Need to create invoice before assigning
-        if 'accepted_payments' in validated_data:
-            accepted_payments = validated_data.pop('accepted_payments')
-        else:
-            accepted_payments = []
-
-        # If itemized, pop out. Need to create invoice before linking
-        if 'items' in validated_data:
-            items_data = validated_data.pop('items')
-            validated_data['invoice_only'] = False
-
-            # Calculate total price if missing
-            if not validated_data['invoice_total_price']:
-                validated_data['invoice_total_price'] = 0
-                for i in range(len(items_data)):
-                    validated_data['invoice_total_price'] += items_data[i]['item_total_price']
-
-            # Now create invoice and assign linked orders
-            invoice = Invoice.objects.create(**validated_data)
-
-            for item in items_data:
-                # If new item, add to inventory
-                if item['is_new']:
-                    new_item = {'item_name': item['item_name'], 'item_price': item['item_price']}
-                    Inventory.objects.create(business=validated_data['bill_to'], **new_item)
-                item.pop('is_new')
-                Order.objects.create(invoice=invoice, **item)
-        else:
-            validated_data['invoice_only'] = True
-            invoice = Invoice.objects.create(**validated_data)
-
-        #Once invoice is created, assign payment M2M field
-        for payment in accepted_payments:
-            invoice.accepted_payments.add(payment)
-
-        return invoice
+        business = self.context['request'].user.business
+        return create_invoice(validated_data, business, 'bill_to')
 
 
 # SERIALIZER FOR FULL INVOICE DATA
@@ -347,8 +264,113 @@ class FullInvoiceSerializer(serializers.ModelSerializer):
         model = Invoice
         fields = '__all__'
 
+# INVOICE LIST SERIALIZER
+class InvoiceListSerializer(serializers.ModelSerializer):
+    invoice_id = serializers.CharField(source='id')
+
+    from_business_name = serializers.SerializerMethodField()
+    from_billing_address = serializers.SerializerMethodField()
+    from_business_email = serializers.SerializerMethodField()
+    from_business_phone = serializers.SerializerMethodField()
+
+    to_business_name = serializers.SerializerMethodField()
+    to_billing_address = serializers.SerializerMethodField()
+    to_business_email = serializers.SerializerMethodField()
+    to_business_phone = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Invoice
+        fields = ('invoice_id',
+                  'invoice_name',
+
+                  'bill_from_id',
+                  'from_business_name',
+                  'from_billing_address',
+                  'from_business_email',
+                  'from_business_phone',
+
+                  'bill_to_id',
+                  'to_business_name',
+                  'to_billing_address',
+                  'to_business_email',
+                  'to_business_phone',
+
+                  'date_sent',
+                  'date_due',
+                  'date_paid',
+                  'terms',
+                  'invoice_total_price',
+                  'notes',
+                  'currency',
+                  'is_flagged',
+                  'is_scheduled',
+                  'is_paid',
+                  'is_deleted')
+
+    def get_from_business_name(self, obj):
+        return Business.objects.get(id=obj.bill_from.id).business_name
+    def get_from_billing_address(self, obj):
+        return str(Business.objects.get(id=obj.bill_from.id).billing_address)
+    def get_from_business_email(self, obj):
+        return Business.objects.get(id=obj.bill_from.id).business_email
+    def get_from_business_phone(self, obj):
+        return str(Business.objects.get(id=obj.bill_from.id).business_phone)
+    def get_to_business_name(self, obj):
+        return Business.objects.get(id=obj.bill_to.id).business_name
+    def get_to_billing_address(self, obj):
+        return str(Business.objects.get(id=obj.bill_to.id).billing_address)
+    def get_to_business_email(self, obj):
+        return Business.objects.get(id=obj.bill_to.id).business_email
+    def get_to_business_phone(self, obj):
+        return str(Business.objects.get(id=obj.bill_to.id).business_phone)
+
+
 # INVOICE SERIALIZER FOR PAYABLES / RECEIVABLES
-class InvoiceSerializer(serializers.ModelSerializer):
+class InvoiceSerializer(InvoiceListSerializer, serializers.ModelSerializer):
+    invoice_id = serializers.CharField(source='id', read_only=True)
+    items = OrderSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Invoice
+        fields = ('invoice_id',
+                  'invoice_name',
+
+                  'bill_from_id',
+                  'from_business_name',
+                  'from_billing_address',
+                  'from_business_email',
+                  'from_business_phone',
+
+                  'bill_to_id',
+                  'to_business_name',
+                  'to_billing_address',
+                  'to_business_email',
+                  'to_business_phone',
+
+                  'date_sent',
+                  'date_due',
+                  'date_paid',
+                  'terms',
+                  'invoice_total_price',
+                  'notes',
+                  'currency',
+                  'is_flagged',
+                  'is_scheduled',
+                  'is_paid',
+                  'is_deleted',
+                  'items')
+
+    # Update the instance
+    def update(self, instance, validated_data):
+        instance.is_flagged = validated_data['is_flagged']
+        instance.is_scheduled = validated_data['is_scheduled']
+        instance.is_paid = validated_data['is_paid']
+        instance.is_deleted = validated_data['is_deleted']
+        instance.save()
+        return instance
+
+
+class InvoiceSerializer2(serializers.ModelSerializer):
     invoice_id = serializers.CharField(source='id')
     items = OrderSerializer(many=True, read_only=True)
 
@@ -389,6 +411,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
                   'is_flagged',
                   'is_scheduled',
                   'is_paid',
+                  'is_deleted',
                   'items')
 
     # Update the instance
@@ -415,6 +438,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
         return Business.objects.get(id=obj.bill_to.id).business_email
     def get_to_business_phone(self, obj):
         return str(Business.objects.get(id=obj.bill_to.id).business_phone)
+
 
 class OutreachSerializer(serializers.ModelSerializer):
     #special_key = serializers.CharField(write_only=True)

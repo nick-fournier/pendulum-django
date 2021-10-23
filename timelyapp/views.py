@@ -81,23 +81,90 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = Order.objects.filter(invoice__in=invoice_list)
         return queryset
 
-class PayablesViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = InvoiceSerializer
-    success_url = reverse_lazy('home')
+# class PayablesViewSet(viewsets.ReadOnlyModelViewSet):
+#     serializer_class = InvoiceSerializer
+#     success_url = reverse_lazy('home')
+#
+#     def get_queryset(self):
+#         business_id = self.request.user.business.id
+#         queryset = Invoice.objects.filter(bill_to__id=business_id).order_by('date_due')
+#         return queryset
+
+
+class PayablesViewSet(mixins.ListModelMixin,
+                         mixins.RetrieveModelMixin,
+                         mixins.UpdateModelMixin,
+                         mixins.CreateModelMixin,
+                         viewsets.GenericViewSet):
+
+    #serializer_class = NewReceivableSerializer
+    serializers = {
+        'default': NewPayableSerializer,
+        'list': InvoiceListSerializer,
+        'update': InvoiceSerializer,
+        'partial_update': InvoiceSerializer
+    }
+
+    def get_serializer_class(self):
+        print(self.action)
+        return self.serializers.get(self.action, self.serializers['default'])
 
     def get_queryset(self):
         business_id = self.request.user.business.id
-        queryset = Invoice.objects.filter(bill_to__id=business_id).order_by('date_due')
+        queryset = Invoice.objects.filter(bill_to__id=business_id).filter(is_deleted=False).order_by('date_due')
         return queryset
 
-class ReceivablesViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = InvoiceSerializer
-    success_url = reverse_lazy('home')
+    def list(self, request):
+        #serializer = InvoiceListSerializer(self.get_queryset(), many=True) # use this for meta data only
+        serializer = InvoiceSerializer(self.get_queryset(), many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        serializer = InvoiceSerializer(Invoice.objects.filter(pk=pk), many=True)
+        return Response(serializer.data)
+
+# class ReceivablesViewSet(viewsets.ReadOnlyModelViewSet):
+#     serializer_class = InvoiceSerializer
+#     success_url = reverse_lazy('home')
+#
+#     def get_queryset(self):
+#         business_id = self.request.user.business.id
+#         queryset = Invoice.objects.filter(bill_from__id=business_id).order_by('date_due')
+#         return queryset
+
+class ReceivablesViewSet(mixins.ListModelMixin,
+                         mixins.RetrieveModelMixin,
+                         mixins.UpdateModelMixin,
+                         mixins.CreateModelMixin,
+                         viewsets.GenericViewSet):
+
+    #serializer_class = NewReceivableSerializer
+    serializers = {
+        'default': NewReceivableSerializer,
+        'list': InvoiceListSerializer,
+        'update': InvoiceSerializer,
+        'partial_update': InvoiceSerializer
+    }
+
+    def get_serializer_class(self):
+        print(self.action)
+        return self.serializers.get(self.action, self.serializers['default'])
 
     def get_queryset(self):
         business_id = self.request.user.business.id
-        queryset = Invoice.objects.filter(bill_from__id=business_id).order_by('date_due')
+        queryset = Invoice.objects.filter(bill_from__id=business_id).filter(is_deleted=False).order_by('date_due')
         return queryset
+
+    def list(self, request):
+        #serializer = InvoiceListSerializer(self.get_queryset(), many=True) # use this for meta data only
+        serializer = InvoiceSerializer(self.get_queryset(), many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        serializer = InvoiceSerializer(Invoice.objects.filter(pk=pk), many=True)
+        return Response(serializer.data)
+
+
 
 class OutreachViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
