@@ -169,7 +169,7 @@ class StripePayInvoice(mixins.CreateModelMixin,
             invoice.is_paid = True
             invoice.date_paid = datetime.date.today()
             invoice.save()
-            send_notification(invoice.id, notif_type='confirm')
+            send_notification(invoice_id=invoice.id, notif_type='confirm')
 
         return Response(status=status.HTTP_200_OK, data=payment_intent)
 

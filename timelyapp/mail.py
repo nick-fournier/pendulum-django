@@ -12,8 +12,10 @@ def send_notification(invoice_id, notif_type, **kwargs):
 
 
     # Check for optional items
-    cc = kwargs['cc'] if 'cc' in kwargs else cc = None
-    custom_text = kwargs['custom_text'] if 'custom_text' in kwargs else custom_text = None
+    if 'cc' not in kwargs:
+        cc = None
+    if 'custom_text' not in kwargs:
+        custom_text = None
 
     # Pull items from invoice
     invoice = Invoice.objects.get(pk=invoice_id)
