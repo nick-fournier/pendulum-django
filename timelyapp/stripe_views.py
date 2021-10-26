@@ -261,7 +261,6 @@ class StripeDefaultPaymentMethod(mixins.CreateModelMixin,
         return Response(status=status.HTTP_200_OK, data=current_default)
 
 class StripeOnboard(mixins.ListModelMixin,
-                    mixins.RetrieveModelMixin,
                     viewsets.GenericViewSet):
     def list(self, request):
         # sub-func to create new stripe account and add to db
