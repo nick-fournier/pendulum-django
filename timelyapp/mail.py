@@ -7,7 +7,13 @@ import re
 import sib_api_v3_sdk
 
 
-def send_notification(invoice_id, notif_type, cc=None, custom_text=None):
+#def send_notification(invoice_id, notif_type, to_email=None, cc=None, custom_text=None):
+def send_notification(invoice_id, notif_type, **kwargs):
+
+
+    # Check for optional items
+    cc = kwargs['cc'] if 'cc' in kwargs else cc = None
+    custom_text = kwargs['custom_text'] if 'custom_text' in kwargs else custom_text = None
 
     # Pull items from invoice
     invoice = Invoice.objects.get(pk=invoice_id)
@@ -62,22 +68,28 @@ def send_notification(invoice_id, notif_type, cc=None, custom_text=None):
                                                                      biz=invoice.bill_from.business_name,
                                                                      id=invoice.invoice_name)
 
+        # New/reminders go to bill_to, confirms also CC's bill_from
+        subject = subjects[notif_type]
+        from_email = 'notification@pendulumapp.com'  # settings.EMAIL_HOST_USER
+
         # Checking if CC emails are valid
+        regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
         invalid = []
         valid = []
+
         if cc:
             cc_list = [x.strip() for x in cc.split(",")]
-            regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
             for email in cc_list:
                 if (re.fullmatch(regex, email)):
                     valid.append(email)
                 else:
                     invalid.append(email)
 
-        # New/reminders go to bill_to, confirms also CC's bill_from
-        subject = subjects[notif_type]
-        from_email = 'notification@pendulumapp.com'  # settings.EMAIL_HOST_USER
-        to_email = [invoice.bill_to.business_email] + valid
+        if 'to_email' in kwargs and (re.fullmatch(regex, kwargs['to_email'])):
+            to_email = kwargs['to_email'] + valid
+        else:
+            to_email = [invoice.bill_to.business_email] + valid
+
         if notif_type == 'confirm':
             to_email += [invoice.bill_from.business_email]
 

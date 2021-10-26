@@ -200,7 +200,7 @@ class NotificationViewset(mixins.ListModelMixin,
             return Response({'bad action type.'}, status=status.HTTP_404_NOT_FOUND)
 
         if data['type'] == 'remind':
-            send_notification(data['invoice_id'], notif_type='remind')
+            send_notification(data['invoice_id'], notif_type='remind', **data)
 
         return Response(status=status.HTTP_200_OK,
                         data={'Success': data['type'] + ' notification sent for invoice ' + data['invoice_id']})

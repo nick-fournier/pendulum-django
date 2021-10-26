@@ -164,13 +164,14 @@ class NewOrderSerializer(serializers.ModelSerializer):
 class NotificationSerializer(serializers.ModelSerializer):
     invoice_id = serializers.CharField(required=True)
     type = serializers.CharField(required=True)
+    to_email = serializers.CharField(required=False)
     cc = serializers.CharField(required=False)
     #cc = serializers.ListField(required=False)
     custom_text = serializers.CharField(required=False)
 
     class Meta:
         model = Invoice
-        fields = ['invoice_id', 'cc', 'type', 'custom_text']
+        fields = ['invoice_id', 'to_email', 'cc', 'type', 'custom_text']
 
 
 # PAY INVOICE SERIALIZER
