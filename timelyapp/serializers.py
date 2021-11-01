@@ -10,14 +10,12 @@ from .mail import *
 from timelyapp.utils import calculate_duedate, generate_invoice_name, create_invoice, get_business_id
 
 
-
 class EmailVerifySerializer(serializers.ModelSerializer):
     verified = serializers.CharField(read_only=True)
 
     class Meta:
         model = EmailAddress
         fields = ['id', 'email', 'primary', 'verified', 'user']
-
 
 class UserSerializer(serializers.ModelSerializer):
     is_active = serializers.CharField(read_only=True)
@@ -46,7 +44,6 @@ class UserSerializer(serializers.ModelSerializer):
 
         except EmailAddress.DoesNotExist:
             raise serializers.ValidationError({'email': 'Email does not exist'})
-
 
 class CustomTokenSerializer(serializers.ModelSerializer):
     user_id = serializers.SerializerMethodField()
@@ -94,7 +91,6 @@ class BusinessInfoSerializer(serializers.ModelSerializer):
     def get_user_id(self, obj):
         return self.context.get("request").user.id
 
-
 class BusinessSerializer(serializers.ModelSerializer):
     billing_address = serializers.CharField(read_only=True)
     shipping_address = serializers.CharField(read_only=True)
@@ -106,10 +102,8 @@ class BusinessSerializer(serializers.ModelSerializer):
                   "is_individual", "stripe_act_id", "stripe_cus_id", "business_name",
                   "business_email", "business_phone", "business_fax"]
 
-
 class CustomLoginSerializer(RestAuthLoginSerializer):
     username = None
-
 
 class CustomRegisterSerializer(RegisterSerializer):
     username = None
@@ -133,7 +127,6 @@ class CustomRegisterSerializer(RegisterSerializer):
         user.save()
         return user
 
-
 # This provides the pre-fetched choices for the drop down
 class ToBusinessKeyField(serializers.PrimaryKeyRelatedField):
     queryset = Business.objects.all()
@@ -141,18 +134,15 @@ class ToBusinessKeyField(serializers.PrimaryKeyRelatedField):
     def get_queryset(self):
         return self.queryset.exclude(business_user__id=self.context['request'].user.id)
 
-
 class InventorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Inventory
         fields = '__all__'
 
-
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = '__all__'
-
 
 class NewOrderSerializer(serializers.ModelSerializer):
     is_new = serializers.BooleanField(default=False)
@@ -172,41 +162,6 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invoice
         fields = ['invoice_id', 'to_email', 'cc', 'type', 'custom_text']
-
-
-# PAY INVOICE SERIALIZER
-class PayInvoiceObjectSerializer(serializers.ModelSerializer):
-    payment_method = serializers.CharField(required=True)
-
-    class Meta:
-        model = Invoice
-        fields = ['payment_method']
-
-class PayInvoiceSerializer(serializers.ModelSerializer):
-    invoice_id = serializers.CharField(required=True)
-    payment_method = serializers.CharField(required=True)
-
-    class Meta:
-        model = Invoice
-        fields = ['invoice_id', 'payment_method']
-
-
-
-# ATTACH PAYMENT METHOD SERIALIZER
-class AttachPaymentMethodSerializer(serializers.ModelSerializer):
-    attach_payment_method = serializers.CharField(required=True)
-
-    class Meta:
-        model = Business
-        fields = ['attach_payment_method']
-
-# DEFAULT PAYMENT METHOD SERIALIZER
-class DefaultPaymentMethodSerializer(serializers.ModelSerializer):
-    default_payment_method = serializers.CharField(required=True)
-
-    class Meta:
-        model = Business
-        fields = ['default_payment_method']
 
 # CREATE NEW RECEIVABLE INVOICE SERIALIZER
 class NewReceivableSerializer(serializers.ModelSerializer):
@@ -253,7 +208,6 @@ class NewPayableSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         business = self.context['request'].user.business
         return create_invoice(validated_data, business, 'bill_to')
-
 
 # SERIALIZER FOR FULL INVOICE DATA
 class FullInvoiceSerializer(serializers.ModelSerializer):
@@ -325,7 +279,6 @@ class InvoiceListSerializer(serializers.ModelSerializer):
     def get_to_business_phone(self, obj):
         return str(Business.objects.get(id=obj.bill_to.id).business_phone)
 
-
 # INVOICE SERIALIZER FOR PAYABLES / RECEIVABLES
 class InvoiceSerializer(InvoiceListSerializer, serializers.ModelSerializer):
     invoice_id = serializers.CharField(source='id', read_only=True)
@@ -369,77 +322,6 @@ class InvoiceSerializer(InvoiceListSerializer, serializers.ModelSerializer):
         instance.is_deleted = validated_data['is_deleted']
         instance.save()
         return instance
-
-
-class InvoiceSerializer2(serializers.ModelSerializer):
-    invoice_id = serializers.CharField(source='id')
-    items = OrderSerializer(many=True, read_only=True)
-
-    from_business_name = serializers.SerializerMethodField()
-    from_billing_address = serializers.SerializerMethodField()
-    from_business_email = serializers.SerializerMethodField()
-    from_business_phone = serializers.SerializerMethodField()
-
-    to_business_name = serializers.SerializerMethodField()
-    to_billing_address = serializers.SerializerMethodField()
-    to_business_email = serializers.SerializerMethodField()
-    to_business_phone = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Invoice
-        fields = ('invoice_id',
-                  'invoice_name',
-
-                  'bill_from_id',
-                  'from_business_name',
-                  'from_billing_address',
-                  'from_business_email',
-                  'from_business_phone',
-
-                  'bill_to_id',
-                  'to_business_name',
-                  'to_billing_address',
-                  'to_business_email',
-                  'to_business_phone',
-
-                  'date_sent',
-                  'date_due',
-                  'date_paid',
-                  'terms',
-                  'invoice_total_price',
-                  'notes',
-                  'currency',
-                  'is_flagged',
-                  'is_scheduled',
-                  'is_paid',
-                  'is_deleted',
-                  'items')
-
-    # Update the instance
-    def update(self, instance, validated_data):
-        instance.is_flagged = validated_data['is_flagged']
-        instance.is_scheduled = validated_data['is_scheduled']
-        instance.is_paid = validated_data['is_paid']
-        instance.save()
-        return instance
-
-    def get_from_business_name(self, obj):
-        return Business.objects.get(id=obj.bill_from.id).business_name
-    def get_from_billing_address(self, obj):
-        return str(Business.objects.get(id=obj.bill_from.id).billing_address)
-    def get_from_business_email(self, obj):
-        return Business.objects.get(id=obj.bill_from.id).business_email
-    def get_from_business_phone(self, obj):
-        return str(Business.objects.get(id=obj.bill_from.id).business_phone)
-    def get_to_business_name(self, obj):
-        return Business.objects.get(id=obj.bill_to.id).business_name
-    def get_to_billing_address(self, obj):
-        return str(Business.objects.get(id=obj.bill_to.id).billing_address)
-    def get_to_business_email(self, obj):
-        return Business.objects.get(id=obj.bill_to.id).business_email
-    def get_to_business_phone(self, obj):
-        return str(Business.objects.get(id=obj.bill_to.id).business_phone)
-
 
 class OutreachSerializer(serializers.ModelSerializer):
     #special_key = serializers.CharField(write_only=True)

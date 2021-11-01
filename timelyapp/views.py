@@ -3,6 +3,7 @@ from django.urls import reverse_lazy
 from django.shortcuts import render
 from rest_framework.permissions import AllowAny
 from .stripe_views import *
+from .plaid_views import *
 
 def chart_view(request):
     return render(request, 'chart.html')
@@ -81,23 +82,12 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = Order.objects.filter(invoice__in=invoice_list)
         return queryset
 
-# class PayablesViewSet(viewsets.ReadOnlyModelViewSet):
-#     serializer_class = InvoiceSerializer
-#     success_url = reverse_lazy('home')
-#
-#     def get_queryset(self):
-#         business_id = self.request.user.business.id
-#         queryset = Invoice.objects.filter(bill_to__id=business_id).order_by('date_due')
-#         return queryset
-
-
 class PayablesViewSet(mixins.ListModelMixin,
                          mixins.RetrieveModelMixin,
                          mixins.UpdateModelMixin,
                          mixins.CreateModelMixin,
                          viewsets.GenericViewSet):
 
-    #serializer_class = NewReceivableSerializer
     serializers = {
         'default': NewPayableSerializer,
         'list': InvoiceListSerializer,
@@ -123,14 +113,6 @@ class PayablesViewSet(mixins.ListModelMixin,
         serializer = InvoiceSerializer(Invoice.objects.filter(pk=pk), many=True)
         return Response(serializer.data)
 
-# class ReceivablesViewSet(viewsets.ReadOnlyModelViewSet):
-#     serializer_class = InvoiceSerializer
-#     success_url = reverse_lazy('home')
-#
-#     def get_queryset(self):
-#         business_id = self.request.user.business.id
-#         queryset = Invoice.objects.filter(bill_from__id=business_id).order_by('date_due')
-#         return queryset
 
 class ReceivablesViewSet(mixins.ListModelMixin,
                          mixins.RetrieveModelMixin,
@@ -138,7 +120,6 @@ class ReceivablesViewSet(mixins.ListModelMixin,
                          mixins.CreateModelMixin,
                          viewsets.GenericViewSet):
 
-    #serializer_class = NewReceivableSerializer
     serializers = {
         'default': NewReceivableSerializer,
         'list': InvoiceListSerializer,
@@ -163,7 +144,6 @@ class ReceivablesViewSet(mixins.ListModelMixin,
     def retrieve(self, request, pk=None):
         serializer = InvoiceSerializer(Invoice.objects.filter(pk=pk), many=True)
         return Response(serializer.data)
-
 
 
 class OutreachViewSet(viewsets.ModelViewSet):

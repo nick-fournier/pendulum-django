@@ -61,7 +61,7 @@ INSTALLED_APPS = [
     'timelyapp',
     'address',
     'phonenumber_field',
-    'django_inlinecss'
+    'django_inlinecss',
 ]
 
 MIDDLEWARE = [
@@ -248,3 +248,6 @@ STRIPE_PUBLIC_KEY = os.environ.get("STRIPE_PUBLIC_KEY")
 STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY")
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET")
 NEWSLETTER_KEY = os.environ.get("NEWSLETTER_KEY")
+
+PLAID_CLIENT_ID = os.environ.get("PLAID_CLIENT_ID")
+PLAID_SECRET = os.environ.get("PLAID_SECRET")

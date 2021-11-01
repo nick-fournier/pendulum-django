@@ -36,10 +36,12 @@ router.register(r'notifications', views.NotificationViewset, basename='notificat
 
 # Stripe views
 router.register(r'stripe/payinvoice', views.StripePayInvoice, basename='payinvoice')
-router.register(r'stripe/onboard', views.StripeOnboard, basename='onboard')
-router.register(r'stripe/paymentmethods/attach', views.StripeAttachPaymentMethod, basename='attach')
-router.register(r'stripe/paymentmethods/default', views.StripeDefaultPaymentMethod, basename='default')
+router.register(r'stripe/onboard', views.StripeOnboard, basename='stripe-onboard')
+router.register(r'stripe/paymentmethods/attach', views.StripeAttachPaymentMethod, basename='stripe-attach')
+router.register(r'stripe/paymentmethods/default', views.StripeDefaultPaymentMethod, basename='stripe-default')
 
+# Plaid views
+router.register(r'plaid/linktoken', views.PlaidLinkToken, basename='plaid-link')
 
 user_list = views.StripePayInvoice.as_view({'get': 'list'})
 user_detail = views.StripePayInvoice.as_view({'get': 'retrieve'})
