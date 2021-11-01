@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.shortcuts import render
@@ -12,7 +13,6 @@ def chart_view(request):
 def redirect_view(request):
     response = redirect('/api/')
     return response
-
 
 
 class EmailVerifyView(viewsets.ReadOnlyModelViewSet):
