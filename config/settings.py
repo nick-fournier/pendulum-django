@@ -249,5 +249,16 @@ STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY")
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET")
 NEWSLETTER_KEY = os.environ.get("NEWSLETTER_KEY")
 
+# PLAID KEYS
 PLAID_CLIENT_ID = os.environ.get("PLAID_CLIENT_ID")
 PLAID_SECRET = os.environ.get("PLAID_SECRET")
+
+#QUICKBOOKS KEYS
+QB_CLIENT_ID = os.environ.get("QB_CLIENT_ID")
+QB_CLIENT_SECRET = os.environ.get("QB_CLIENT_SECRET")
+QB_REDIRECT_URI = 'https://dash.pendulumapp.com/invoices'
+QB_ENVIRONMENT = 'sandbox'
+
+# QBO Base URLs
+QBO_BASE_SANDBOX = 'https://sandbox-quickbooks.api.intuit.com'
+QBO_BASE_PROD = 'https://quickbooks.api.intuit.com'

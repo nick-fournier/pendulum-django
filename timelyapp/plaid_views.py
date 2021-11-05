@@ -46,13 +46,16 @@ class PlaidLinkToken(mixins.ListModelMixin,
 
     def create(self, request):
 
-        exchange_token_response = plaid_client.item_public_token_exchange(request.data['public_token'])
-        #exchange_token_response = plaid_client.Item.public_token.exchange('{{PLAID_LINK_PUBLIC_TOKEN}}')
+        exchange_request = plaid.api.plaid_api.ItemPublicTokenExchangeRequest(public_token=request.data['public_token'])
+        exchange_token_response = plaid_client.item_public_token_exchange(exchange_request)
         access_token = exchange_token_response['access_token']
 
-        stripe_response = plaid_client.processor_stripe_bank_account_token_create(access_token, request.user.business.stripe_act_id)
-        #stripe_response = plaid_client.Processor.stripeBankAccountTokenCreate(access_token, '{{ACCOUNT_ID}}')
-        #bank_account_token = stripe_response['stripe_bank_account_token']
+        request = plaid.api.plaid_api.ProcessorStripeBankAccountTokenCreateRequest(
+            access_token=access_token,
+            account_id=request.user.business.stripe_act_id,
+        )
+        stripe_response = plaid_client.processor_stripe_bank_account_token_create(request)
+        bank_account_token = stripe_response['stripe_bank_account_token']
 
         # Attach method to customer
         try:
