@@ -1,6 +1,8 @@
 from django.contrib.sites.models import Site
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
+from rest_framework.response import Response
+from rest_framework import status
 from .models import *
 import datetime
 import re
@@ -8,17 +10,14 @@ import sib_api_v3_sdk
 
 
 #def send_notification(invoice_id, notif_type, to_email=None, cc=None, custom_text=None):
-def send_notification(invoice_id, notif_type, **kwargs):
-
-
+def send_notification(**args):
     # Check for optional items
-    if 'cc' not in kwargs:
-        cc = None
-    if 'custom_text' not in kwargs:
-        custom_text = None
+    notif_type = args['notif_type'][0] if 'notif_type' in args else None
+    cc = args['cc'][0] if 'cc' in args else None
+    custom_text = args['custom_text'][0] if 'custom_text' in args else None
 
     # Pull items from invoice
-    invoice = Invoice.objects.get(pk=invoice_id)
+    invoice = Invoice.objects.get(pk=args['invoice_id'][0])
     items = Order.objects.filter(invoice=invoice)
 
     # Select template type
@@ -87,8 +86,8 @@ def send_notification(invoice_id, notif_type, **kwargs):
                 else:
                     invalid.append(email)
 
-        if 'to_email' in kwargs and (re.fullmatch(regex, kwargs['to_email'])):
-            to_email = kwargs['to_email'] + valid
+        if 'to_email' in args and (re.fullmatch(regex, args['to_email'][0])):
+            to_email = args['to_email'][0] + valid
         else:
             to_email = [invoice.bill_to.business_email] + valid
 
@@ -101,118 +100,3 @@ def send_notification(invoice_id, notif_type, **kwargs):
         msg = EmailMultiAlternatives(subject, text_content, from_email, to_email)
         msg.attach_alternative(html_content, "text/html")
         msg.send()
-
-
-# def send_new_invoice_email(invoice_id):
-#
-#     # Pull items from invoice
-#     invoice = Invoice.objects.get(pk=invoice_id)
-#     items = Order.objects.filter(invoice=invoice)
-#
-#     if not invoice.terms == 'CIA':
-#         text = get_template('notifications/new_invoice_message.txt')
-#         html = get_template('notifications/new_invoice_message.html')
-#
-#         url_dict = {'subdomain': 'dash.',
-#                     'domain': Site.objects.get_current().domain,
-#                     'path': '/pay/',
-#                     #'name': invoice.invoice_name,
-#                     'pk': str(invoice.pk)}
-#         payment_url = 'https://{subdomain}{domain}{path}{pk}'.format(**url_dict)
-#
-#         context = {'user_name': CustomUser.objects.get(business=invoice.bill_to).first_name,
-#                    'invoice': invoice,
-#                    'items': items,
-#                    'payment_url': payment_url}
-#
-#         if not invoice.terms in ['COD', 'CIA']:
-#             due_string = datetime.datetime.strptime(invoice.date_due, "%Y-%m-%d").date().strftime("%B %d, %Y")
-#             context['due_string'] = due_string
-#             context['due_statement'] = 'Please pay by ' + due_string + '.'
-#
-#         subject = ' '.join(['New invoice from', invoice.bill_from.business_name, '[#' + invoice.invoice_name + ']'])
-#         from_email = 'notification@pendulumapp.com' #settings.EMAIL_HOST_USER
-#         to_email = invoice.bill_to.business_email
-#
-#         text_content = text.render(context)
-#         html_content = html.render(context)
-#
-#         msg = EmailMultiAlternatives(subject, text_content, from_email, [to_email])
-#         msg.attach_alternative(html_content, "text/html")
-#         msg.send()
-
-# def send_remind_invoice_email(invoice_id):
-#
-#     # Pull items from invoice
-#     invoice = Invoice.objects.get(pk=invoice_id)
-#     items = Order.objects.filter(invoice=invoice)
-#
-#     if not invoice.terms == 'CIA':
-#         text = get_template('notifications/remind_invoice_message.txt')
-#         html = get_template('notifications/remind_invoice_message.html')
-#
-#         url_dict = {'subdomain': 'dash.',
-#                     'domain': Site.objects.get_current().domain,
-#                     'path': '/pay/',
-#                     #'name': invoice.invoice_name,
-#                     'pk': str(invoice.pk)}
-#         payment_url = 'https://{subdomain}{domain}{path}{pk}'.format(**url_dict)
-#
-#         context = {'user_name': CustomUser.objects.get(business=invoice.bill_to).first_name,
-#                    'invoice': invoice,
-#                    'items': items,
-#                    'payment_url': payment_url}
-#
-#         if not invoice.terms in ['COD', 'CIA']:
-#             due_string = invoice.date_due.strftime("%B %d, %Y")
-#             context['due_string'] = due_string
-#             context['due_statement'] = 'Please pay by ' + due_string + '.'
-#
-#         subject = ' '.join(['New invoice from', invoice.bill_from.business_name, '[#' + invoice.invoice_name + ']'])
-#         from_email = 'notification@pendulumapp.com' #settings.EMAIL_HOST_USER
-#         to_email = invoice.bill_to.business_email
-#
-#         text_content = text.render(context)
-#         html_content = html.render(context)
-#
-#         msg = EmailMultiAlternatives(subject, text_content, from_email, [to_email])
-#         msg.attach_alternative(html_content, "text/html")
-#         msg.send()
-
-# def send_payment_confirmation(invoice_id):
-#
-#     # Pull items from invoice
-#     invoice = Invoice.objects.get(pk=invoice_id)
-#     items = Order.objects.filter(invoice=invoice)
-#
-#     if not invoice.terms == 'CIA':
-#         text = get_template('notifications/confirmation_payment_message.txt')
-#         html = get_template('notifications/confirmation_payment_message.html')
-#
-#         url_dict = {'subdomain': 'dash.',
-#                     'domain': Site.objects.get_current().domain,
-#                     'path': '/pay/',
-#                     #'name': invoice.invoice_name,
-#                     'pk': str(invoice.pk)}
-#         payment_url = 'https://{subdomain}{domain}{path}{pk}'.format(**url_dict)
-#
-#         context = {'user_name': CustomUser.objects.get(business=invoice.bill_to).first_name,
-#                    'invoice': invoice,
-#                    'items': items,
-#                    'payment_url': payment_url}
-#
-#         if not invoice.terms in ['COD', 'CIA']:
-#             due_string = invoice.date_due.strftime("%B %d, %Y")
-#             context['due_string'] = due_string
-#             context['due_statement'] = 'Please pay by ' + due_string + '.'
-#
-#         subject = ' '.join(['New invoice from', invoice.bill_from.business_name, '[#' + invoice.invoice_name + ']'])
-#         from_email = 'notification@pendulumapp.com' #settings.EMAIL_HOST_USER
-#         to_email = invoice.bill_to.business_email
-#
-#         text_content = text.render(context)
-#         html_content = html.render(context)
-#
-#         msg = EmailMultiAlternatives(subject, text_content, from_email, [to_email])
-#         msg.attach_alternative(html_content, "text/html")
-#         msg.send()

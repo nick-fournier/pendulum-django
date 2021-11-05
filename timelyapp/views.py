@@ -176,11 +176,12 @@ class NotificationViewset(mixins.ListModelMixin,
         if not Invoice.objects.filter(bill_from__id=business_id).filter(pk=data['invoice_id']).exists():
             return Response({'invoice not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-        if data['type'] not in self.actions:
+        if data['notif_type'] not in self.actions:
             return Response({'bad action type.'}, status=status.HTTP_404_NOT_FOUND)
 
-        if data['type'] == 'remind':
-            send_notification(data['invoice_id'], notif_type='remind', **data)
+        if data['notif_type'] == 'remind':
+            #send_notification(invoice_id=data['invoice_id'], notif_type='remind', **data)
+            send_notification(**data)
 
         return Response(status=status.HTTP_200_OK,
-                        data={'Success': data['type'] + ' notification sent for invoice ' + data['invoice_id']})
+                        data={'Success': data['notif_type'] + ' notification sent for invoice ' + data['invoice_id']})
