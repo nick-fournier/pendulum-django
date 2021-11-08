@@ -11,13 +11,24 @@ import sib_api_v3_sdk
 
 #def send_notification(invoice_id, notif_type, to_email=None, cc=None, custom_text=None):
 def send_notification(**args):
+
+    # If any single item lists, unlist
+    for key, value in args.items():
+        if isinstance(value, list) and len(value) > 1:
+            return Response({key, 'Received list instead of expected string type.'}, status=status.HTTP_404_NOT_FOUND)
+        elif isinstance(value, list) and len(value) <= 1:
+            args[key] = value[0]
+        else:
+            args[key] = value
+
+
     # Check for optional items
-    notif_type = args['notif_type'][0] if 'notif_type' in args else None
-    cc = args['cc'][0] if 'cc' in args else None
-    custom_text = args['custom_text'][0] if 'custom_text' in args else None
+    notif_type = args['notif_type'] if 'notif_type' in args else None
+    cc = args['cc'] if 'cc' in args else None
+    custom_text = args['custom_text'] if 'custom_text' in args else None
 
     # Pull items from invoice
-    invoice = Invoice.objects.get(pk=args['invoice_id'][0])
+    invoice = Invoice.objects.get(pk=args['invoice_id'])
     items = Order.objects.filter(invoice=invoice)
 
     # Select template type
@@ -86,8 +97,8 @@ def send_notification(**args):
                 else:
                     invalid.append(email)
 
-        if 'to_email' in args and (re.fullmatch(regex, args['to_email'][0])):
-            to_email = args['to_email'][0] + valid
+        if 'to_email' in args and (re.fullmatch(regex, args['to_email'])):
+            to_email = args['to_email'] + valid
         else:
             to_email = [invoice.bill_to.business_email] + valid
 
