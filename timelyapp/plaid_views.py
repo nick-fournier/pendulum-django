@@ -52,8 +52,8 @@ class PlaidLinkToken(mixins.ListModelMixin,
 
         request = plaid.api.plaid_api.ProcessorStripeBankAccountTokenCreateRequest(
             access_token=access_token,
-            #account_id=request.user.business.stripe_act_id,
-            account_id=request.data['plaid_id'],
+            ccount_id=request.user.business.stripe_cus_id
+            #account_id=request.data['plaid_id'],
         )
         stripe_response = plaid_client.processor_stripe_bank_account_token_create(request)
         bank_account_token = stripe_response['stripe_bank_account_token']
