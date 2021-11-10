@@ -45,29 +45,28 @@ class PlaidLinkToken(mixins.ListModelMixin,
         return Response(status=status.HTTP_200_OK, data=link_token)
 
     def create(self, request):
-
         exchange_request = plaid.api.plaid_api.ItemPublicTokenExchangeRequest(public_token=request.data['public_token'])
         exchange_token_response = plaid_client.item_public_token_exchange(exchange_request)
         access_token = exchange_token_response['access_token']
 
-        # request = plaid.api.plaid_api.ProcessorStripeBankAccountTokenCreateRequest(
-        #     access_token=access_token,
-        #     account_id=request.user.business.stripe_cus_id
-        #     #account_id=request.data['plaid_id'],
-        # )
-        stripe_response = plaid_client.processor_stripe_bank_account_token_create(access_token=access_token,
-                                                                                  account_id=request.user.business.stripe_cus_id)
+        plaid_request = plaid.api.plaid_api.ProcessorStripeBankAccountTokenCreateRequest(
+            access_token=access_token,
+            account_id=request.data['plaid_account_id']
+        )
+        stripe_response = plaid_client.processor_stripe_bank_account_token_create(plaid_request)
         bank_account_token = stripe_response['stripe_bank_account_token']
 
-        # Attach method to customer
-        try:
-            payment_method = stripe.PaymentMethod.attach(
-                stripe_response['stripe_bank_account_token'],
-                customer=request.user.business.stripe_cus_id
+        response = {'request_id': stripe_response.request_id,
+                    'stripe_bank_account_token': stripe_response.stripe_bank_account_token}
+        # # Attach method to customer
+        # try:
+        #     payment_method = stripe.PaymentMethod.attach(
+        #         stripe_response['stripe_bank_account_token'],
+        #         customer=request.user.business.stripe_cus_id
+        #
+        #     )
+        # except stripe.error.InvalidRequestError:
+        #     content = {"Error": "Failed to attach payment method to Stripe"}
+        #     return Response(content, status=status.HTTP_404_NOT_FOUND)
 
-            )
-        except stripe.error.InvalidRequestError:
-            content = {"Error": "Failed to attach payment method to Stripe"}
-            return Response(content, status=status.HTTP_404_NOT_FOUND)
-
-        return Response(status=status.HTTP_200_OK, data=stripe_response)
+        return Response(status=status.HTTP_200_OK, data=response)
