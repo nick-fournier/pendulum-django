@@ -8,11 +8,28 @@ from .mail import *
 from .utils import *
 from decimal import Decimal
 
+import plaid
+from plaid.api import plaid_api
+
 import stripe
 import datetime
 
+#### PLAID API
+# Available environments are
+# 'Production'
+# 'Development'
+# 'Sandbox'
+plaid_configuration = plaid.Configuration(
+    host=plaid.Environment.Sandbox,
+    api_key={
+        'clientId': settings.PLAID_CLIENT_ID,
+        'secret': settings.PLAID_SECRET,
+    }
+)
+plaid_api_client = plaid.ApiClient(plaid_configuration)
+plaid_client = plaid_api.PlaidApi(plaid_api_client)
 
-
+### STRIPE API
 stripe.api_key = settings.STRIPE_SECRET_KEY
 timely_rate = Decimal(0.001) #0.1%
 
@@ -21,17 +38,17 @@ def list_payment_methods(business):
     # Get payment methods, if any
     pm_dict = {}
     pm_list = []
-    try:
-        payment_methods = stripe.PaymentMethod.list(
-            customer=business.stripe_cus_id,
-            type="card",
-        )['data']
 
+    try:
         customer = stripe.Customer.retrieve(business.stripe_cus_id)
+        payment_methods = stripe.Customer.list_payment_methods(
+            business.stripe_cus_id,
+            type="card",
+        )
 
         for x in payment_methods:
             meta = {
-                **{'id': x['id']},
+                **{'id': x['id'], 'type': 'card'},
                 **{i: x['card'].get(i) for i in ['brand', 'last4', 'exp_month', 'exp_year']},
                 **{'default': True if x['id'] == customer.invoice_settings.default_payment_method else False}
              }
@@ -46,6 +63,26 @@ def list_payment_methods(business):
                 **meta,
                 **{'default': True if x['id'] == customer.invoice_settings.default_payment_method else False}
             }
+
+        # Add bank sources
+        bank_sources = stripe.Customer.list_sources(
+            business.stripe_cus_id,
+            object='bank_account',
+            limit=10
+        )['data']
+
+        for x in bank_sources:
+            pm_dict[x['id']] = {
+                "id": x['id'],
+                "type": 'ACH debit',
+                "brand": x['bank_name'],
+                "last4": "4242",
+                "exp_month": None,
+                "exp_year": None,
+                "default": False,
+                "summary": "{bank_name} ************{last4}".format(**x)
+            }
+            pm_list.append(pm_dict[x['id']])
 
     except stripe.error.InvalidRequestError:
         content = {'Bad invoice': 'Not a valid customer ID'}
@@ -330,3 +367,59 @@ class StripePayInvoice(mixins.CreateModelMixin,
             send_notification(invoice_id=invoice.id, notif_type='confirm')
 
         return Response(status=status.HTTP_200_OK, data=payment_intent)
+
+
+
+### Plaid Views ###
+class PlaidLinkToken(mixins.ListModelMixin,
+                     mixins.CreateModelMixin,
+                     viewsets.GenericViewSet):
+
+    serializer_class = PlaidLinkTokenSerializer
+
+    def list(self, request):
+        # create link token
+        response = plaid_client.link_token_create({
+            'user': {
+                'client_user_id': request.user.business.id,
+            },
+            'products': ["auth"],
+            'client_name': "Pendulum App",
+            'country_codes': ['US'],
+            'language': 'en',
+            'webhook': 'https://dash.pendulumapp.com/invoices',
+        })
+        link_token = response['link_token']
+        return Response(status=status.HTTP_200_OK, data=link_token)
+
+    def create(self, request):
+        exchange_request = plaid.api.plaid_api.ItemPublicTokenExchangeRequest(public_token=request.data['public_token'])
+        exchange_token_response = plaid_client.item_public_token_exchange(exchange_request)
+        access_token = exchange_token_response['access_token']
+
+        plaid_request = plaid.api.plaid_api.ProcessorStripeBankAccountTokenCreateRequest(
+            access_token=access_token,
+            account_id=request.data['plaid_account_id']
+        )
+        stripe_response = plaid_client.processor_stripe_bank_account_token_create(plaid_request)
+        bank_account_token = stripe_response['stripe_bank_account_token']
+
+        response = {'request_id': stripe_response.request_id,
+                    'stripe_bank_account_token': stripe_response.stripe_bank_account_token}
+
+        # Attach method to customer
+        try:
+            stripe.Customer.create_source(
+                request.user.business.stripe_cus_id,
+                source=stripe_response.stripe_bank_account_token,
+            )
+            # payment_method = stripe.PaymentMethod.attach(
+            #     stripe_response['stripe_bank_account_token'],
+            #     customer=request.user.business.stripe_cus_id
+            #
+            # )
+        except stripe.error.InvalidRequestError:
+            content = {"Error": "Failed to attach payment method to Stripe. May already be attached."}
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+        return Response(status=status.HTTP_200_OK, data=response)

@@ -4,7 +4,6 @@ from django.urls import reverse_lazy
 from django.shortcuts import render
 from rest_framework.permissions import AllowAny
 from .stripe_views import *
-from .plaid_views import *
 
 def chart_view(request):
     return render(request, 'chart.html')
