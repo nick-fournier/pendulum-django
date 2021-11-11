@@ -36,9 +36,13 @@ router.register(r'notifications', views.NotificationViewset, basename='notificat
 
 # Stripe views
 router.register(r'stripe/payinvoice', views.StripePayInvoice, basename='payinvoice')
+router.register(r'stripe/payinvoice/confirm', views.StripeConfirmPayInvoice, basename='payinvoice-confirm')
 router.register(r'stripe/onboard', views.StripeOnboard, basename='stripe-onboard')
-router.register(r'stripe/paymentmethods/attach', views.StripeAttachPaymentMethod, basename='stripe-attach')
-router.register(r'stripe/paymentmethods/default', views.StripeDefaultPaymentMethod, basename='stripe-default')
+router.register(r'stripe/paymentmethods', views.StripePaymentMethods, basename='stripe-paymentmethods')
+router.register(r'stripe/paymentmethods/card', views.StripePaymentMethods, basename='stripe-paymentmethods-card')
+router.register(r'stripe/paymentmethods/ach', views.StripePaymentMethods, basename='stripe-paymentmethods-ach')
+#router.register(r'stripe/paymentmethods/attach', views.StripeAttachPaymentMethod, basename='stripe-attach')
+#router.register(r'stripe/paymentmethods/default', views.StripeDefaultPaymentMethod, basename='stripe-default')
 
 # Plaid views
 router.register(r'plaid/linktoken', views.PlaidLinkToken, basename='plaid-link')

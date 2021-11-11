@@ -34,55 +34,64 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 timely_rate = Decimal(0.001) #0.1%
 
 #### General Functions ####
-def list_payment_methods(business):
+def list_payment_methods(request, types = None):
     # Get payment methods, if any
     pm_dict = {}
     pm_list = []
 
+    if types is None:
+        types = ['ach', 'card']
+    elif isinstance(types, list):
+        types = [x.lower() for x in types]
+    else:
+        types = [types.lower()]
+
     try:
-        customer = stripe.Customer.retrieve(business.stripe_cus_id)
+        customer = stripe.Customer.retrieve(request.user.business.stripe_cus_id)
         payment_methods = stripe.Customer.list_payment_methods(
-            business.stripe_cus_id,
+            request.user.business.stripe_cus_id,
             type="card",
         )
 
-        for x in payment_methods:
-            meta = {
-                **{'id': x['id'], 'type': 'card'},
-                **{i: x['card'].get(i) for i in ['brand', 'last4', 'exp_month', 'exp_year']},
-                **{'default': True if x['id'] == customer.invoice_settings.default_payment_method else False}
-             }
-            meta = {
-                **meta,
-                **{"summary": "{brand} ************{last4} exp:{exp_month}/{exp_year}".format(**meta)}
-            }
-            pm_list.append(meta)
+        if 'card' in types:
+            for x in payment_methods:
+                meta = {
+                    **{'id': x['id'], 'type': 'card'},
+                    **{i: x['card'].get(i) for i in ['brand', 'last4', 'exp_month', 'exp_year']},
+                    **{'default': True if x['id'] == customer.invoice_settings.default_payment_method else False}
+                 }
+                meta = {
+                    **meta,
+                    **{"summary": "{brand} ************{last4} exp:{exp_month}/{exp_year}".format(**meta)}
+                }
+                pm_list.append(meta)
 
-            pm_dict[x['id']] = {
-                **{"summary": "{brand} ************{last4} exp:{exp_month}/{exp_year}".format(**meta)},
-                **meta,
-                **{'default': True if x['id'] == customer.invoice_settings.default_payment_method else False}
-            }
+                pm_dict[x['id']] = {
+                    **{"summary": "{brand} ************{last4} exp:{exp_month}/{exp_year}".format(**meta)},
+                    **meta,
+                    **{'default': True if x['id'] == customer.invoice_settings.default_payment_method else False}
+                }
 
-        # Add bank sources
-        bank_sources = stripe.Customer.list_sources(
-            business.stripe_cus_id,
-            object='bank_account',
-            limit=10
-        )['data']
+        if 'ach' in types:
+            # Add bank sources
+            bank_sources = stripe.Customer.list_sources(
+                request.user.business.stripe_cus_id,
+                object='bank_account',
+                limit=10
+            )['data']
 
-        for x in bank_sources:
-            pm_dict[x['id']] = {
-                "id": x['id'],
-                "type": 'ACH debit',
-                "brand": x['bank_name'],
-                "last4": "4242",
-                "exp_month": None,
-                "exp_year": None,
-                "default": False,
-                "summary": "{bank_name} ************{last4}".format(**x)
-            }
-            pm_list.append(pm_dict[x['id']])
+            for x in bank_sources:
+                pm_dict[x['id']] = {
+                    "id": x['id'],
+                    "type": 'ach',
+                    "brand": x['bank_name'],
+                    "last4": x['last4'],
+                    "exp_month": None,
+                    "exp_year": None,
+                    "default": None,
+                    "summary": "{bank_name} ************{last4}".format(**x)
+                }
+                pm_list.append(pm_dict[x['id']])
 
     except stripe.error.InvalidRequestError:
         content = {'Bad invoice': 'Not a valid customer ID'}
@@ -158,92 +167,183 @@ class StripeOnboard(mixins.ListModelMixin,
 
         return Response(status=status.HTTP_200_OK, data=account_link)
 
-class StripeAttachPaymentMethod(mixins.ListModelMixin,
-                                mixins.CreateModelMixin,
-                                viewsets.GenericViewSet):
 
-    serializer_class = AttachPaymentMethodSerializer
-    queryset = Business.objects.all()
+class StripePaymentMethods(mixins.ListModelMixin,
+                           mixins.RetrieveModelMixin,
+                           mixins.CreateModelMixin,
+                           mixins.UpdateModelMixin,
+                           viewsets.GenericViewSet):
 
-    def list(self, request):
-        pm_dict, pm_list = list_payment_methods(Business.objects.get(pk=request.user.business.id))
-        return Response(status=status.HTTP_200_OK, data=pm_list)
-
-    def create(self, request):
-        # Get the current business
-        business = Business.objects.get(pk=request.user.business.id)
-
-        if not business.stripe_cus_id or business.stripe_cus_id == "":
-            content = {"Error": "Missing customer ID. User not yet onboarded?"}
-            return Response(content, status=status.HTTP_404_NOT_FOUND)
-
-        # Attach method to customer
-        try:
-            payment_method = stripe.PaymentMethod.attach(
-                request.data['attach_payment_method'],
-                customer=business.stripe_cus_id
-            )
-        except stripe.error.InvalidRequestError:
-            content = {"Error": "No such payment method"}
-            return Response(content, status=status.HTTP_404_NOT_FOUND)
-
-        # Update payment method list
-        pm_dict, pm_list = list_payment_methods(business)
-
-        return Response(status=status.HTTP_200_OK, data=pm_list)
-
-class StripeDefaultPaymentMethod(mixins.CreateModelMixin,
-                                 mixins.ListModelMixin,
-                                 viewsets.GenericViewSet):
-
-    serializer_class = DefaultPaymentMethodSerializer
+    serializer_class = PaymentMethodSerializer
     queryset = Business.objects.all()
 
     def list(self, request):
         if request.user.is_authenticated:
-            pm_dict, pm_list = list_payment_methods(Business.objects.get(pk=request.user.business.id))
-            current_default = {x: pm_dict[x] for x in pm_dict if pm_dict[x]['default']}
-
-            if not current_default:
-                current_default = {'No default payment method'}
+            pm_dict, pm_list = list_payment_methods(request, types=['ach', 'card'])
         else:
-            current_default = {'No payment methods': 'User is not logged in.'}
-        return Response(status=status.HTTP_200_OK, data=current_default)
+            pm_list = {'No payment methods': 'User is not logged in.'}
+        return Response(status=status.HTTP_200_OK, data=pm_list)
 
-    def create(self, request):
-        # Get the current business
-        business = Business.objects.get(pk=request.user.business.id)
+    def retrieve(self, request, pk=None):
+        if request.user.is_authenticated:
+            pm_dict, pm_list = list_payment_methods(request, types=pk)
+        else:
+            pm_list = {'No payment methods': 'User is not logged in.'}
+        return Response(status=status.HTTP_200_OK, data=pm_list)
 
-        if not business.stripe_cus_id or business.stripe_cus_id == "":
-            content = {"Error": "Missing customer ID. User not yet onboarded?"}
-            return Response(content, status=status.HTTP_404_NOT_FOUND)
+    def update(self, request, pk=None):
+        return self.create(request)
 
-        # Get existing payment methods attached, if any
-        pm_dict, pm_list = list_payment_methods(business)
+    def create(self, request, pk=None):
 
-        # Attach method to customer if not already
-        if request.data['default_payment_method'] not in pm_dict.keys():
-            # Attach method to customer
+        pm_dict, pm_list = list_payment_methods(request, types=['ach', 'card'])
+
+        # Attach function
+        def attach(request):
             try:
-                payment_method = stripe.PaymentMethod.attach(
-                    request.data['default_payment_method'],
-                    customer=business.stripe_cus_id
+                stripe.PaymentMethod.attach(
+                    request.data['payment_method'],
+                    customer=request.user.business.stripe_cus_id
                 )
             except stripe.error.InvalidRequestError:
                 content = {"Error": "No such payment method"}
                 return Response(content, status=status.HTTP_404_NOT_FOUND)
 
-        # Set default on stripe and in database
-        payment_method = stripe.PaymentMethod.retrieve(request.data['default_payment_method'])
-        payment_method = stripe.Customer.modify(
-            business.stripe_cus_id,
-            invoice_settings={'default_payment_method': payment_method.id}
-        )
+        # Check if user is onboarded
+        if not request.user.business.stripe_cus_id or request.user.business.stripe_cus_id == "":
+            content = {"Error": "Missing stripe customer ID. User not yet onboarded?"}
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
 
-        # Update they payment method list
-        pm_dict, pm_list = list_payment_methods(business)
-        current_default = {x: pm_dict[x] for x in pm_dict if pm_dict[x]['default']}
-        return Response(status=status.HTTP_200_OK, data=current_default)
+        if not request.user.business.stripe_act_id or request.user.business.stripe_act_id == "":
+            content = {"Error": "Missing stripe account ID. User not yet onboarded?"}
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+        # Perform the action
+        if request.data['action'] == 'attach':
+            # Attach method to customer
+            attach(request)
+
+        if request.data['action'] == 'default':
+            if pm_dict[request.data['payment_method']]['type'] == 'ach':
+                return Response(status=status.HTTP_400_BAD_REQUEST, data={'error': 'ach cannot be set as default.'})
+
+            # Attach method to customer if not already
+            attach(request)
+
+            # Set default on stripe and in database
+            payment_method = stripe.PaymentMethod.retrieve(request.data['payment_method'])
+            payment_method = stripe.Customer.modify(
+                request.user.business.stripe_cus_id,
+                invoice_settings={'default_payment_method': payment_method.id}
+            )
+
+            # Update the payment method list
+            pm_dict, pm_list = list_payment_methods(request)
+            return Response(status=status.HTTP_200_OK, data=pm_list)
+
+        if request.data['action'] == 'detach':
+
+            if pm_dict[request.data['payment_method']]['type'] == 'card':
+                stripe.PaymentMethod.detach(
+                    request.data['payment_method']
+                )
+
+            if pm_dict[request.data['payment_method']]['type'] == 'ach':
+                stripe.Customer.delete_source(
+                    request.user.business.stripe_cus_id,
+                    request.data['payment_method']
+                )
+
+            return Response(status=status.HTTP_200_OK,
+                            data={'success': 'detached payment method: ' + request.data['payment_method']})
+
+
+# class StripeAttachPaymentMethod(mixins.ListModelMixin,
+#                                 mixins.CreateModelMixin,
+#                                 viewsets.GenericViewSet):
+#
+#     serializer_class = AttachPaymentMethodSerializer
+#     queryset = Business.objects.all()
+#
+#     def list(self, request):
+#         pm_dict, pm_list = list_payment_methods(request)
+#         return Response(status=status.HTTP_200_OK, data=pm_list)
+#
+#     def create(self, request):
+#         # Get the current business
+#         business = Business.objects.get(pk=request.user.business.id)
+#
+#         if not business.stripe_cus_id or business.stripe_cus_id == "":
+#             content = {"Error": "Missing customer ID. User not yet onboarded?"}
+#             return Response(content, status=status.HTTP_404_NOT_FOUND)
+#
+#         # Attach method to customer
+#         try:
+#             payment_method = stripe.PaymentMethod.attach(
+#                 request.data['attach_payment_method'],
+#                 customer=business.stripe_cus_id
+#             )
+#         except stripe.error.InvalidRequestError:
+#             content = {"Error": "No such payment method"}
+#             return Response(content, status=status.HTTP_404_NOT_FOUND)
+#
+#         # Update payment method list
+#         pm_dict, pm_list = list_payment_methods(request)
+#
+#         return Response(status=status.HTTP_200_OK, data=pm_list)
+#
+# class StripeDefaultPaymentMethod(mixins.CreateModelMixin,
+#                                  mixins.ListModelMixin,
+#                                  viewsets.GenericViewSet):
+#
+#     serializer_class = DefaultPaymentMethodSerializer
+#     queryset = Business.objects.all()
+#
+#     def list(self, request):
+#         if request.user.is_authenticated:
+#             pm_dict, pm_list = list_payment_methods(Business.objects.get(pk=request.user.business.id))
+#             current_default = {x: pm_dict[x] for x in pm_dict if pm_dict[x]['default']}
+#
+#             if not current_default:
+#                 current_default = {'No default payment method'}
+#         else:
+#             current_default = {'No payment methods': 'User is not logged in.'}
+#         return Response(status=status.HTTP_200_OK, data=current_default)
+#
+#     def create(self, request):
+#         # Get the current business
+#         business = Business.objects.get(pk=request.user.business.id)
+#
+#         if not business.stripe_cus_id or business.stripe_cus_id == "":
+#             content = {"Error": "Missing customer ID. User not yet onboarded?"}
+#             return Response(content, status=status.HTTP_404_NOT_FOUND)
+#
+#         # Get existing payment methods attached, if any
+#         pm_dict, pm_list = list_payment_methods(business)
+#
+#         # Attach method to customer if not already
+#         if request.data['default_payment_method'] not in pm_dict.keys():
+#             # Attach method to customer
+#             try:
+#                 payment_method = stripe.PaymentMethod.attach(
+#                     request.data['default_payment_method'],
+#                     customer=business.stripe_cus_id
+#                 )
+#             except stripe.error.InvalidRequestError:
+#                 content = {"Error": "No such payment method"}
+#                 return Response(content, status=status.HTTP_404_NOT_FOUND)
+#
+#         # Set default on stripe and in database
+#         payment_method = stripe.PaymentMethod.retrieve(request.data['default_payment_method'])
+#         payment_method = stripe.Customer.modify(
+#             business.stripe_cus_id,
+#             invoice_settings={'default_payment_method': payment_method.id}
+#         )
+#
+#         # Update they payment method list
+#         pm_dict, pm_list = list_payment_methods(business)
+#         current_default = {x: pm_dict[x] for x in pm_dict if pm_dict[x]['default']}
+#         return Response(status=status.HTTP_200_OK, data=current_default)
 
 class StripePayInvoice(mixins.CreateModelMixin,
                        mixins.UpdateModelMixin,
@@ -263,7 +363,7 @@ class StripePayInvoice(mixins.CreateModelMixin,
 
     def list(self, request):
         if request.user.is_authenticated:
-            pm_dict, pm_list = list_payment_methods(Business.objects.get(pk=request.user.business.id))
+            pm_dict, pm_list = list_payment_methods(request)
         else:
             pm_list = {'No payment methods': 'User is not logged in.'}
         return Response(status=status.HTTP_200_OK, data=pm_list)
@@ -280,94 +380,156 @@ class StripePayInvoice(mixins.CreateModelMixin,
         return self.pay_invoice(request, pk=None)
 
     def update(self, request, pk=None):
-        return self.pay_invoice(request, pk)
+        if pk == 'confirm':
+            pass
+        else:
+            return self.pay_invoice(request, pk)
 
     def pay_invoice(self, request, pk=None):
         # Extract request
         data = request.data.copy()
 
-        if pk:
-            invoice = Invoice.objects.get(pk=pk)
-        else:
-            invoice = Invoice.objects.get(pk=request.data['invoice_id'])
-
+        invoice = Invoice.objects.get(pk=pk) if pk else Invoice.objects.get(pk=request.data['invoice_id'])
         billing_business = Business.objects.get(business_name=invoice.bill_from)
         timely_fee = round(timely_rate * 100 * invoice.invoice_total_price)  # Calculate our fee
-
-        #data._mutable = True
         data['currency'] = invoice.currency.lower()
+
+        #if 'pm' in data['payment_method'] and data['type'] != 'ach':
 
         # Check if other account is onboarded, if not we'll have to handle this somehow (hold money until they onboard?)
         if not stripe.Account.retrieve(billing_business.stripe_act_id).charges_enabled:
-            if not billing_business.stripe_act_id:
-                content = {'Bad invoice': 'Account for ' + billing_business.business_name +
-                                          ' has no stripe account'}
-            else:
-                content = {'Bad invoice': 'Stripe account ' + billing_business.stripe_act_id +
-                                          ' for receivable is not fully onboarded.'}
+            content = {'Account error': 'Account for '
+                                        + billing_business.business_name +
+                                        'is not fully onboarded and cannot receive payments yet.'}
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
         # If user is authenticated, check if correct payer and optionally pull default payment method if none specified
         if request.user.is_authenticated:
-            stripe_cus_id = Business.objects.get(pk=request.user.business.id).stripe_cus_id
-
             try:
-                customer = stripe.Customer.retrieve(stripe_cus_id)
+                customer = stripe.Customer.retrieve(request.user.business.stripe_cus_id)
             except stripe.error.InvalidRequestError:
-                content = {'Bad invoice': 'Not a valid customer ID'}
+                content = {'Stripe error': 'User has bad customer id. Possibly not onboarded'}
                 return Response(content, status=status.HTTP_404_NOT_FOUND)
 
             # Check if the current user has authority to pay
             if Business.objects.get(business_name=invoice.bill_to).id != request.user.business.id:
-                content = {'Bad invoice': 'You are not authorized to pay this invoice'}
+                content = {'Bad invoice': 'You are not the payer for this invoice!'}
                 return Response(content, status=status.HTTP_404_NOT_FOUND)
 
-            # Use default method if not provided
-            if 'payment_method' not in data:
-                data['payment_method'] = customer.invoice_settings.default_payment_method
+        # Out of network users pay here
+        else:
+            #TODO
+            return Response({'error': 'Have not implemented out of network charges yet!!!'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Fill in the method type once populated
-        payment_method = stripe.PaymentMethod.retrieve(data['payment_method'])
-        stripe_cus_id = payment_method.customer
-        data['payment_method_types'] = [payment_method.type]
 
-        # Clone customer to connected account
-        payment_method = stripe.PaymentMethod.create(
-            customer=stripe_cus_id,
-            payment_method=data['payment_method'],
-            stripe_account=billing_business.stripe_act_id,
-        )
-
+        # Description
         invoice_desc = "Invoice: " + invoice.invoice_name + \
-                    " from " + Business.objects.get(pk=invoice.bill_from.id).business_name +\
-                    " to " + Business.objects.get(pk=invoice.bill_to.id).business_name
+                       " from " + Business.objects.get(pk=invoice.bill_from.id).business_name + \
+                       " to " + Business.objects.get(pk=invoice.bill_to.id).business_name
 
-        payment_intent = stripe.PaymentIntent.create(
-            amount=int(invoice.invoice_total_price * 100),
-            currency=data['currency'],
-            description=invoice_desc,
-            payment_method_types=data['payment_method_types'],
-            payment_method=payment_method,
-            # customer=this_business.stripe_cus_id,
-            stripe_account=billing_business.stripe_act_id,
-            confirm=True,
-            application_fee_amount=timely_fee,
+        # Use default method if not provided
+        if 'payment_method' not in data:
+            data['payment_method'] = customer.invoice_settings.default_payment_method
+
+        if 'card' in data['type']:
+            try:
+                # 1) Retrieve existing payment method
+                payment_method = stripe.PaymentMethod.retrieve(data['payment_method'])
+                data['payment_method_types'] = [payment_method.type]
+
+                # 2) Clone customer to connected account
+                payment_method = stripe.PaymentMethod.create(
+                    customer=payment_method.customer,
+                    payment_method=payment_method,
+                    stripe_account=billing_business.stripe_act_id,
+                )
+
+                # 3) Create a payment intent between paying customer and receiving account
+                payment = stripe.PaymentIntent.create(
+                    amount=int(invoice.invoice_total_price * 100),
+                    currency=data['currency'],
+                    description=invoice_desc,
+                    payment_method_types=data['payment_method_types'],
+                    payment_method=payment_method,
+                    # customer=payment_method.customer,
+                    stripe_account=billing_business.stripe_act_id,
+                    application_fee_amount=timely_fee,
+                    confirm=True,
+                )
+
+            except stripe.error.InvalidRequestError:
+                return Response({'Error': 'ACH source not found, is this a card?'}, status=status.HTTP_404_NOT_FOUND)
+
+        if 'ach' in data['type']:
+            try:
+                # 1) Retrieve bank account id
+                payment_source = stripe.Customer.retrieve_source(
+                    request.user.business.stripe_cus_id,
+                    data['payment_method']
+                )
+                data['payment_method_types'] = [payment_source.object]
+
+                # 2) Create a payment method token between the paying customer and receiving account
+                payment_token = stripe.Token.create(
+                    bank_account=payment_source,
+                    customer=request.user.business.stripe_cus_id,
+                    stripe_account=billing_business.stripe_act_id,
+                )
+
+                # 3) Clone customer to connected account
+                customer = stripe.Customer.create(
+                    source=payment_token.id,
+                    stripe_account=billing_business.stripe_act_id,
+                )
+
+                # 3) Create a payment intent between paying customer and receiving account
+                payment = stripe.PaymentIntent.create(
+                    amount=int(invoice.invoice_total_price * 100),
+                    currency=data['currency'],
+                    description=invoice_desc,
+                    payment_method_types=['ach_debit'],
+                    source=customer.default_source,
+                    #payment_method=payment_source.id,
+                    customer=customer.id,
+                    stripe_account=billing_business.stripe_act_id,
+                    application_fee_amount=timely_fee,
+                    confirm=True,
+                )
+            except stripe.error.InvalidRequestError:
+                return Response({'Error': 'ACH source not found, is this a card?'}, status=status.HTTP_404_NOT_FOUND)
+
+        if payment.status == 'succeeded':
+            invoice.is_paid = True
+            invoice.date_paid = datetime.date.today()
+            invoice.save()
+            send_notification(invoice_id=invoice.id, notif_type='confirm')
+
+        return Response(status=status.HTTP_200_OK, data=payment)
+
+class StripeConfirmPayInvoice(mixins.CreateModelMixin,
+                              viewsets.GenericViewSet):
+
+    # # This exposes the endpoint
+    permission_classes = []
+    # This creates the input form
+    serializer_class = ConfirmPayInvoiceSerializer
+    queryset = Invoice.objects.all()
+
+    def create(self, request):
+
+        invoice = Invoice.objects.get(pk=request.data['invoice_id'])
+
+        # Confirmation
+        payment_intent = stripe.PaymentIntent.confirm(
+            request.data['payment_intent'],
+            payment_method=request.data['payment_method'],
         )
-
-        # # Confirmation
-        # payment_intent = stripe.PaymentIntent.confirm(
-        #     payment_intent.id,
-        #     payment_method=payment_method,
-        # )
 
         if payment_intent.status == 'succeeded':
             invoice.is_paid = True
             invoice.date_paid = datetime.date.today()
             invoice.save()
             send_notification(invoice_id=invoice.id, notif_type='confirm')
-
-        return Response(status=status.HTTP_200_OK, data=payment_intent)
-
 
 
 ### Plaid Views ###
@@ -402,7 +564,6 @@ class PlaidLinkToken(mixins.ListModelMixin,
             account_id=request.data['plaid_account_id']
         )
         stripe_response = plaid_client.processor_stripe_bank_account_token_create(plaid_request)
-        bank_account_token = stripe_response['stripe_bank_account_token']
 
         response = {'request_id': stripe_response.request_id,
                     'stripe_bank_account_token': stripe_response.stripe_bank_account_token}
