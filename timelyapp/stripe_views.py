@@ -194,9 +194,15 @@ class StripePaymentMethods(mixins.ListModelMixin,
     def update(self, request, pk=None):
         return self.create(request)
 
+    def partial_update(self, request, pk=None):
+        return self.create(request)
+
     def create(self, request, pk=None):
 
         pm_dict, pm_list = list_payment_methods(request, types=['ach', 'card'])
+
+        if request.data['action'] is None:
+            return Response({'Error': 'No action given.'}, status=status.HTTP_404_NOT_FOUND)
 
         # Attach function
         def attach(request):
@@ -242,6 +248,9 @@ class StripePaymentMethods(mixins.ListModelMixin,
             return Response(status=status.HTTP_200_OK, data=pm_list)
 
         if request.data['action'] == 'detach':
+
+            if request.data['payment_method'] not in pm_dict.keys():
+                return Response({'Error': 'Payment method not found, may already be detached.'}, status=status.HTTP_404_NOT_FOUND)
 
             if pm_dict[request.data['payment_method']]['type'] == 'card':
                 stripe.PaymentMethod.detach(
