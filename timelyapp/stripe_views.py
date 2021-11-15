@@ -207,7 +207,7 @@ class StripePaymentMethods(mixins.ListModelMixin,
         # Attach function
         def attach(request):
             try:
-                stripe.PaymentMethod.attach(
+                return stripe.PaymentMethod.attach(
                     request.data['payment_method'],
                     customer=request.user.business.stripe_cus_id
                 )
@@ -227,17 +227,22 @@ class StripePaymentMethods(mixins.ListModelMixin,
         # Perform the action
         if request.data['action'] == 'attach':
             # Attach method to customer
-            attach(request)
+            payment_method = attach(request)
+
+            return Response(status=status.HTTP_200_OK,
+                            data={'Success': 'Attached payment method: ' + payment_method.id})
+
 
         if request.data['action'] == 'default':
             if pm_dict[request.data['payment_method']]['type'] == 'ach':
                 return Response(status=status.HTTP_400_BAD_REQUEST, data={'error': 'ach cannot be set as default.'})
 
             # Attach method to customer if not already
-            attach(request)
+            payment_method = attach(request)
 
             # Set default on stripe and in database
-            payment_method = stripe.PaymentMethod.retrieve(request.data['payment_method'])
+            #payment_method = stripe.PaymentMethod.retrieve(request.data['payment_method'])
+            payment_method = stripe.PaymentMethod.retrieve(payment_method.id)
             payment_method = stripe.Customer.modify(
                 request.user.business.stripe_cus_id,
                 invoice_settings={'default_payment_method': payment_method.id}
@@ -245,7 +250,9 @@ class StripePaymentMethods(mixins.ListModelMixin,
 
             # Update the payment method list
             pm_dict, pm_list = list_payment_methods(request)
-            return Response(status=status.HTTP_200_OK, data=pm_list)
+
+            return Response(status=status.HTTP_200_OK,
+                            data={'Success': 'Set default payment method: ' + payment_method.id})
 
         if request.data['action'] == 'detach':
 
