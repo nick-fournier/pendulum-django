@@ -14,11 +14,10 @@ class PayInvoiceSerializer(serializers.ModelSerializer):
     invoice_id = serializers.CharField(required=True)
     payment_method = serializers.CharField(required=True)
     type = serializers.CharField(required=True)
-    oon_email = serializers.CharField(required=False)
 
     class Meta:
         model = Invoice
-        fields = ['invoice_id', 'payment_method', 'type', 'oon_email']
+        fields = ['invoice_id', 'payment_method', 'type']
 
 class ConfirmPayInvoiceSerializer(serializers.ModelSerializer):
     invoice_id = serializers.CharField(required=True)
@@ -42,7 +41,9 @@ class PaymentMethodSerializer(serializers.ModelSerializer):
 class PlaidLinkTokenSerializer(serializers.ModelSerializer):
     public_token = serializers.CharField(required=True)
     plaid_account_id = serializers.CharField(required=True)
+    oon_name = serializers.CharField(required=False)
+    oon_email = serializers.CharField(required=False)
 
     class Meta:
         model = Business
-        fields = ['public_token', 'plaid_account_id']
+        fields = ['public_token', 'plaid_account_id', 'oon_name', 'oon_email']

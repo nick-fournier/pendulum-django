@@ -322,6 +322,9 @@ class StripePayInvoice(mixins.CreateModelMixin,
         billing_business = Business.objects.get(business_name=invoice.bill_from)
         timely_fee = round(timely_rate * 100 * invoice.invoice_total_price)  # Calculate our fee
         data['currency'] = invoice.currency.lower()
+        print(data)
+        data['oon_email'] = None if 'oon_email' not in data or data['oon_email'] == "" else data['oon_email']
+        data['oon_name'] = None if 'oon_name' not in data or data['oon_name'] == "" else data['oon_name']
 
         # Check if other account is onboarded, if not we'll have to handle this somehow (hold money until they onboard?)
         if not stripe.Account.retrieve(billing_business.stripe_act_id).charges_enabled:
@@ -330,7 +333,7 @@ class StripePayInvoice(mixins.CreateModelMixin,
                                         'is not fully onboarded and cannot receive payments yet.'}
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
-        # If user is authenticated, check if correct payer and optionally pull default payment method if none specified
+        # If user is authenticated, check if correct payer
         if request.user.is_authenticated:
             # Double check if account has a stripe customer created. If not create it.
             try:
@@ -343,16 +346,6 @@ class StripePayInvoice(mixins.CreateModelMixin,
                 content = {'Bad invoice': 'You are not the payer for this invoice!'}
                 return Response(content, status=status.HTTP_404_NOT_FOUND)
 
-        # # Out of network users pay here
-        # else:
-        #     #TODO
-        #     # Create customer account
-        #     stripe.Customer.create(
-        #         email=data['oon_email'],
-        #         description="Out of network payment for " + invoice.invoice_name,
-        #     )
-
-
         # Description
         invoice_desc = "Invoice: " + invoice.invoice_name + \
                        " from " + Business.objects.get(pk=invoice.bill_from.id).business_name + \
@@ -363,6 +356,15 @@ class StripePayInvoice(mixins.CreateModelMixin,
             data['payment_method'] = customer.invoice_settings.default_payment_method
 
         if 'card' in data['type']:
+            # Out of network users pay here
+            # if not request.user.is_authenticated:
+            #     # Create customer account
+            #     stripe.Customer.create(
+            #         email=data['oon_email'],
+            #         name=data['oon_name'],
+            #         description="Out of network payment for " + invoice.invoice_name,
+            #     )
+
             try:
                 # 1) Retrieve existing payment method
                 payment_method = stripe.PaymentMethod.retrieve(data['payment_method'])
@@ -433,7 +435,7 @@ class StripePayInvoice(mixins.CreateModelMixin,
             invoice.is_paid = True
             invoice.date_paid = datetime.date.today()
             invoice.save()
-            send_notification(invoice_id=invoice.id, notif_type='confirm')
+            send_notification(invoice_id=invoice.id, notif_type='confirm', cc=data['oon_email'])
 
         return Response(status=status.HTTP_200_OK, data=payment)
 
@@ -475,23 +477,15 @@ class PlaidLinkToken(mixins.ListModelMixin,
 
     def list(self, request):
 
-        # if request.user.is_authenticated:
-        try:
-            customer = stripe.Customer.retrieve(request.user.business.stripe_cus_id)
-        except stripe.error.InvalidRequestError:
-            content = {'Stripe error': 'User has bad customer id. Possibly not onboarded'}
-            return Response(content, status=status.HTTP_404_NOT_FOUND)
-
-        # else:
-        #     customer = stripe.Customer.create(
-        #         email=None
-        #     )
+        if request.user.is_authenticated:
+            client_user_id = request.user.business.stripe_cus_id
+        else:
+            client_user_id = 'out of network customer'
 
         # create link token
         response = plaid_client.link_token_create({
             'user': {
-                #'client_user_id': request.user.business.id,
-                'client_user_id': customer.stripe_id,
+                'client_user_id': client_user_id,
             },
             'products': ["auth"],
             'client_name': "Pendulum App",
@@ -503,6 +497,7 @@ class PlaidLinkToken(mixins.ListModelMixin,
         return Response(status=status.HTTP_200_OK, data=link_token)
 
     def create(self, request):
+
         exchange_request = plaid.api.plaid_api.ItemPublicTokenExchangeRequest(public_token=request.data['public_token'])
         exchange_token_response = plaid_client.item_public_token_exchange(exchange_request)
         access_token = exchange_token_response['access_token']
@@ -516,17 +511,25 @@ class PlaidLinkToken(mixins.ListModelMixin,
         response = {'request_id': stripe_response.request_id,
                     'stripe_bank_account_token': stripe_response.stripe_bank_account_token}
 
+        if request.user.is_authenticated:
+            try:
+                customer = stripe.Customer.retrieve(request.user.business.stripe_cus_id)
+            except stripe.error.InvalidRequestError:
+                customer = create_stripe_customer(request)
+        else:
+            customer = stripe.Customer.create(
+                name=request.data['oon_name'],
+                email=request.data['oon_email'],
+                description='Out of network customer.'
+            )
+
         # Attach method to customer
         try:
             stripe.Customer.create_source(
-                request.user.business.stripe_cus_id,
+                # request.user.business.stripe_cus_id,
+                customer.stripe_id,
                 source=stripe_response.stripe_bank_account_token,
             )
-            # payment_method = stripe.PaymentMethod.attach(
-            #     stripe_response['stripe_bank_account_token'],
-            #     customer=request.user.business.stripe_cus_id
-            #
-            # )
         except stripe.error.InvalidRequestError:
             content = {"Error": "Failed to attach payment method to Stripe. May already be attached."}
             return Response(content, status=status.HTTP_404_NOT_FOUND)
