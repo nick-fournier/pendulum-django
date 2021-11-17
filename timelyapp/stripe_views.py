@@ -401,7 +401,7 @@ class StripePayInvoice(mixins.CreateModelMixin,
         if 'ach' in data['type']:
             if not request.user.is_authenticated:
                 customer = request.user.stripe_customer
-                receipt_email = customer.email
+                data['receipt_email'] = customer.email
 
             try:
                 # 1) Retrieve bank account id
@@ -444,7 +444,7 @@ class StripePayInvoice(mixins.CreateModelMixin,
             invoice.is_paid = True
             invoice.date_paid = datetime.date.today()
             invoice.save()
-            send_notification(invoice_id=invoice.id, notif_type='confirm', cc=receipt_email)
+            send_notification(invoice_id=invoice.id, notif_type='confirm', cc=data['receipt_email'])
 
         return Response(status=status.HTTP_200_OK, data=payment)
 
