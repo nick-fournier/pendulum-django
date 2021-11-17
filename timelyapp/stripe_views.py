@@ -281,8 +281,6 @@ class StripePayInvoice(mixins.CreateModelMixin,
                        viewsets.GenericViewSet):
     # This exposes the endpoint
     permission_classes = []
-    # This creates the input form
-    # serializer_class = PayInvoiceObjectSerializer
     queryset = Invoice.objects.all()
 
     def get_serializer_class(self):
@@ -293,9 +291,21 @@ class StripePayInvoice(mixins.CreateModelMixin,
     def list(self, request):
         if request.user.is_authenticated:
             pm_dict, pm_list = list_payment_methods(request)
+            return Response(status=status.HTTP_200_OK, data=pm_list)
         else:
-            pm_list = {'No payment methods': 'User is not logged in.'}
-        return Response(status=status.HTTP_200_OK, data=pm_list)
+            # create link token
+            response = plaid_client.link_token_create({
+                'user': {
+                    'client_user_id': 'out of network customer',
+                },
+                'products': ["auth"],
+                'client_name': "Pendulum App",
+                'country_codes': ['US'],
+                'language': 'en',
+                'webhook': 'https://dash.pendulumapp.com/invoices',
+            })
+            link_token = response['link_token']
+            return Response(status=status.HTTP_200_OK, data={'ACH_link_token': link_token})
 
     def retrieve(self, request, pk=None):
         invoice = Invoice.objects.filter(pk=pk)
@@ -309,9 +319,7 @@ class StripePayInvoice(mixins.CreateModelMixin,
         return self.pay_invoice(request, pk=None)
 
     def update(self, request, pk=None):
-        if pk == 'confirm':
-            pass
-        else:
+        if pk != 'confirm':
             return self.pay_invoice(request, pk)
 
     def pay_invoice(self, request, pk=None):
@@ -322,9 +330,6 @@ class StripePayInvoice(mixins.CreateModelMixin,
         billing_business = Business.objects.get(business_name=invoice.bill_from)
         timely_fee = round(timely_rate * 100 * invoice.invoice_total_price)  # Calculate our fee
         data['currency'] = invoice.currency.lower()
-        print(data)
-        data['oon_email'] = None if 'oon_email' not in data or data['oon_email'] == "" else data['oon_email']
-        data['oon_name'] = None if 'oon_name' not in data or data['oon_name'] == "" else data['oon_name']
 
         # Check if other account is onboarded, if not we'll have to handle this somehow (hold money until they onboard?)
         if not stripe.Account.retrieve(billing_business.stripe_act_id).charges_enabled:
@@ -335,6 +340,8 @@ class StripePayInvoice(mixins.CreateModelMixin,
 
         # If user is authenticated, check if correct payer
         if request.user.is_authenticated:
+            #receipt_email = request.user.business.email
+            receipt_email = request.user.email
             # Double check if account has a stripe customer created. If not create it.
             try:
                 customer = stripe.Customer.retrieve(request.user.business.stripe_cus_id)
@@ -346,6 +353,7 @@ class StripePayInvoice(mixins.CreateModelMixin,
                 content = {'Bad invoice': 'You are not the payer for this invoice!'}
                 return Response(content, status=status.HTTP_404_NOT_FOUND)
 
+
         # Description
         invoice_desc = "Invoice: " + invoice.invoice_name + \
                        " from " + Business.objects.get(pk=invoice.bill_from.id).business_name + \
@@ -356,19 +364,16 @@ class StripePayInvoice(mixins.CreateModelMixin,
             data['payment_method'] = customer.invoice_settings.default_payment_method
 
         if 'card' in data['type']:
-            # Out of network users pay here
-            # if not request.user.is_authenticated:
-            #     # Create customer account
-            #     stripe.Customer.create(
-            #         email=data['oon_email'],
-            #         name=data['oon_name'],
-            #         description="Out of network payment for " + invoice.invoice_name,
-            #     )
-
             try:
                 # 1) Retrieve existing payment method
                 payment_method = stripe.PaymentMethod.retrieve(data['payment_method'])
                 data['payment_method_types'] = [payment_method.type]
+
+                if payment_method.billing_details.email:
+                    data['receipt_email'] = payment_method.billing_details.email
+                else:
+                    return Response({'Error': 'Missing email for customer payment method.'},
+                                    status=status.HTTP_404_NOT_FOUND)
 
                 # 2) Clone customer to connected account
                 payment_method = stripe.PaymentMethod.create(
@@ -394,10 +399,14 @@ class StripePayInvoice(mixins.CreateModelMixin,
                 return Response({'Error': 'Card method not found.'}, status=status.HTTP_404_NOT_FOUND)
 
         if 'ach' in data['type']:
+            if not request.user.is_authenticated:
+                customer = request.user.stripe_customer
+                receipt_email = customer.email
+
             try:
                 # 1) Retrieve bank account id
                 payment_source = stripe.Customer.retrieve_source(
-                    request.user.business.stripe_cus_id,
+                    customer.id,  #request.user.business.stripe_cus_id,
                     data['payment_method']
                 )
                 data['payment_method_types'] = [payment_source.object]
@@ -405,7 +414,7 @@ class StripePayInvoice(mixins.CreateModelMixin,
                 # 2) Create a payment method token between the paying customer and receiving account
                 payment_token = stripe.Token.create(
                     bank_account=payment_source,
-                    customer=request.user.business.stripe_cus_id,
+                    customer=customer.id,  #request.user.business.stripe_cus_id,
                     stripe_account=billing_business.stripe_act_id,
                 )
 
@@ -435,7 +444,7 @@ class StripePayInvoice(mixins.CreateModelMixin,
             invoice.is_paid = True
             invoice.date_paid = datetime.date.today()
             invoice.save()
-            send_notification(invoice_id=invoice.id, notif_type='confirm', cc=data['oon_email'])
+            send_notification(invoice_id=invoice.id, notif_type='confirm', cc=receipt_email)
 
         return Response(status=status.HTTP_200_OK, data=payment)
 
@@ -476,7 +485,6 @@ class PlaidLinkToken(mixins.ListModelMixin,
     permission_classes = []
 
     def list(self, request):
-
         if request.user.is_authenticated:
             client_user_id = request.user.business.stripe_cus_id
         else:
@@ -517,11 +525,24 @@ class PlaidLinkToken(mixins.ListModelMixin,
             except stripe.error.InvalidRequestError:
                 customer = create_stripe_customer(request)
         else:
-            customer = stripe.Customer.create(
-                name=request.data['oon_name'],
-                email=request.data['oon_email'],
-                description='Out of network customer.'
-            )
+            # Checking if email valid
+            regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+            if not (re.fullmatch(regex, request.data['oon_email'])):
+                return Response({'Error': 'Email appears invalid.'}, status=status.HTTP_404_NOT_FOUND)
+
+            if not request.data['oon_name']:
+                return Response({'Error': 'Name field is empty.'}, status=status.HTTP_404_NOT_FOUND)
+
+            # Check if customer already exists for this email, otherwise create one
+            if stripe.Customer.list(email=request.data['oon_email']).data:
+                customer = stripe.Customer.list(email='nick@pendulumapp.com').data[0]
+            else:
+                customer = stripe.Customer.create(
+                    name=request.data['oon_name'],
+                    email=request.data['oon_email'],
+                    description='Out of network customer.'
+                )
+            request.user.stripe_customer = customer
 
         # Attach method to customer
         try:

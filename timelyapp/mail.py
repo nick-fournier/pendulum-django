@@ -102,8 +102,8 @@ def send_notification(**args):
         else:
             to_email = [invoice.bill_to.business_email] + valid
 
-        if notif_type == 'confirm':
-            to_email += [invoice.bill_from.business_email]
+        # if notif_type == 'confirm':
+        #     to_email += [invoice.bill_from.business_email]
 
         text_content = text.render(context)
         html_content = html.render(context)
