@@ -273,100 +273,12 @@ class StripePaymentMethods(mixins.ListModelMixin,
             return Response(status=status.HTTP_200_OK,
                             data={'success': 'detached payment method: ' + request.data['payment_method']})
 
-
-# class StripeAttachPaymentMethod(mixins.ListModelMixin,
-#                                 mixins.CreateModelMixin,
-#                                 viewsets.GenericViewSet):
-#
-#     serializer_class = AttachPaymentMethodSerializer
-#     queryset = Business.objects.all()
-#
-#     def list(self, request):
-#         pm_dict, pm_list = list_payment_methods(request)
-#         return Response(status=status.HTTP_200_OK, data=pm_list)
-#
-#     def create(self, request):
-#         # Get the current business
-#         business = Business.objects.get(pk=request.user.business.id)
-#
-#         if not business.stripe_cus_id or business.stripe_cus_id == "":
-#             content = {"Error": "Missing customer ID. User not yet onboarded?"}
-#             return Response(content, status=status.HTTP_404_NOT_FOUND)
-#
-#         # Attach method to customer
-#         try:
-#             payment_method = stripe.PaymentMethod.attach(
-#                 request.data['attach_payment_method'],
-#                 customer=business.stripe_cus_id
-#             )
-#         except stripe.error.InvalidRequestError:
-#             content = {"Error": "No such payment method"}
-#             return Response(content, status=status.HTTP_404_NOT_FOUND)
-#
-#         # Update payment method list
-#         pm_dict, pm_list = list_payment_methods(request)
-#
-#         return Response(status=status.HTTP_200_OK, data=pm_list)
-#
-# class StripeDefaultPaymentMethod(mixins.CreateModelMixin,
-#                                  mixins.ListModelMixin,
-#                                  viewsets.GenericViewSet):
-#
-#     serializer_class = DefaultPaymentMethodSerializer
-#     queryset = Business.objects.all()
-#
-#     def list(self, request):
-#         if request.user.is_authenticated:
-#             pm_dict, pm_list = list_payment_methods(Business.objects.get(pk=request.user.business.id))
-#             current_default = {x: pm_dict[x] for x in pm_dict if pm_dict[x]['default']}
-#
-#             if not current_default:
-#                 current_default = {'No default payment method'}
-#         else:
-#             current_default = {'No payment methods': 'User is not logged in.'}
-#         return Response(status=status.HTTP_200_OK, data=current_default)
-#
-#     def create(self, request):
-#         # Get the current business
-#         business = Business.objects.get(pk=request.user.business.id)
-#
-#         if not business.stripe_cus_id or business.stripe_cus_id == "":
-#             content = {"Error": "Missing customer ID. User not yet onboarded?"}
-#             return Response(content, status=status.HTTP_404_NOT_FOUND)
-#
-#         # Get existing payment methods attached, if any
-#         pm_dict, pm_list = list_payment_methods(business)
-#
-#         # Attach method to customer if not already
-#         if request.data['default_payment_method'] not in pm_dict.keys():
-#             # Attach method to customer
-#             try:
-#                 payment_method = stripe.PaymentMethod.attach(
-#                     request.data['default_payment_method'],
-#                     customer=business.stripe_cus_id
-#                 )
-#             except stripe.error.InvalidRequestError:
-#                 content = {"Error": "No such payment method"}
-#                 return Response(content, status=status.HTTP_404_NOT_FOUND)
-#
-#         # Set default on stripe and in database
-#         payment_method = stripe.PaymentMethod.retrieve(request.data['default_payment_method'])
-#         payment_method = stripe.Customer.modify(
-#             business.stripe_cus_id,
-#             invoice_settings={'default_payment_method': payment_method.id}
-#         )
-#
-#         # Update they payment method list
-#         pm_dict, pm_list = list_payment_methods(business)
-#         current_default = {x: pm_dict[x] for x in pm_dict if pm_dict[x]['default']}
-#         return Response(status=status.HTTP_200_OK, data=current_default)
-
 class StripePayInvoice(mixins.CreateModelMixin,
                        mixins.UpdateModelMixin,
                        mixins.ListModelMixin,
                        mixins.RetrieveModelMixin,
                        viewsets.GenericViewSet):
-    # # This exposes the endpoint
+    # This exposes the endpoint
     permission_classes = []
     # This creates the input form
     # serializer_class = PayInvoiceObjectSerializer
@@ -410,8 +322,6 @@ class StripePayInvoice(mixins.CreateModelMixin,
         timely_fee = round(timely_rate * 100 * invoice.invoice_total_price)  # Calculate our fee
         data['currency'] = invoice.currency.lower()
 
-        #if 'pm' in data['payment_method'] and data['type'] != 'ach':
-
         # Check if other account is onboarded, if not we'll have to handle this somehow (hold money until they onboard?)
         if not stripe.Account.retrieve(billing_business.stripe_act_id).charges_enabled:
             content = {'Account error': 'Account for '
@@ -432,10 +342,14 @@ class StripePayInvoice(mixins.CreateModelMixin,
                 content = {'Bad invoice': 'You are not the payer for this invoice!'}
                 return Response(content, status=status.HTTP_404_NOT_FOUND)
 
-        # Out of network users pay here
-        else:
-            #TODO
-            return Response({'error': 'Have not implemented out of network charges yet!!!'}, status=status.HTTP_404_NOT_FOUND)
+        # # Out of network users pay here
+        # else:
+        #     #TODO
+        #     # Create customer account
+        #     stripe.Customer.create(
+        #         email=data['oon_email'],
+        #         description="Out of network payment for " + invoice.invoice_name,
+        #     )
 
 
         # Description
@@ -549,17 +463,34 @@ class StripeConfirmPayInvoice(mixins.CreateModelMixin,
 
 
 ### Plaid Views ###
+# Creates ACH payment method
 class PlaidLinkToken(mixins.ListModelMixin,
                      mixins.CreateModelMixin,
                      viewsets.GenericViewSet):
 
     serializer_class = PlaidLinkTokenSerializer
+    # This exposes the endpoint
+    permission_classes = []
 
     def list(self, request):
+
+        # if request.user.is_authenticated:
+        try:
+            customer = stripe.Customer.retrieve(request.user.business.stripe_cus_id)
+        except stripe.error.InvalidRequestError:
+            content = {'Stripe error': 'User has bad customer id. Possibly not onboarded'}
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+        # else:
+        #     customer = stripe.Customer.create(
+        #         email=None
+        #     )
+
         # create link token
         response = plaid_client.link_token_create({
             'user': {
-                'client_user_id': request.user.business.id,
+                #'client_user_id': request.user.business.id,
+                'client_user_id': customer.stripe_id,
             },
             'products': ["auth"],
             'client_name': "Pendulum App",
