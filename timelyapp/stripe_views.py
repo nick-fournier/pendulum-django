@@ -99,29 +99,33 @@ def list_payment_methods(request, types = None):
 
     return pm_dict, pm_list
 
+
+# sub-func to create new stripe account and add to db
+def create_stripe_account(request):
+    account = stripe.Account.create(
+        type='standard',
+        email=request.business.email,
+    )
+    business_model = Business.objects.get(id=request.user.business.id)
+    business_model.stripe_act_id = account.id
+    business_model.save()
+    return account
+
+
+def create_stripe_customer(request):
+    customer = stripe.Customer.create(
+        description=request.user.business.business_name,
+        email=request.user.business.email
+    )
+    business_model = Business.objects.get(id=request.user.business.id)
+    business_model.stripe_cus_id = customer.stripe_id
+    business_model.save()
+    return customer
+
 ### Stripe views ###
 class StripeOnboard(mixins.ListModelMixin,
                     viewsets.GenericViewSet):
     def list(self, request):
-        # sub-func to create new stripe account and add to db
-        def create_stripe_account():
-            account = stripe.Account.create(
-                type='standard',
-                email=business.email,
-            )
-            business.stripe_act_id = account.id
-            business.save()
-            return account
-
-        def create_stripe_customer():
-            customer = stripe.Customer.create(
-                description=business.business_name,
-                email=business.email
-            )
-            business.stripe_cus_id = customer.stripe_id
-            business.save()
-            return customer
-
         # Parse any data passed
         data = request.data
         if 'refresh_url' not in data:
@@ -129,40 +133,37 @@ class StripeOnboard(mixins.ListModelMixin,
         if 'return_url' not in data:
             data['return_url'] = 'https://dash.pendululapp.com/'  # request.build_absolute_uri('/invoices/')
 
-        # Query current business
-        business = Business.objects.get(id=request.user.business.id)
-
         # Check if stripe_act_id in database is not null
-        if business.stripe_act_id:
+        if request.user.business.stripe_act_id:
             # Check if database stripe_act_id is on stripe API
             try:
-                stripe.Account.retrieve(business.stripe_act_id)['id']
+                stripe.Account.retrieve(request.user.business.stripe_act_id)['id']
             # If not, create a new account
             except stripe.error.PermissionError:
-                create_stripe_account()
+                create_stripe_account(request)
         else:
-            create_stripe_account()
+            create_stripe_account(request)
 
         # Check if stripe_cus_id in database is not null
-        if business.stripe_cus_id:
+        if request.user.business.stripe_cus_id:
             # Check if database stripe_act_id is on stripe API
             try:
-                stripe.Customer.retrieve(business.stripe_cus_id)['id']
+                stripe.Customer.retrieve(request.user.business.stripe_cus_id)['id']
             # If not, create a new account
             except stripe.error.PermissionError:
-                create_stripe_customer()
+                create_stripe_customer(request)
         else:
-            create_stripe_customer()
+            create_stripe_customer(request)
 
         account_link = {
             **stripe.AccountLink.create(
-                account=business.stripe_act_id,
+                account=request.user.business.stripe_act_id,
                 refresh_url=data['refresh_url'],
                 return_url=data['return_url'],
                 type='account_onboarding',
             ),
-            **{'stripe_act_id': business.stripe_act_id},
-            **{'stripe_cus_id': business.stripe_cus_id},
+            **{'stripe_act_id': request.user.business.stripe_act_id},
+            **{'stripe_cus_id': request.user.business.stripe_cus_id},
         }
 
         return Response(status=status.HTTP_200_OK, data=account_link)
@@ -331,11 +332,11 @@ class StripePayInvoice(mixins.CreateModelMixin,
 
         # If user is authenticated, check if correct payer and optionally pull default payment method if none specified
         if request.user.is_authenticated:
+            # Double check if account has a stripe customer created. If not create it.
             try:
                 customer = stripe.Customer.retrieve(request.user.business.stripe_cus_id)
             except stripe.error.InvalidRequestError:
-                content = {'Stripe error': 'User has bad customer id. Possibly not onboarded'}
-                return Response(content, status=status.HTTP_404_NOT_FOUND)
+                customer = create_stripe_customer(request)
 
             # Check if the current user has authority to pay
             if Business.objects.get(business_name=invoice.bill_to).id != request.user.business.id:
@@ -388,7 +389,7 @@ class StripePayInvoice(mixins.CreateModelMixin,
                 )
 
             except stripe.error.InvalidRequestError:
-                return Response({'Error': 'ACH source not found, is this a card?'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'Error': 'Card method not found.'}, status=status.HTTP_404_NOT_FOUND)
 
         if 'ach' in data['type']:
             try:

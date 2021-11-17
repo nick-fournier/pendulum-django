@@ -4,10 +4,11 @@ from .mail import *
 # PAY INVOICE SERIALIZER
 class PayInvoiceObjectSerializer(serializers.ModelSerializer):
     payment_method = serializers.CharField(required=True)
+    type = serializers.CharField(required=True)
 
     class Meta:
         model = Invoice
-        fields = ['payment_method']
+        fields = ['payment_method', 'type']
 
 class PayInvoiceSerializer(serializers.ModelSerializer):
     invoice_id = serializers.CharField(required=True)
