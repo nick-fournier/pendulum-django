@@ -369,7 +369,8 @@ class StripePayInvoice(mixins.CreateModelMixin,
                 payment_method = stripe.PaymentMethod.retrieve(data['payment_method'])
                 data['payment_method_types'] = [payment_method.type]
 
-                if payment_method.billing_details.email:
+                # Front end add billing details
+                if not request.user.is_authenticated and payment_method.billing_details.email:
                     data['receipt_email'] = payment_method.billing_details.email
                 else:
                     return Response({'Error': 'Missing email for customer payment method.'},
@@ -516,14 +517,13 @@ class PlaidLinkToken(mixins.ListModelMixin,
         )
         stripe_response = plaid_client.processor_stripe_bank_account_token_create(plaid_request)
 
-        response = {'request_id': stripe_response.request_id,
-                    'stripe_bank_account_token': stripe_response.stripe_bank_account_token}
-
+        # Check if OON user or not
         if request.user.is_authenticated:
             try:
                 customer = stripe.Customer.retrieve(request.user.business.stripe_cus_id)
             except stripe.error.InvalidRequestError:
                 customer = create_stripe_customer(request)
+
         else:
             # Checking if email valid
             regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
@@ -546,7 +546,7 @@ class PlaidLinkToken(mixins.ListModelMixin,
 
         # Attach method to customer
         try:
-            stripe.Customer.create_source(
+            bank_account = stripe.Customer.create_source(
                 # request.user.business.stripe_cus_id,
                 customer.stripe_id,
                 source=stripe_response.stripe_bank_account_token,
@@ -554,5 +554,9 @@ class PlaidLinkToken(mixins.ListModelMixin,
         except stripe.error.InvalidRequestError:
             content = {"Error": "Failed to attach payment method to Stripe. May already be attached."}
             return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+        response = {'request_id': stripe_response.request_id,
+                    'stripe_bank_account_token': stripe_response.stripe_bank_account_token,
+                    'payment_method': bank_account.id}
 
         return Response(status=status.HTTP_200_OK, data=response)
