@@ -341,7 +341,7 @@ class StripePayInvoice(mixins.CreateModelMixin,
         # If user is authenticated, check if correct payer
         if request.user.is_authenticated:
             #receipt_email = request.user.business.email
-            receipt_email = request.user.email
+            data['receipt_email'] = request.user.email
             # Double check if account has a stripe customer created. If not create it.
             try:
                 customer = stripe.Customer.retrieve(request.user.business.stripe_cus_id)
@@ -373,7 +373,7 @@ class StripePayInvoice(mixins.CreateModelMixin,
                 if not request.user.is_authenticated and payment_method.billing_details.email:
                     data['receipt_email'] = payment_method.billing_details.email
                 else:
-                    return Response({'Error': 'Missing email for customer payment method.'},
+                    return Response({'Error': 'Missing email for out of network customer payment method.'},
                                     status=status.HTTP_404_NOT_FOUND)
 
                 # 2) Clone customer to connected account
