@@ -5,19 +5,21 @@ from .mail import *
 class PayInvoiceObjectSerializer(serializers.ModelSerializer):
     payment_method = serializers.CharField(required=True)
     type = serializers.CharField(required=True)
+    stripe_cus_id = serializers.CharField(required=False)
 
     class Meta:
         model = Invoice
-        fields = ['payment_method', 'type']
+        fields = ['payment_method', 'type', 'stripe_cus_id']
 
 class PayInvoiceSerializer(serializers.ModelSerializer):
     invoice_id = serializers.CharField(required=True)
     payment_method = serializers.CharField(required=True)
     type = serializers.CharField(required=True)
+    stripe_cus_id = serializers.CharField(required=False)
 
     class Meta:
         model = Invoice
-        fields = ['invoice_id', 'payment_method', 'type']
+        fields = ['invoice_id', 'payment_method', 'type', 'stripe_cus_id']
 
 class ConfirmPayInvoiceSerializer(serializers.ModelSerializer):
     invoice_id = serializers.CharField(required=True)
