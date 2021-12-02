@@ -296,19 +296,8 @@ class StripePayInvoice(mixins.CreateModelMixin,
             pm_dict, pm_list = list_payment_methods(request)
             return Response(status=status.HTTP_200_OK, data=pm_list)
         else:
-            # create link token
-            response = plaid_client.link_token_create({
-                'user': {
-                    'client_user_id': 'out of network customer',
-                },
-                'products': ["auth"],
-                'client_name': "Pendulum App",
-                'country_codes': ['US'],
-                'language': 'en',
-                'webhook': 'https://dash.pendulumapp.com/invoices',
-            })
-            link_token = response['link_token']
-            return Response(status=status.HTTP_200_OK, data={'ACH_link_token': link_token})
+            return Response(status=status.HTTP_200_OK,
+                            data={'Not logged in': 'No payment methods to list'})
 
     def retrieve(self, request, pk=None):
         invoice = Invoice.objects.filter(pk=pk)
@@ -513,7 +502,6 @@ class PlaidLinkToken(mixins.ListModelMixin,
             language='en',
             webhook='https://dash.pendulumapp.com/invoices',
         )
-        print(plaid_request)
         response = plaid_client.link_token_create(plaid_request)
         link_token = response['link_token']
         return Response(status=status.HTTP_200_OK, data=link_token)
