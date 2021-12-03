@@ -397,8 +397,8 @@ class StripePayInvoice(mixins.CreateModelMixin,
             # Get stripe customer data for ACH, not needed for CARD method
             if not request.user.is_authenticated:
                 # Check if it got passed on backend, otherwise pass from endpoint
-                if request.user.stripe_customer:
-                    data['stripe_cus_id'] = request.user.stripe_customer.id
+                # if request.user.stripe_customer:
+                #     data['stripe_cus_id'] = request.user.stripe_customer.id
 
                 if not data['stripe_cus_id']:
                     content = {'Error': 'Missing stripe customer id for ach payment!'},
