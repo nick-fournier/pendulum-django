@@ -543,7 +543,7 @@ class PlaidLinkToken(mixins.ListModelMixin,
                     email=request.data['oon_email'],
                     description='Out of network customer.'
                 )
-            request.user.stripe_customer = customer
+            # request.user.stripe_customer = customer
 
         # Attach method to customer
         try:
