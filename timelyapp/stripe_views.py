@@ -393,7 +393,6 @@ class StripePayInvoice(mixins.CreateModelMixin,
                 return Response({'Error': 'Card method not found.'}, status=status.HTTP_404_NOT_FOUND)
 
         if 'ach' in data['type']:
-
             # Get stripe customer data for ACH, not needed for CARD method
             if not request.user.is_authenticated:
                 # Check if it got passed on backend, otherwise pass from endpoint
@@ -536,7 +535,7 @@ class PlaidLinkToken(mixins.ListModelMixin,
 
             # Check if customer already exists for this email, otherwise create one
             if stripe.Customer.list(email=request.data['oon_email']).data:
-                customer = stripe.Customer.list(email='nick@pendulumapp.com').data[0]
+                customer = stripe.Customer.list(email=request.data['oon_email']).data[0]
             else:
                 customer = stripe.Customer.create(
                     name=request.data['oon_name'],
@@ -545,20 +544,31 @@ class PlaidLinkToken(mixins.ListModelMixin,
                 )
             # request.user.stripe_customer = customer
 
-        # Attach method to customer
+        # Attach new method to customer
         try:
             bank_account = stripe.Customer.create_source(
                 # request.user.business.stripe_cus_id,
                 customer.stripe_id,
                 source=stripe_response.stripe_bank_account_token,
             )
+            error_status = 'successfully attached new bank source.'
         except stripe.error.InvalidRequestError:
-            content = {"Error": "Failed to attach payment method to Stripe. May already be attached."}
-            return Response(content, status=status.HTTP_404_NOT_FOUND)
+            # Try retrieving any existing bank
+            try:
+                bank_account = stripe.Customer.retrieve_source(
+                    customer.stripe_id,
+                    stripe_response.stripe_bank_account_token,
+                )
+                error_status = 'could not attach new bank source, using existing.'
+
+            except stripe.error.InvalidRequestError:
+                content = {"Error": "Failed to find or attach ach source to Stripe account."}
+                return Response(content, status=status.HTTP_404_NOT_FOUND)
 
         response = {'request_id': stripe_response.request_id,
                     'stripe_bank_account_token': stripe_response.stripe_bank_account_token,
                     'payment_method': bank_account.id,
-                    'stripe_cus_id': customer.id}
+                    'stripe_cus_id': customer.id,
+                    'error_status': error_status}
 
         return Response(status=status.HTTP_200_OK, data=response)
