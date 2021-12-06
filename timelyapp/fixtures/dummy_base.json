@@ -207,7 +207,9 @@
       "item_description": null,
       "quantity_purchased": 4,
       "item_price": 10,
-      "item_total_price": 40
+      "item_total_price": 40,
+      "item_tax_rate" : 5,
+      "item_total_tax" : 2
     }
   },
    {
@@ -220,7 +222,9 @@
       "bill_from": "biz_4iCyEKhCFaNBGGahn3Rn4i",
       "bill_to": "biz_XhLAvUW63VuD4vfuCtEZKw",
       "terms": "NET30",
-      "invoice_total_price": 100,
+      "invoice_subtotal_price": 100,
+      "invoice_total_tax": 5,
+      "invoice_total_price": 105,
       "currency": "USD",
       "is_flagged": false,
       "is_scheduled": false,
