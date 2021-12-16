@@ -47,13 +47,11 @@ def type_converter(obj):
     elif isinstance(obj, datetime.datetime):
         return obj.__str__()
 
-
 def get_business_id(user_id):
     try:
         return Business.objects.get(owner__id=user_id).id
     except Business.DoesNotExist:
         return None
-
 
 def get_invoices(biz_id, type):
     if type == "receivables":
@@ -160,6 +158,6 @@ def create_invoice(validated_data, business, bill_to_from):
 
     # Send email
     if bill_to_from == 'bill_from':
-        send_notification(invoice.id, notif_type='new')
+        send_notification(invoice_id=invoice.id, notif_type='new')
 
     return invoice

@@ -130,7 +130,7 @@ class GenerateData:
                 new_order['fields']['item_description'] = items[j]['fields']['description']
                 new_order['fields']['quantity_purchased'] = quantity
                 new_order['fields']['item_price'] = items[j]['fields']['item_price']
-                new_order['fields']['item_subtotal_price'] = items[j]['fields']['item_price'] * quantity
+                new_order['fields']['item_total_price'] = items[j]['fields']['item_price'] * quantity
                 new_order['fields']['item_total_tax'] = items[j]['fields']['item_price'] * quantity * (new_order['fields']['item_tax_rate']/100)
 
                 output_data.append(new_order)
@@ -138,7 +138,7 @@ class GenerateData:
                 taxtotal += new_order['fields']['item_total_tax']
 
             # Update total price
-            new_invoice['fields']['invoice_subtotal_price'] = subtotal
+            #new_invoice['fields']['invoice_subtotal_price'] = subtotal
             new_invoice['fields']['invoice_total_tax'] = taxtotal
             new_invoice['fields']['invoice_total_price'] = subtotal + taxtotal
             output_data.append(new_invoice)

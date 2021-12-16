@@ -148,7 +148,6 @@ class Invoice(models.Model):
     bill_to = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='bill_to')
     terms = models.CharField(default='NET30', null=True, max_length=24, choices=TERM_CHOICES)
     accepted_payments = models.ManyToManyField(Payments, default=[1, 2, 3], related_name='accepted_payments')
-    invoice_subtotal_price = models.DecimalField(default=None, null=True, max_digits=12, decimal_places=2)
     invoice_total_tax = models.DecimalField(default=0, null=True, max_digits=12, decimal_places=2)
     invoice_total_price = models.DecimalField(default=None, null=True, max_digits=12, decimal_places=2)
     currency = models.CharField(default='USD', null=True, max_length=6)
@@ -186,4 +185,3 @@ class Outreach(models.Model):
     role = models.CharField(default=None, null=True, max_length=24, choices=QROLE_CHOICES)
     date_joined = models.DateTimeField(default=timezone.now)
     # key = models.CharField(default="p!OOR&E[WnxP(o6?p~m$AOi1d]Gc_`", null=False, max_length=64)
-
