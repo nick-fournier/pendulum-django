@@ -60,10 +60,13 @@ def send_notification(**args):
                     'pk': str(invoice.pk)}
         payment_url = 'https://{subdomain}{domain}{path}{pk}'.format(**url_dict)
 
-        context = {'user_name': CustomUser.objects.get(business=invoice.bill_to).first_name,
-                   'invoice': invoice,
+        context = {'invoice': invoice,
                    'items': items,
                    'payment_url': payment_url}
+        if CustomUser.objects.filter(business=invoice.bill_to).exists():
+            context['user_name'] = CustomUser.objects.get(business=invoice.bill_to).first_name
+        else:
+            context['user_name'] = None
 
         # Getting email html context
         if not invoice.terms in ['COD', 'CIA']:

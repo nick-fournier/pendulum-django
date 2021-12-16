@@ -186,3 +186,18 @@ class NotificationViewSet(mixins.ListModelMixin,
         return Response(status=status.HTTP_200_OK,
                         data={'Success': data['notif_type'] + ' notification sent for invoice ' + data['invoice_id']})
 
+class TaxRatesViewSet(mixins.ListModelMixin,
+                      mixins.RetrieveModelMixin,
+                      mixins.CreateModelMixin,
+                      viewsets.GenericViewSet):
+
+    def create(self, request):
+        stripe.TaxRate.create(
+            display_name = "Sales Tax",
+            inclusive = False,
+            percentage = 7.25,
+            country = "US",
+            state = "CA",
+            jurisdiction = "US - CA",
+            description = "CA Sales Tax",
+        )

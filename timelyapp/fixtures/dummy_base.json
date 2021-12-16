@@ -5,7 +5,7 @@
     "fields": {
       "is_member": true,
       "is_individual": false,
-      "business_name": "Business A",
+      "business_name": "Acme Supplies",
       "billing_address": 1,
       "shipping_address": null,
       "date_joined": "2021-03-01",
@@ -22,7 +22,7 @@
     "fields": {
       "is_member": true,
       "is_individual": false,
-      "business_name": "Business B",
+      "business_name": "Beehive Co.",
       "billing_address": 2,
       "shipping_address": null,
       "date_joined": "2021-03-01",
@@ -39,7 +39,7 @@
     "fields": {
       "is_member": true,
       "is_individual": false,
-      "business_name": "Third Business",
+      "business_name": "Third National Business",
       "billing_address": 3,
       "shipping_address": null,
       "date_joined": "2021-03-01",
@@ -54,7 +54,7 @@
     "fields": {
       "is_member": true,
       "is_individual": false,
-      "business_name": "Fourth Store",
+      "business_name": "Fourth Street Store",
       "billing_address": 4,
       "shipping_address": null,
       "date_joined": "2021-03-01",
