@@ -335,3 +335,12 @@ class OutreachSerializer(serializers.ModelSerializer):
     #     if key != settings.NEWSLETTER_KEY:
     #         raise serializers.ValidationError({'special_key': 'Invalid special key'})
     #     return data
+
+# TAX RATE SERIALIZER
+class TaxRateSerializer(serializers.ModelSerializer):
+    origin_zip = serializers.CharField(required=True)
+    destination_zip = serializers.CharField(required=False)
+
+    class Meta:
+        model = Business
+        fields = ['origin_zip', 'destination_zip']

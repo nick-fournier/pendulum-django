@@ -57,7 +57,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'corsheaders',
-
+    'taxtea',
     'timelyapp',
     'address',
     'phonenumber_field',
@@ -262,3 +262,10 @@ QB_ENVIRONMENT = 'sandbox'
 # QBO Base URLs
 QBO_BASE_SANDBOX = 'https://sandbox-quickbooks.api.intuit.com'
 QBO_BASE_PROD = 'https://quickbooks.api.intuit.com'
+
+#TAXTEA
+TAXTEA_NEXUSES = [("CA", "94530"), ]  # required
+TAXTEA_USPS_USER = os.environ.get("TAXTEA_USPS_USER")
+TAXTEA_AVALARA_USER = os.environ.get("TAXTEA_AVALARA_USER")
+TAXTEA_AVALARA_PASSWORD = os.environ.get("TAXTEA_AVALARA_PASSWORD")
+TAXTEA_TAX_RATE_INVALIDATE_INTERVAL = 7 # optional, default is 7 (days)

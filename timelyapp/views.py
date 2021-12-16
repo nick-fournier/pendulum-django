@@ -5,6 +5,17 @@ from django.shortcuts import render
 from rest_framework.permissions import AllowAny
 from .stripe_views import *
 
+from pyzipcode import ZipCodeDatabase
+from taxtea.models import ZipCode
+from taxtea.models import State
+
+### TAXTEA API
+TAXTEA_USPS_USER = settings.TAXTEA_USPS_USER
+TAXTEA_AVALARA_USER = settings.TAXTEA_AVALARA_USER
+TAXTEA_AVALARA_PASSWORD = settings.TAXTEA_AVALARA_PASSWORD
+TAXTEA_TAX_RATE_INVALIDATE_INTERVAL = settings.TAXTEA_TAX_RATE_INVALIDATE_INTERVAL # optional, default is 7 (days)
+
+
 def chart_view(request):
     return render(request, 'chart.html')
 
@@ -112,7 +123,6 @@ class PayablesViewSet(mixins.ListModelMixin,
         serializer = InvoiceSerializer(Invoice.objects.filter(pk=pk), many=True)
         return Response(serializer.data)
 
-
 class ReceivablesViewSet(mixins.ListModelMixin,
                          mixins.RetrieveModelMixin,
                          mixins.UpdateModelMixin,
@@ -144,7 +154,6 @@ class ReceivablesViewSet(mixins.ListModelMixin,
         serializer = InvoiceSerializer(Invoice.objects.filter(pk=pk), many=True)
         return Response(serializer.data)
 
-
 class OutreachViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
     serializer_class = OutreachSerializer
@@ -152,7 +161,7 @@ class OutreachViewSet(viewsets.ModelViewSet):
     success_url = reverse_lazy('home')
     throttle_scope = 'outreach'
 
-class NotificationViewset(mixins.ListModelMixin,
+class NotificationViewSet(mixins.ListModelMixin,
                           mixins.CreateModelMixin,
                           viewsets.GenericViewSet):
 
@@ -184,3 +193,44 @@ class NotificationViewset(mixins.ListModelMixin,
 
         return Response(status=status.HTTP_200_OK,
                         data={'Success': data['notif_type'] + ' notification sent for invoice ' + data['invoice_id']})
+
+class TaxRateViewSet(mixins.RetrieveModelMixin,
+                     mixins.CreateModelMixin,
+                     viewsets.GenericViewSet):
+
+    serializer_class = TaxRateSerializer
+
+    def retrieve(self, request, pk=None):
+        #if not pk:
+        #    return Response({'missing zip'}, status=status.HTTP_404_NOT_FOUND)
+
+        origin_zip = self.request.user.business.billing_address.zip_code
+        origin_state = State.state_for_zip(origin_zip)
+        TAXTEA_NEXUSES = [(origin_state, origin_zip), ]  # [("CA", "94530")]
+
+        tax_rate = ZipCode.get(pk)
+        tax_rate = tax_rate.applicable_tax_rate
+        tax_percentage = ZipCode.tax_rate_to_percentage(tax_rate)
+
+        response = {"origin_zip": None,
+                    "destination_zip": request.data['destination_zip'],
+                    "tax_rate": tax_percentage
+                    }
+        return Response(status=status.HTTP_200_OK, data=response)
+
+    def create(self, request):
+        print(self.request.user.business.billing_address)
+
+        origin_zip = '94530'
+        origin_state = State.state_for_zip(origin_zip)
+        TAXTEA_NEXUSES = [(origin_state, origin_zip), ]  # [("CA", "94530")]
+
+        tax_zip = ZipCode.get(request.data['destination_zip'])
+        tax_rate = tax_zip.applicable_tax_rate
+        tax_percentage = ZipCode.tax_rate_to_percentage(tax_rate)
+
+        response = {"origin_zip": None,
+                    "destination_zip": request.data['destination_zip'],
+                    "tax_rate": tax_percentage
+                    }
+        return Response(status=status.HTTP_200_OK, data=response)
