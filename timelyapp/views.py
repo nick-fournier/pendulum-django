@@ -185,3 +185,4 @@ class NotificationViewSet(mixins.ListModelMixin,
 
         return Response(status=status.HTTP_200_OK,
                         data={'Success': data['notif_type'] + ' notification sent for invoice ' + data['invoice_id']})
+
