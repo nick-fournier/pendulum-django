@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'timelyapp',
     'address',
+    'django_countries',
     'phonenumber_field',
     'django_inlinecss',
 ]

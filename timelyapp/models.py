@@ -15,6 +15,9 @@ import shortuuid
 from django.utils.translation import ugettext as _
 # from django.contrib.localflavor.us.models import USStateField
 
+from django_countries.fields import CountryField
+
+
 # Token Auth
 from django.conf import settings
 from django.db.models.signals import post_save
@@ -185,3 +188,14 @@ class Outreach(models.Model):
     role = models.CharField(default=None, null=True, max_length=24, choices=QROLE_CHOICES)
     date_joined = models.DateTimeField(default=timezone.now)
     # key = models.CharField(default="p!OOR&E[WnxP(o6?p~m$AOi1d]Gc_`", null=False, max_length=64)
+
+class Taxes(models.Model):
+    id = CustomShortUUIDField(primary_key=True, prefix="tax_")
+    business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='tax_rate')
+    percentage = models.DecimalField(default=0, max_digits=12, decimal_places=6)
+    display_name = models.CharField(default="Sales Tax", max_length=24)
+    zipcode = models.CharField(default='94720', max_length=10)
+    city = models.CharField(default='Berkeley', max_length=24)
+    state = models.CharField(default='CA', max_length=24, choices=STATES_CHOICES)
+    country = CountryField(blank_label='(select country)', default='US')
+    description = models.CharField(default="Berkeley, CA Sales Tax", max_length=128)

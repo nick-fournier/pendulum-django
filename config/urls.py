@@ -33,7 +33,7 @@ router.register(r'outreach', views.OutreachViewSet, basename='api-newsletter')
 router.register(r'businessinfo', views.BusinessInfo, basename='api-businessinfo')
 router.register(r'accountemails', views.EmailVerifyView, basename='api-accountemails')
 router.register(r'notifications', views.NotificationViewSet, basename='notifications')
-#router.register(r'taxrate', views.TaxRateViewSet, basename='taxrate')
+router.register(r'taxrates', views.TaxRatesViewSet, basename='taxrates')
 
 # Stripe views
 router.register(r'stripe/payinvoice', views.StripePayInvoice, basename='payinvoice')

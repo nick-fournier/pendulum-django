@@ -180,7 +180,6 @@ class NotificationViewSet(mixins.ListModelMixin,
             return Response({'bad action type.'}, status=status.HTTP_404_NOT_FOUND)
 
         if data['notif_type'] == 'remind':
-            #send_notification(invoice_id=data['invoice_id'], notif_type='remind', **data)
             send_notification(**data)
 
         return Response(status=status.HTTP_200_OK,
@@ -191,13 +190,29 @@ class TaxRatesViewSet(mixins.ListModelMixin,
                       mixins.CreateModelMixin,
                       viewsets.GenericViewSet):
 
+    serializer_class = TaxRateSerializer
+
+    def get_queryset(self):
+        return Taxes.objects.filter(business=self.request.user.business.id)
+
     def create(self, request):
-        stripe.TaxRate.create(
-            display_name = "Sales Tax",
-            inclusive = False,
-            percentage = 7.25,
-            country = "US",
-            state = "CA",
-            jurisdiction = "US - CA",
-            description = "CA Sales Tax",
+        place = ZipCodeDatabase()[request.data['zipcode']]
+
+        data = request.data.copy()
+        data.update(
+            {
+                "city": place.city,
+                "state": place.state,
+                "country": 'US',
+            }
         )
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        print(data)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def perform_create(self, serializer):
+        serializer.save(business=self.request.user.business)

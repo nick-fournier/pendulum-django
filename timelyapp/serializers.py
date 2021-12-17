@@ -9,6 +9,7 @@ from rest_framework import serializers
 from .mail import *
 from timelyapp.utils import calculate_duedate, generate_invoice_name, create_invoice, get_business_id
 
+from django_countries.serializers import CountryFieldMixin
 
 class EmailVerifySerializer(serializers.ModelSerializer):
     verified = serializers.CharField(read_only=True)
@@ -337,10 +338,15 @@ class OutreachSerializer(serializers.ModelSerializer):
     #     return data
 
 # TAX RATE SERIALIZER
-class TaxRateSerializer(serializers.ModelSerializer):
-    origin_zip = serializers.CharField(required=True)
-    destination_zip = serializers.CharField(required=False)
+class TaxRateSerializer(CountryFieldMixin, serializers.ModelSerializer):
+    business = serializers.SerializerMethodField()
+    city = serializers.ReadOnlyField()
+    state = serializers.ReadOnlyField()
+    country = serializers.ReadOnlyField(source='country.code')
 
     class Meta:
-        model = Business
-        fields = ['origin_zip', 'destination_zip']
+        model = Taxes
+        fields = "__all__"
+
+    def get_business(self, obj):
+        return obj.business.id

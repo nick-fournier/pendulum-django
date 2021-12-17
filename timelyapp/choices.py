@@ -109,3 +109,4 @@ STATES_CHOICES = (
     ('MH', _('Marshall Islands')),
     ('PW', _('Palau')),
 )
+
