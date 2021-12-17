@@ -138,8 +138,8 @@ class GenerateData:
                 taxtotal += new_order['fields']['item_total_tax']
 
             # Update total price
-            #new_invoice['fields']['invoice_subtotal_price'] = subtotal
-            new_invoice['fields']['invoice_total_tax'] = taxtotal
+            new_invoice['fields']['invoice_price'] = subtotal
+            new_invoice['fields']['invoice_tax'] = taxtotal
             new_invoice['fields']['invoice_total_price'] = subtotal + taxtotal
             output_data.append(new_invoice)
 

@@ -9,6 +9,7 @@ from rest_framework import serializers
 from .mail import *
 from timelyapp.utils import calculate_duedate, generate_invoice_name, create_invoice, get_business_id
 
+from django.forms import model_to_dict
 from django_countries.serializers import CountryFieldMixin
 
 class EmailVerifySerializer(serializers.ModelSerializer):
@@ -174,7 +175,7 @@ class NewReceivableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invoice
         fields = ['invoice_id', 'bill_to_key', 'bill_to_name', 'terms', 'date_due',
-                  'invoice_total_price', 'accepted_payments', 'notes', 'items']
+                  'invoice_tax', 'invoice_price', 'invoice_total_price', 'accepted_payments', 'notes', 'items']
 
     def get_bill_to_name(self, obj):
         return Business.objects.get(id=obj.bill_to.id).business_name
@@ -197,7 +198,7 @@ class NewPayableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invoice
         fields = ['invoice_id', 'invoice_name', 'bill_from_key', 'bill_from_name', 'terms', 'date_due',
-                  'invoice_total_price', 'notes', 'items']
+                  'invoice_tax', 'invoice_price', 'invoice_total_price', 'notes', 'items']
 
     def get_bill_from_name(self, obj):
         return Business.objects.get(id=obj.bill_from.id).business_name
@@ -255,6 +256,8 @@ class InvoiceListSerializer(serializers.ModelSerializer):
                   'date_due',
                   'date_paid',
                   'terms',
+                  'invoice_price',
+                  'invoice_tax',
                   'invoice_total_price',
                   'notes',
                   'currency',
@@ -350,3 +353,31 @@ class TaxRateSerializer(CountryFieldMixin, serializers.ModelSerializer):
 
     def get_business(self, obj):
         return obj.business.id
+
+class FinancingRequestSerializer(serializers.ModelSerializer):
+    invoice_id = serializers.CharField(required=True)
+    financing_type = serializers.ReadOnlyField()
+    business = serializers.SerializerMethodField()
+    request_by = serializers.SerializerMethodField()
+
+    class Meta:
+        model = FinancingRequests
+        fields = "__all__"
+        depth = 1
+
+    def get_request_by(self, obj):
+        return obj.request_by.email
+
+    def get_business(self, obj):
+        return obj.business.business_name
+
+    def to_representation(self, instance):
+        fin_request = super().to_representation(instance)
+        invoice = fin_request.pop('invoice')
+        invoice.pop('id')
+        invoice = model_to_dict(instance.invoice)
+        for key, value in invoice.items():
+            fin_request[key] = value
+        return fin_request
+
+

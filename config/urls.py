@@ -34,6 +34,8 @@ router.register(r'businessinfo', views.BusinessInfo, basename='api-businessinfo'
 router.register(r'accountemails', views.EmailVerifyView, basename='api-accountemails')
 router.register(r'notifications', views.NotificationViewSet, basename='notifications')
 router.register(r'taxrates', views.TaxRatesViewSet, basename='taxrates')
+router.register(r'financing_request', views.FinancingRequestViewSet, basename='financing_request')
+router.register(r'download_financing_request', views.DownloadFinancingRequestViewSet, basename='financing_request_download')
 
 # Stripe views
 router.register(r'stripe/payinvoice', views.StripePayInvoice, basename='payinvoice')
@@ -42,8 +44,6 @@ router.register(r'stripe/onboard', views.StripeOnboard, basename='stripe-onboard
 router.register(r'stripe/paymentmethods', views.StripePaymentMethods, basename='stripe-paymentmethods')
 router.register(r'stripe/paymentmethods/card', views.StripePaymentMethods, basename='stripe-paymentmethods-card')
 router.register(r'stripe/paymentmethods/ach', views.StripePaymentMethods, basename='stripe-paymentmethods-ach')
-#router.register(r'stripe/paymentmethods/attach', views.StripeAttachPaymentMethod, basename='stripe-attach')
-#router.register(r'stripe/paymentmethods/default', views.StripeDefaultPaymentMethod, basename='stripe-default')
 
 # Plaid views
 router.register(r'plaid/linktoken', views.PlaidLinkToken, basename='plaid-link')
@@ -58,12 +58,6 @@ urlpatterns = [
 
     # Timely Endpoints
     path('api/', include((router.urls, 'timely'), namespace='api')),  # The data API
-    # path('api/stripe/onboard', views.StripeOnboard.as_view()),
-    # path('api/stripe/payinvoice/', views.StripePayInvoice),
-    # path('api/stripe/payinvoice/<pk>', views.StripePayInvoice),
-    # path('api/stripe/paymentmethods/attach', views.StripeAttachPaymentMethod.as_view()),
-    # path('api/stripe/paymentmethods/default', views.StripeDefaultPaymentMethod_old.as_view()),
-
     path('api-auth/', include('rest_framework.urls')),  # DRF auth portal
     path('api/rest-auth/', include('rest_auth.urls')),  # auth endpoint api
     path('api/rest-auth/registration/', include('rest_auth.registration.urls')),  # registration api

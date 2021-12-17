@@ -151,7 +151,8 @@ class Invoice(models.Model):
     bill_to = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='bill_to')
     terms = models.CharField(default='NET30', null=True, max_length=24, choices=TERM_CHOICES)
     accepted_payments = models.ManyToManyField(Payments, default=[1, 2, 3], related_name='accepted_payments')
-    invoice_total_tax = models.DecimalField(default=0, null=True, max_digits=12, decimal_places=2)
+    invoice_tax = models.DecimalField(default=0, null=True, max_digits=12, decimal_places=2)
+    invoice_price = models.DecimalField(default=None, null=True, max_digits=12, decimal_places=2)
     invoice_total_price = models.DecimalField(default=None, null=True, max_digits=12, decimal_places=2)
     currency = models.CharField(default='USD', null=True, max_length=6)
     notes = models.CharField(default='Thank you for your payment!', null=True, max_length=200)
@@ -160,11 +161,11 @@ class Invoice(models.Model):
     is_paid = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
     invoice_only = models.BooleanField(default=False)
-
-    def __str__(self):
-        return "%s, $%s, due: %s" %(self.invoice_name,
-                                    self.invoice_total_price,
-                                    self.date_due)
+    #
+    # def __str__(self):
+    #     return "%s, $%s, due: %s" %(self.invoice_name,
+    #                                 self.invoice_total_price,
+    #                                 self.date_due)
 
 
 class Order(models.Model):
@@ -199,3 +200,12 @@ class Taxes(models.Model):
     state = models.CharField(default='CA', max_length=24, choices=STATES_CHOICES)
     country = CountryField(blank_label='(select country)', default='US')
     description = models.CharField(default="Berkeley, CA Sales Tax", max_length=128)
+
+class FinancingRequests(models.Model):
+    id = CustomShortUUIDField(primary_key=True, prefix="fin_")
+    request_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='financing_user')
+    business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='financing_biz')
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name='financing_invoice')
+    financing_type = models.CharField(default=None, max_length=24, choices=[('PAYOUT', 'Immediate Payment'),
+                                                                            ('PAYLATER', 'Buy now pay later')])
+

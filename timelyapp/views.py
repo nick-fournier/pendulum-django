@@ -2,11 +2,16 @@ from django.db.models import Q
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.shortcuts import render
+from django.core.exceptions import ValidationError
 from rest_framework.permissions import AllowAny
 from .stripe_views import *
 
 from pyzipcode import ZipCodeDatabase
 
+from rest_framework.viewsets import ReadOnlyModelViewSet
+from drf_renderer_xlsx.mixins import XLSXFileMixin
+from drf_renderer_xlsx.renderers import XLSXRenderer
+from rest_framework_csv.renderers import CSVRenderer
 
 def chart_view(request):
     return render(request, 'chart.html')
@@ -129,7 +134,6 @@ class ReceivablesViewSet(mixins.ListModelMixin,
     }
 
     def get_serializer_class(self):
-        print(self.action)
         return self.serializers.get(self.action, self.serializers['default'])
 
     def get_queryset(self):
@@ -209,10 +213,51 @@ class TaxRatesViewSet(mixins.ListModelMixin,
 
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
-        print(data)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
         serializer.save(business=self.request.user.business)
+
+class FinancingRequestViewSet(mixins.CreateModelMixin,
+                              mixins.ListModelMixin,
+                              mixins.RetrieveModelMixin,
+                              viewsets.GenericViewSet):
+
+    serializer_class = FinancingRequestSerializer
+
+    def get_queryset(self):
+        return FinancingRequests.objects.filter(business=self.request.user.business.id)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        fin_request = FinancingRequests.objects.filter(Q(business=self.request.user.business) &
+                                                       Q(invoice_id=self.request.data['invoice_id']))
+        if fin_request.exists():
+            return Response(status=status.HTTP_200_OK,
+                            data={'OK': 'Financing already requested on this invoice by this user.'}
+                            )
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def perform_create(self, serializer):
+        invoice = Invoice.objects.get(id=self.request.data['invoice_id'])
+        fin_type = 'PAYOUT' if invoice.bill_from.id == self.request.user.business.id else 'PAYLATER'
+        data = {
+            "business": self.request.user.business,
+            "request_by": self.request.user,
+            "invoice": invoice,
+            "financing_type": fin_type
+        }
+        serializer.save(**data)
+
+
+class DownloadFinancingRequestViewSet(XLSXFileMixin, ReadOnlyModelViewSet):
+    serializer_class = FinancingRequestSerializer
+    renderer_classes = [CSVRenderer] #XLSXRenderer
+    filename = 'financing_requests_{}.xlsx'.format(str(datetime.date.today()))
+    queryset = FinancingRequests.objects.all()

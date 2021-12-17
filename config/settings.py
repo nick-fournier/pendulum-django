@@ -203,7 +203,13 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'outreach': '10/day',
         'remind': '1/day'
-    }
+    },
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+        'drf_renderer_xlsx.renderers.XLSXRenderer',
+        'rest_framework_csv.renderers.CSVRenderer',
+    ],
 
 }
 
