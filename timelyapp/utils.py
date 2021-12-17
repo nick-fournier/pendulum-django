@@ -123,10 +123,10 @@ def create_invoice(validated_data, business, bill_to_from):
         validated_data['invoice_only'] = False
 
         # Calculate total tax if missing
-        if not validated_data['invoice_total_tax']:
-            validated_data['invoice_total_tax'] = 0
+        if not validated_data['invoice_tax']:
+            validated_data['invoice_tax'] = 0
             for i in range(len(items_data)):
-                validated_data['invoice_total_tax'] += items_data[i]['item_total_tax']
+                validated_data['invoice_tax'] += items_data[i]['item_total_tax']
 
         # Calculate subtotal price if missing
         if not validated_data['invoice_subtotal_price']:
@@ -135,7 +135,7 @@ def create_invoice(validated_data, business, bill_to_from):
                 validated_data['invoice_subtotal_price'] += items_data[i]['item_total_price']
 
         if not validated_data['invoice_total_price']:
-            validated_data['invoice_total_price'] = validated_data['invoice_total_tax'] + \
+            validated_data['invoice_total_price'] = validated_data['invoice_ax'] + \
                                                     validated_data['invoice_subtotal_price']
 
         # Now create invoice and assign linked orders
