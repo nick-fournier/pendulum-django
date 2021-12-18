@@ -175,7 +175,7 @@ class NewReceivableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invoice
         fields = ['invoice_id', 'bill_to_key', 'bill_to_name', 'terms', 'date_due',
-                  'invoice_tax', 'invoice_price', 'invoice_total_price', 'accepted_payments', 'notes', 'items']
+                  'invoice_total_price', 'accepted_payments', 'notes', 'items']
 
     def get_bill_to_name(self, obj):
         return Business.objects.get(id=obj.bill_to.id).business_name
@@ -198,7 +198,7 @@ class NewPayableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invoice
         fields = ['invoice_id', 'invoice_name', 'bill_from_key', 'bill_from_name', 'terms', 'date_due',
-                  'invoice_tax', 'invoice_price', 'invoice_total_price', 'notes', 'items']
+                  'invoice_total_price', 'notes', 'items']
 
     def get_bill_from_name(self, obj):
         return Business.objects.get(id=obj.bill_from.id).business_name
