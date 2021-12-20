@@ -1,15 +1,19 @@
 import datetime
 import json
 import numpy as np
+import pandas as pd
 from .mail import *
 
 
-def calculate_duedate(terms):
+def calculate_duedate(data):
+    terms = data['terms']
     today = datetime.date.today()
     ndays = {'NET7': 7, 'NET10': 10, 'NET30': 30, 'NET60': 60, 'NET90': 90, 'NET120': 120}
 
     if terms in ndays:
         return (today + datetime.timedelta(ndays[terms])).strftime("%Y-%m-%d")
+    if terms == 'Custom':
+        return data['date_due'] #.strftime("%Y-%m-%d")
     if terms == 'CIA':
         return today
     if terms == 'COD':
@@ -59,12 +63,12 @@ def get_business_id(user_id):
         return None
 
 
-def get_invoices(biz_id, type):
-    if type == "receivables":
+def get_invoices(biz_id, invoice_type):
+    if invoice_type == "receivables":
         invoices = Invoice.objects.filter(bill_from__id=biz_id).values()
         opposite = "bill_to_id"
 
-    elif type == "payables":
+    elif invoice_type == "payables":
         invoices = Invoice.objects.filter(bill_to__id=biz_id).values()
         opposite = "bill_from_id"
     else:
@@ -113,8 +117,7 @@ def get_invoices(biz_id, type):
 def create_invoice(validated_data, business, bill_to_from):
     validated_data[bill_to_from] = business
     validated_data['date_sent'] = datetime.date.today()
-    if validated_data['terms'] != "Custom":
-        validated_data['date_due'] = calculate_duedate(validated_data['terms'])
+    validated_data['date_due'] = calculate_duedate(validated_data)
 
     if 'invoice_name' not in validated_data or validated_data['invoice_name'] == "":
         validated_data['invoice_name'] = generate_invoice_name(business.pk)
