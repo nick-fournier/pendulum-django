@@ -69,7 +69,7 @@ def send_notification(**args):
             context['user_name'] = None
 
         # Getting email html context
-        if not invoice.terms in ['COD', 'CIA']:
+        if invoice.terms not in ['COD', 'CIA'] and invoice.date_due is not None:
             due_string = invoice.date_due.strftime("%B %d, %Y")
             context['due_string'] = due_string
             context['due_statement'] = 'Please pay by ' + due_string + '.'
