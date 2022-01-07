@@ -30,8 +30,6 @@ class GenerateData:
     """
 
     def __init__(self, N_invoices, max_orders, fname):
-        self.businesses = []
-        self.inventory = []
         self.base_data = self.get_base_data()
         self.dummydata = self.gen_data(n=N_invoices, ordermax=max_orders)
         self.save(fname)
@@ -51,17 +49,26 @@ class GenerateData:
         # Add user data
         data = data + users
 
+        self.businesses = []
+        self.inventory = []
+        self.base_invoice = []
+        self.base_order = []
+        self.discount = []
+        self.taxes = []
+
         for i in range(len(data)):
             if data[i]['model'] == 'timelyapp.order':
-                self.base_order = data[i]
+                self.base_order.append(data[i])
             if data[i]['model'] == 'timelyapp.invoice':
-                self.base_invoice = data[i]
+                self.base_invoice.append(data[i])
             if data[i]['model'] == 'timelyapp.business':
                 self.businesses.append(data[i])
             if data[i]['model'] == 'timelyapp.inventory':
                 self.inventory.append(data[i])
             if data[i]['model'] == 'timelyapp.discount':
-                self.discount = data[i]
+                self.discount.append(data[i])
+            if data[i]['model'] == 'timelyapp.taxes':
+                self.taxes.append(data[i])
 
         return data
 
@@ -89,18 +96,19 @@ class GenerateData:
     def gen_data(self, n, ordermax):
         output_data = copy.deepcopy(self.base_data)
         TERM_CHOICES = ['COD', 'CIA', 'NET7', 'NET10', 'NET30', 'NET60', 'NET90', 'NET120']
-        orderpk = 1
 
         #Delete base invoice and order
         output_data = [x for x in output_data if not x.get('model') in ['timelyapp.invoice', 'timelyapp.order']]
 
+        # Loop through n invoices
         for i in range(n):
             # Generate new invoice, need to add total price later
-            new_invoice = copy.deepcopy(self.base_invoice)
+            # pick's invoice at random if multiple exist in data
+            #new_invoice = copy.deepcopy(self.base_invoice)
+            new_invoice = copy.deepcopy(self.base_invoice[random.randint(0, len(self.base_invoice)) - 1])
             today = datetime.date.today()
             bill_to, bill_from = random.choices(self.businesses, k=2)
             date_sent = today + datetime.timedelta(random.randint(0, 180))
-
             inv_id = "inv_" + shortuuid.uuid()
 
             new_invoice['pk'] = inv_id
@@ -118,11 +126,12 @@ class GenerateData:
             n_orders = random.randint(1, ordermax)
             items = random.choices(self.inventory, k=n_orders)
             subtotal, taxtotal = 0, 0
-            #ord_id = "ord_" + shortuuid.uuid()
 
+            # Loop through each item order nested in each invoice
             for j in range(len(items)):
                 quantity = random.randint(1, ordermax)
-                new_order = copy.deepcopy(self.base_order)
+                #new_order = copy.deepcopy(self.base_order)
+                new_order = copy.deepcopy(self.base_order[random.randint(0, len(self.base_order)) - 1])
                 new_order['pk'] = "ord_" + shortuuid.uuid()
                 new_order['fields']['invoice'] = inv_id
                 new_order['fields']['discount_code'] = 1
@@ -131,15 +140,22 @@ class GenerateData:
                 new_order['fields']['quantity_purchased'] = quantity
                 new_order['fields']['item_price'] = items[j]['fields']['item_price']
                 new_order['fields']['item_total_price'] = items[j]['fields']['item_price'] * quantity
-                new_order['fields']['item_total_tax'] = items[j]['fields']['item_price'] * quantity * (new_order['fields']['item_tax_rate']/100)
+
+                # Loop through each tax rate associated with the invoice order
+                itemtaxtot = 0
+                if new_order['fields']['item_tax_rates']:
+                    for k in self.taxes:
+                        if k['pk'] in new_order['fields']['item_tax_rates']:
+                            itemtaxtot += items[j]['fields']['item_price'] * quantity * k['fields']['percentage'] / 100
+                new_order['fields']['item_tax_amt'] = itemtaxtot
 
                 output_data.append(new_order)
                 subtotal += new_order['fields']['item_total_price']
-                taxtotal += new_order['fields']['item_total_tax']
+                taxtotal += new_order['fields']['item_tax_amt']
 
             # Update total price
             new_invoice['fields']['invoice_price'] = subtotal
-            new_invoice['fields']['invoice_tax'] = taxtotal
+            new_invoice['fields']['invoice_tax_amt'] = taxtotal
             new_invoice['fields']['invoice_total_price'] = subtotal + taxtotal
             output_data.append(new_invoice)
 
@@ -157,6 +173,9 @@ class GenerateData:
             f.write(json_object)
 
 if __name__ == "__main__":
-   tmp = GenerateData(N_invoices=20, max_orders=10, fname='dummy.json')
+    # ordermax = 10
+    # n = 20
+    # i, j, k = 0, 0, 0
+    test = GenerateData(N_invoices=20, max_orders=10, fname='dummy.json')
 
 

@@ -198,6 +198,54 @@
     }
   },
   {
+    "model": "timelyapp.taxes",
+    "pk": "tax_4iCyEKhCFaNBGGahn3Rn4i",
+    "fields": {
+      "percentage": 7.25,
+      "display_name": "CA Sales Tax",
+      "abbreviation": "CA1",
+      "description": "CA state sales tax rate",
+      "zipcode": null,
+      "city": null,
+      "state": "CA",
+      "country": "USA",
+      "business_id" : "biz_4iCyEKhCFaNBGGahn3Rn4i",
+      "compound": true
+    }
+  },
+  {
+    "model": "timelyapp.taxes",
+    "pk": "tax_XhLAvUW63VuD4vfuCtEZKw",
+    "fields": {
+      "percentage": 7.25,
+      "display_name": "CA Sales Tax",
+      "abbreviation": "CA1",
+      "description": "CA state sales tax rate",
+      "zipcode": null,
+      "city": null,
+      "state": "CA",
+      "country": "USA",
+      "business_id" : "biz_XhLAvUW63VuD4vfuCtEZKw",
+      "compound": true
+    }
+  },
+  {
+    "model": "timelyapp.taxes",
+    "pk": "tax_TNpDwGRpCu2QbU5MDWexRa",
+    "fields": {
+      "percentage": 1.25,
+      "display_name": "SF County Sales Tax",
+      "abbreviation": "SF1",
+      "description": "San Francisco County Sales Tax",
+      "zipcode": null,
+      "city": "San Francisco",
+      "state": "CA",
+      "country": "USA",
+      "business_id" : "biz_4iCyEKhCFaNBGGahn3Rn4i",
+      "compound": true
+    }
+  },
+  {
     "model": "timelyapp.order",
     "pk": "ord_2qHr6HMgNarXRzBqrgFWyW",
     "fields": {
@@ -208,8 +256,8 @@
       "quantity_purchased": 4,
       "item_price": 10,
       "item_total_price": 40,
-      "item_tax_rate" : 5,
-      "item_total_tax" : 2
+      "item_tax_rates" : ["tax_4iCyEKhCFaNBGGahn3Rn4i", "tax_TNpDwGRpCu2QbU5MDWexRa"],
+      "item_tax_amt" : 2
     }
   },
    {
@@ -223,7 +271,7 @@
       "bill_to": "biz_XhLAvUW63VuD4vfuCtEZKw",
       "terms": "NET30",
       "invoice_price": 100,
-      "invoice_tax": 5,
+      "invoice_tax_amt": 7.25,
       "invoice_total_price": 105,
       "currency": "USD",
       "is_flagged": false,

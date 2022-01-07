@@ -84,7 +84,6 @@ class Business(models.Model):
     def __str__(self):
         return "%s" %(self.business_name)
 
-
 # Create your models here.
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     username = None
@@ -140,6 +139,19 @@ class Inventory(models.Model):
     def __str__(self):
         return "%s" %(self.name)
 
+class Taxes(models.Model):
+    id = CustomShortUUIDField(primary_key=True, prefix="tax_")
+    business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='tax_rate')
+    percentage = models.DecimalField(default=0, max_digits=12, decimal_places=6)
+    display_name = models.CharField(default=None, null=True, max_length=24)
+    description = models.CharField(default=None, null=True, max_length=128)
+    abbreviation = models.CharField(default=None, null=True, max_length=3)
+    zipcode = models.CharField(default=None, null=True, max_length=10)
+    city = models.CharField(default=None, null=True, max_length=24)
+    state = models.CharField(default=None, null=True, max_length=24, choices=STATES_CHOICES)
+    country = CountryField(blank_label='(select country)', default='US')
+    compound = models.BooleanField(default=True)
+
 class Invoice(models.Model):
     id = CustomShortUUIDField(primary_key=True, prefix="inv_")
     invoice_name = models.CharField(default=None, null=True, max_length=16)
@@ -151,7 +163,7 @@ class Invoice(models.Model):
     bill_to = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='bill_to')
     terms = models.CharField(default='NET30', null=True, max_length=24, choices=TERM_CHOICES)
     accepted_payments = models.ManyToManyField(Payments, default=[1, 2, 3], related_name='accepted_payments')
-    invoice_tax = models.DecimalField(default=0, null=True, max_digits=12, decimal_places=2)
+    invoice_tax_amt = models.DecimalField(default=0, null=True, max_digits=12, decimal_places=2)
     invoice_price = models.DecimalField(default=None, null=True, max_digits=12, decimal_places=2)
     invoice_total_price = models.DecimalField(default=None, null=True, max_digits=12, decimal_places=2)
     currency = models.CharField(default='USD', null=True, max_length=6)
@@ -178,8 +190,9 @@ class Order(models.Model):
     quantity_purchased = models.IntegerField()
     item_price = models.DecimalField(max_digits=12, decimal_places=2)
     item_total_price = models.DecimalField(max_digits=12, decimal_places=2)
-    item_tax_rate = models.DecimalField(default=0, null=True, max_digits=12, decimal_places=6)
-    item_total_tax = models.DecimalField(default=0, null=True, max_digits=12, decimal_places=2)
+    #item_tax_rate = models.DecimalField(default=0, null=True, max_digits=12, decimal_places=6)
+    item_tax_rates = models.ManyToManyField(Taxes, default=None, related_name='item_taxes')
+    item_tax_amt = models.DecimalField(default=0, null=True, max_digits=12, decimal_places=2)
 
 class Outreach(models.Model):
     email = models.EmailField(unique=True)
@@ -189,17 +202,6 @@ class Outreach(models.Model):
     role = models.CharField(default=None, null=True, max_length=24, choices=QROLE_CHOICES)
     date_joined = models.DateTimeField(default=timezone.now)
     # key = models.CharField(default="p!OOR&E[WnxP(o6?p~m$AOi1d]Gc_`", null=False, max_length=64)
-
-class Taxes(models.Model):
-    id = CustomShortUUIDField(primary_key=True, prefix="tax_")
-    business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='tax_rate')
-    percentage = models.DecimalField(default=0, max_digits=12, decimal_places=6)
-    display_name = models.CharField(default="Sales Tax", max_length=24)
-    zipcode = models.CharField(default='94720', max_length=10)
-    city = models.CharField(default='Berkeley', max_length=24)
-    state = models.CharField(default='CA', max_length=24, choices=STATES_CHOICES)
-    country = CountryField(blank_label='(select country)', default='US')
-    description = models.CharField(default="Berkeley, CA Sales Tax", max_length=128)
 
 class FinancingRequests(models.Model):
     id = CustomShortUUIDField(primary_key=True, prefix="fin_")
