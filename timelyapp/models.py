@@ -191,7 +191,7 @@ class Order(models.Model):
     unit_price = models.DecimalField(default=None, null=True, max_digits=12, decimal_places=2)
     item_price = models.DecimalField(default=None, null=True, max_digits=12, decimal_places=2)
     item_total_price = models.DecimalField(max_digits=12, null=True, decimal_places=2)
-    item_tax_rates = models.ManyToManyField(Taxes, default=None, related_name='item_taxes', on_delete=models.CASCADE)
+    item_tax_rates = models.ManyToManyField(Taxes, default=None, related_name='item_taxes')
     item_tax_amt = models.DecimalField(default=0, null=True, max_digits=12, decimal_places=2)
 
 class Outreach(models.Model):
