@@ -152,7 +152,7 @@ class NewOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ['item_name', 'item_description', 'quantity_purchased',
-                  'item_tax_rate', 'item_total_tax', 'item_price', 'item_total_price', 'is_new']
+                  'unit_price', 'item_price', 'item_tax_rates', 'item_tax_amt', 'item_total_price', 'is_new']
 
 # NOTIFICATION SERIALIZER
 class NotificationSerializer(serializers.ModelSerializer):
