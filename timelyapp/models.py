@@ -129,7 +129,7 @@ class Inventory(models.Model):
     description = models.CharField(default=None, null=True, max_length=500)
     quantity_in_stock = models.DecimalField(default=None, null=True, max_digits=18, decimal_places=6)
     item_unit = models.CharField(default='ea', null=True, max_length=10)
-    item_price = models.DecimalField(default=None, null=True, max_digits=12, decimal_places=2)
+    unit_price = models.DecimalField(default=None, null=True, max_digits=12, decimal_places=2)
     currency = models.CharField(default='USD', null=True, max_length=6)
 
     def save(self, *args, **kwargs):
@@ -188,9 +188,9 @@ class Order(models.Model):
     item_description = models.CharField(default=None, null=True, max_length=500)
     #quantity_purchased = models.DecimalField(max_digits=18, decimal_places=6)
     quantity_purchased = models.IntegerField()
-    item_price = models.DecimalField(max_digits=12, decimal_places=2)
-    item_total_price = models.DecimalField(max_digits=12, decimal_places=2)
-    #item_tax_rate = models.DecimalField(default=0, null=True, max_digits=12, decimal_places=6)
+    unit_price = models.DecimalField(default=None, null=True, max_digits=12, decimal_places=2)
+    item_price = models.DecimalField(default=None, null=True, max_digits=12, decimal_places=2)
+    item_total_price = models.DecimalField(max_digits=12, null=True, decimal_places=2)
     item_tax_rates = models.ManyToManyField(Taxes, default=None, related_name='item_taxes')
     item_tax_amt = models.DecimalField(default=0, null=True, max_digits=12, decimal_places=2)
 

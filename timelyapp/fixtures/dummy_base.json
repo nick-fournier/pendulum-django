@@ -151,7 +151,7 @@
       "description": "A business widget for vertical synergy jargon",
       "quantity_in_stock": 1000,
       "item_unit": "pc",
-      "item_price": 10,
+      "unit_price": 10,
       "currency": "USD"
     }
   },
@@ -165,7 +165,7 @@
       "description": "A widget for backward overflow jargon",
       "quantity_in_stock": 1000,
       "item_unit": "pc",
-      "item_price": 20,
+      "unit_price": 20,
       "currency": "USD"
     }
   },
@@ -179,7 +179,7 @@
       "description": "Overpriced Legal/Technical/Medical services that you cannot afford to avoid.",
       "quantity_in_stock": 1000,
       "item_unit": "hrs",
-      "item_price": 10,
+      "unit_price": 10,
       "currency": "USD"
     }
   },
@@ -193,7 +193,7 @@
       "description": "A big useless report on what you want to hear",
       "quantity_in_stock": 1000,
       "item_unit": "hrs",
-      "item_price": 20,
+      "unit_price": 20,
       "currency": "USD"
     }
   },
@@ -254,8 +254,9 @@
       "item_name": "Some Widget",
       "item_description": null,
       "quantity_purchased": 4,
-      "item_price": 10,
-      "item_total_price": 40,
+      "unit_price": 10,
+      "item_price": 40,
+      "item_total_price": 42,
       "item_tax_rates" : ["tax_4iCyEKhCFaNBGGahn3Rn4i", "tax_TNpDwGRpCu2QbU5MDWexRa"],
       "item_tax_amt" : 2
     }
@@ -272,7 +273,7 @@
       "terms": "NET30",
       "invoice_price": 100,
       "invoice_tax_amt": 7.25,
-      "invoice_total_price": 105,
+      "invoice_total_price": 107.25,
       "currency": "USD",
       "is_flagged": false,
       "is_scheduled": false,

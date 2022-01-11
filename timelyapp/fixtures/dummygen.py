@@ -138,20 +138,22 @@ class GenerateData:
                 new_order['fields']['item_name'] = items[j]['fields']['item_name']
                 new_order['fields']['item_description'] = items[j]['fields']['description']
                 new_order['fields']['quantity_purchased'] = quantity
-                new_order['fields']['item_price'] = items[j]['fields']['item_price']
-                new_order['fields']['item_total_price'] = items[j]['fields']['item_price'] * quantity
+                new_order['fields']['unit_price'] = items[j]['fields']['unit_price']
+                new_order['fields']['item_price'] = new_order['fields']['unit_price'] * quantity
 
                 # Loop through each tax rate associated with the invoice order
                 itemtaxtot = 0
                 if new_order['fields']['item_tax_rates']:
-                    for k in self.taxes:
-                        if k['pk'] in new_order['fields']['item_tax_rates']:
-                            itemtaxtot += items[j]['fields']['item_price'] * quantity * k['fields']['percentage'] / 100
+                    for tax in self.taxes:
+                        if tax['pk'] in new_order['fields']['item_tax_rates']:
+                            itemtaxtot += new_order['fields']['item_price'] * tax['fields']['percentage'] / 100
                 new_order['fields']['item_tax_amt'] = itemtaxtot
-
+                new_order['fields']['item_total_price'] = new_order['fields']['item_price'] + \
+                                                          new_order['fields']['item_tax_amt']
                 output_data.append(new_order)
                 subtotal += new_order['fields']['item_total_price']
                 taxtotal += new_order['fields']['item_tax_amt']
+
 
             # Update total price
             new_invoice['fields']['invoice_price'] = subtotal
