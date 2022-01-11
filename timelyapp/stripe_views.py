@@ -30,6 +30,7 @@ plaid_configuration = plaid.Configuration(
         'secret': settings.PLAID_SECRET,
     }
 )
+
 plaid_api_client = plaid.ApiClient(plaid_configuration)
 plaid_client = plaid_api.PlaidApi(plaid_api_client)
 
@@ -307,6 +308,7 @@ class StripePayInvoice(mixins.CreateModelMixin,
         else:
             return Response({"No invoice matching this request"}, status=status.HTTP_404_NOT_FOUND)
 
+    # Override both create and update to do the same pay_invoice function
     def create(self, request, pk=None):
         return self.pay_invoice(request, pk=None)
 
@@ -336,9 +338,9 @@ class StripePayInvoice(mixins.CreateModelMixin,
             data['receipt_email'] = request.user.email
             # Double check if account has a stripe customer created. If not create it.
             try:
-                customer = stripe.Customer.retrieve(request.user.business.stripe_cus_id)
+                stripe.Customer.retrieve(request.user.business.stripe_cus_id)
             except stripe.error.InvalidRequestError:
-                customer = create_stripe_customer(request)
+                create_stripe_customer(request)
 
             # Check if the current user has authority to pay
             if paying_business.id != request.user.business.id:
@@ -349,9 +351,6 @@ class StripePayInvoice(mixins.CreateModelMixin,
         invoice_desc = "Invoice: " + invoice.invoice_name + \
                        " from " + billing_business.business_name + \
                        " to " + paying_business.business_name
-        # invoice_desc = "Invoice: " + invoice.invoice_name + \
-        #                " from " + Business.objects.get(pk=invoice.bill_from.id).business_name + \
-        #                " to " + Business.objects.get(pk=invoice.bill_to.id).business_name
 
         # Use default method if not provided
         if 'payment_method' not in data:
@@ -395,10 +394,7 @@ class StripePayInvoice(mixins.CreateModelMixin,
         if 'ach' in data['type']:
             # Get stripe customer data for ACH, not needed for CARD method
             if not request.user.is_authenticated:
-                # Check if it got passed on backend, otherwise pass from endpoint
-                # if request.user.stripe_customer:
-                #     data['stripe_cus_id'] = request.user.stripe_customer.id
-
+                # This is for out of network ACH payments, it gets passed from frontend after plaid link token endpoint
                 if not data['stripe_cus_id']:
                     content = {'Error': 'Missing stripe customer id for ach payment!'},
                     return Response(content, status=status.HTTP_404_NOT_FOUND)
@@ -542,12 +538,10 @@ class PlaidLinkToken(mixins.ListModelMixin,
                     email=request.data['oon_email'],
                     description='Out of network customer.'
                 )
-            # request.user.stripe_customer = customer
 
         # Attach new method to customer
         try:
             bank_account = stripe.Customer.create_source(
-                # request.user.business.stripe_cus_id,
                 customer.stripe_id,
                 source=stripe_response.stripe_bank_account_token,
             )
@@ -560,10 +554,17 @@ class PlaidLinkToken(mixins.ListModelMixin,
                     stripe_response.stripe_bank_account_token,
                 )
                 error_status = 'could not attach new bank source, using existing.'
-
             except stripe.error.InvalidRequestError:
-                content = {"Error": "Failed to find or attach ach source to Stripe account."}
-                return Response(content, status=status.HTTP_404_NOT_FOUND)
+                try:
+                    bank_account = stripe.Customer.retrieve_source(
+                        customer.stripe_id,
+                        customer.default_source,
+                    )
+                    error_status = 'could not attach new bank source, using default.'
+
+                except stripe.error.InvalidRequestError:
+                    content = {"Error": "Failed to find or attach ach source to Stripe account."}
+                    return Response(content, status=status.HTTP_404_NOT_FOUND)
 
         response = {'request_id': stripe_response.request_id,
                     'stripe_bank_account_token': stripe_response.stripe_bank_account_token,
