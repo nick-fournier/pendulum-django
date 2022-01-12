@@ -326,12 +326,17 @@ class StripePayInvoice(mixins.CreateModelMixin,
         timely_fee = round(timely_rate * 100 * invoice.invoice_total_price)  # Calculate our fee
         data['currency'] = invoice.currency.lower()
 
+        # Check if invoice is already paid
+        if invoice.is_paid:
+            content = {'Payment completed': 'Invoice: ' + invoice.invoice_name + 'has already been paid.'}
+            return Response(content, status=status.HTTP_208_ALREADY_REPORTED)
+
         # Check if other account is onboarded, if not we'll have to handle this somehow (hold money until they onboard?)
         if not stripe.Account.retrieve(billing_business.stripe_act_id).charges_enabled:
             content = {'Account error': 'Account for '
                                         + billing_business.business_name +
                                         'is not fully onboarded and cannot receive payments yet.'}
-            return Response(content, status=status.HTTP_404_NOT_FOUND)
+            return Response(content, status=status.HTTP_412_PRECONDITION_FAILED)
 
         # If user is authenticated, check if correct payer
         if request.user.is_authenticated:
@@ -345,7 +350,7 @@ class StripePayInvoice(mixins.CreateModelMixin,
             # Check if the current user has authority to pay
             if paying_business.id != request.user.business.id:
                 content = {'Bad invoice': 'You are not the payer for this invoice!'}
-                return Response(content, status=status.HTTP_404_NOT_FOUND)
+                return Response(content, status=status.HTTP_401_UNAUTHORIZED)
 
         # Description
         invoice_desc = "Invoice: " + invoice.invoice_name + \
@@ -354,7 +359,8 @@ class StripePayInvoice(mixins.CreateModelMixin,
 
         # Use default method if not provided
         if 'payment_method' not in data:
-            return Response({'Error': 'No payment method provided.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'Error': 'No payment method provided.'}, status=status.HTTP_402_PAYMENT_REQUIRED)
+
         if 'card' in data['type']:
             try:
                 # 1) Retrieve existing payment method
@@ -389,14 +395,24 @@ class StripePayInvoice(mixins.CreateModelMixin,
                 )
 
             except stripe.error.InvalidRequestError:
-                return Response({'Error': 'Card method not found.'}, status=status.HTTP_404_NOT_FOUND)
+                if "ba_" in data['payment_method']:
+                    error_note = {'Error': 'Card method not found. ' +
+                                           data['payment_method'] +
+                                           ' looks like an ACH bank account, should type be "ach"?'}
+                else:
+                    error_note = {'Error': 'ACH source not found?'}
+                return Response(error_note, status=status.HTTP_404_NOT_FOUND)
 
         if 'ach' in data['type']:
             # Get stripe customer data for ACH, not needed for CARD method
-            if not request.user.is_authenticated:
-                # This is for out of network ACH payments, it gets passed from frontend after plaid link token endpoint
+            if request.user.is_authenticated:
+                data['stripe_cus_id'] = request.user.business.stripe_cus_id
+            else:
+                # This is for out of network ACH payments
+                # it gets passed from frontend after plaid link token endpoint
                 if not data['stripe_cus_id']:
-                    content = {'Error': 'Missing stripe customer id for ach payment!'},
+                    content = {'Error': 'Missing stripe customer id for ach payment! '
+                                        'This must be passed from the plaid link token endpoint.'},
                     return Response(content, status=status.HTTP_404_NOT_FOUND)
 
                 # Retrieve email created from ach link token
@@ -429,15 +445,21 @@ class StripePayInvoice(mixins.CreateModelMixin,
                     description=invoice_desc,
                     payment_method_types=['ach_debit'],
                     source=customer.default_source,
-                    #payment_method=payment_source.id,
                     customer=customer.id,
                     stripe_account=billing_business.stripe_act_id,
                     application_fee_amount=timely_fee,
                     confirm=True,
                 )
             except stripe.error.InvalidRequestError:
-                return Response({'Error': 'ACH source not found, is this a card?'}, status=status.HTTP_404_NOT_FOUND)
+                if "pm_" in data['payment_method']:
+                    error_note = {'Error': 'ACH source not found. ' +
+                                           data['payment_method'] +
+                                           ' looks like a card payment method, should type be "card"?'}
+                else:
+                    error_note = {'Error': 'ACH source not found?'}
+                return Response(error_note, status=status.HTTP_404_NOT_FOUND)
 
+        print(payment.status)
         if payment.status == 'succeeded':
             invoice.is_paid = True
             invoice.date_paid = datetime.date.today()
