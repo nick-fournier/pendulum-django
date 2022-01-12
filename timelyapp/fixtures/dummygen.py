@@ -107,7 +107,7 @@ class GenerateData:
             #new_invoice = copy.deepcopy(self.base_invoice)
             new_invoice = copy.deepcopy(self.base_invoice[random.randint(0, len(self.base_invoice)) - 1])
             today = datetime.date.today()
-            bill_to, bill_from = random.choices(self.businesses, k=2)
+            bill_to, bill_from = random.sample(self.businesses, k=2) #without replacement so it cant be same business
             date_sent = today + datetime.timedelta(random.randint(0, 180))
             inv_id = "inv_" + shortuuid.uuid()
 
