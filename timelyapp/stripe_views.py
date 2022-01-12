@@ -332,11 +332,17 @@ class StripePayInvoice(mixins.CreateModelMixin,
             return Response(content, status=status.HTTP_208_ALREADY_REPORTED)
 
         # Check if other account is onboarded, if not we'll have to handle this somehow (hold money until they onboard?)
-        if not stripe.Account.retrieve(billing_business.stripe_act_id).charges_enabled:
-            content = {'Account error': 'Account for '
-                                        + billing_business.business_name +
-                                        'is not fully onboarded and cannot receive payments yet.'}
-            return Response(content, status=status.HTTP_412_PRECONDITION_FAILED)
+        onboard_content = {'Account error': 'Billing account for ' + billing_business.business_name +
+                                            ' is not fully onboarded and cannot receive payments yet.'}
+        if not billing_business.stripe_act_id:
+            return Response(onboard_content, status=status.HTTP_412_PRECONDITION_FAILED)
+        else:
+            try:
+                # Checks if there is a stripe account id in our database
+                if not stripe.Account.retrieve(billing_business.stripe_act_id).charges_enabled:
+                    return Response(onboard_content, status=status.HTTP_412_PRECONDITION_FAILED)
+            except stripe.error.PermissionError:
+                return Response(onboard_content, status=status.HTTP_412_PRECONDITION_FAILED)
 
         # If user is authenticated, check if correct payer
         if request.user.is_authenticated:
@@ -381,6 +387,7 @@ class StripePayInvoice(mixins.CreateModelMixin,
                     stripe_account=billing_business.stripe_act_id,
                 )
 
+                #print(payment_method)
                 # 3) Create a payment intent between paying customer and receiving account
                 payment = stripe.PaymentIntent.create(
                     amount=int(invoice.invoice_total_price * 100),
@@ -400,7 +407,7 @@ class StripePayInvoice(mixins.CreateModelMixin,
                                            data['payment_method'] +
                                            ' looks like an ACH bank account, should type be "ach"?'}
                 else:
-                    error_note = {'Error': 'ACH source not found?'}
+                    error_note = {'Error': 'Card payment method not found.'}
                 return Response(error_note, status=status.HTTP_404_NOT_FOUND)
 
         if 'ach' in data['type']:
