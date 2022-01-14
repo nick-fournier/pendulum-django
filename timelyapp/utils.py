@@ -130,25 +130,36 @@ def create_invoice(validated_data, business, bill_to_from):
 
     # If itemized, pop out. Need to create invoice before linking
     if 'items' in validated_data:
-        items_data = validated_data.pop('items')
+        items_list = validated_data.pop('items')
+        items_data = []
         validated_data['invoice_only'] = False
+        validated_data['invoice_tax_amt'] = 0
+        validated_data['invoice_price'] = 0
 
-        # Calculate total tax if missing
-        if 'invoice_tax_amt' not in validated_data.keys():
-            validated_data['invoice_tax_amt'] = 0
-            for i in range(len(items_data)):
-                if 'item_tax_amt' in validated_data:
-                    validated_data['invoice_tax_amt'] += items_data[i]['item_tax_amt']
+        for item in items_list:
+            # Remove empty description field if blank ""
+            if item['item_description'] == "":
+                item['item_description'] = None
 
-        # Calculate subtotal price if missing
-        if 'invoice_price' not in validated_data:
-            validated_data['invoice_price'] = 0
-            for i in range(len(items_data)):
-                validated_data['invoice_price'] += items_data[i]['item_price']
+            # Calculate item sub-total price | Should I check if not empty?
+            item['item_price'] = item['quantity_purchased'] * item['unit_price']
 
-        if 'invoice_total_price' not in validated_data:
-            validated_data['invoice_total_price'] = validated_data['invoice_tax_amt'] + \
-                                                    validated_data['invoice_price']
+            # Calculate tax
+            item['item_tax_amt'] = 0
+            for tax in item['item_tax_rates']:
+                item['item_tax_amt'] += item['item_price'] * tax.percentage / 100
+
+            # Calculate price + tax
+            item['item_total_price'] = item['item_price'] + item['item_tax_amt']
+
+            # if 'item_tax_amt' in validated_data:
+            validated_data['invoice_tax_amt'] += item['item_tax_amt']
+            # if 'invoice_price' not in validated_data:
+            validated_data['invoice_price'] += item['item_price']
+            # if 'invoice_total_price' not in validated_data:
+            validated_data['invoice_total_price'] = validated_data['invoice_tax_amt'] + validated_data['invoice_price']
+            items_data.append(item)
+
 
         # Now create invoice and assign linked orders
         invoice = Invoice.objects.create(**validated_data)
@@ -156,10 +167,23 @@ def create_invoice(validated_data, business, bill_to_from):
         for item in items_data:
             # If new item, add to inventory
             if item['is_new']:
-                new_item = {'item_name': item['item_name'], 'item_price': item['item_price']}
+                new_item = {'item_name': item['item_name'],
+                            'unit_price': item['unit_price'],
+                            'description': item['item_description']}
                 Inventory.objects.create(business=business, **new_item)
             item.pop('is_new')
-            Order.objects.create(invoice=invoice, **item)
+
+            # Pop out many-to-many payment field. Need to create order before assigning
+            if 'item_tax_rates' in item:
+                tax_rates = item.pop('item_tax_rates')
+            else:
+                tax_rates = []
+            # Create the order
+            order = Order.objects.create(invoice=invoice, **item)
+
+            # Once order is created, assign payment M2M field
+            for tax in tax_rates:
+                order.item_tax_rates.add(tax)
     else:
         validated_data['invoice_only'] = True
         invoice = Invoice.objects.create(**validated_data)

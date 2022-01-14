@@ -57,7 +57,8 @@ class NewReceivableViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         business_id = self.request.user.business.id
-        queryset = Invoice.objects.filter(bill_from__id=business_id).order_by('date_due')
+        #queryset = Invoice.objects.filter(bill_from__id=business_id).order_by('date_due')
+        queryset = None
         return queryset
 
 class NewPayableViewSet(viewsets.ModelViewSet):
@@ -65,7 +66,8 @@ class NewPayableViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         business_id = self.request.user.business.id
-        queryset = Invoice.objects.filter(bill_to__id=business_id).order_by('date_due')
+        #queryset = Invoice.objects.filter(bill_to__id=business_id).order_by('date_due')
+        queryset = None
         return queryset
 
 class BusinessViewSet(viewsets.ModelViewSet):
