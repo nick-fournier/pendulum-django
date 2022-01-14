@@ -194,6 +194,7 @@ class NotificationViewSet(mixins.ListModelMixin,
 class TaxRatesViewSet(mixins.ListModelMixin,
                       mixins.RetrieveModelMixin,
                       mixins.CreateModelMixin,
+                      mixins.DestroyModelMixin,
                       viewsets.GenericViewSet):
 
     serializer_class = TaxRateSerializer
@@ -202,16 +203,20 @@ class TaxRatesViewSet(mixins.ListModelMixin,
         return Taxes.objects.filter(business=self.request.user.business.id)
 
     def create(self, request):
-        place = ZipCodeDatabase()[request.data['zipcode']]
-
         data = request.data.copy()
-        data.update(
-            {
-                "city": place.city,
-                "state": place.state,
-                "country": 'US',
-            }
-        )
+        if data['zipcode'] != "" or data['zipcode'] is not None:
+            data.pop('zipcode')
+
+        if 'zipcode' in data:
+            place = ZipCodeDatabase()[data['zipcode']]
+            data = request.data.copy()
+            data.update(
+                {
+                    "city": place.city,
+                    "state": place.state,
+                    "country": 'US',
+                }
+            )
 
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
