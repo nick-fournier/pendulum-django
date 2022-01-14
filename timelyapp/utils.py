@@ -135,7 +135,7 @@ def create_invoice(validated_data, business, bill_to_from):
 
         # Calculate total tax if missing
         if 'invoice_tax_amt' not in validated_data.keys():
-            validated_data['invoice_tax'] = 0
+            validated_data['invoice_tax_amt'] = 0
             for i in range(len(items_data)):
                 if 'item_tax_amt' in validated_data:
                     validated_data['invoice_tax_amt'] += items_data[i]['item_tax_amt']
