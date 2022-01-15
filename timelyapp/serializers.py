@@ -347,9 +347,10 @@ class OutreachSerializer(serializers.ModelSerializer):
 # TAX RATE SERIALIZER
 class TaxRateSerializer(CountryFieldMixin, serializers.ModelSerializer):
     business = serializers.SerializerMethodField()
-    city = serializers.ReadOnlyField()
-    state = serializers.ReadOnlyField()
+    # city = serializers.ReadOnlyField()
+    # state = serializers.ReadOnlyField()
     country = serializers.ReadOnlyField(source='country.code')
+    compound = serializers.BooleanField(default=True, initial=True)
 
     class Meta:
         model = Taxes

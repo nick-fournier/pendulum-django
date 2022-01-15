@@ -204,16 +204,19 @@ class TaxRatesViewSet(mixins.ListModelMixin,
 
     def create(self, request):
         data = request.data.copy()
-        if data['zipcode'] != "" or data['zipcode'] is not None:
-            data.pop('zipcode')
+
+        # Remove blank elements
+        for place in ['zipcode', 'city', 'state']:
+            if data[place] == "" or data[place] is None:
+                data.pop(place)
 
         if 'zipcode' in data:
-            place = ZipCodeDatabase()[data['zipcode']]
-            data = request.data.copy()
+            zipdata = ZipCodeDatabase()[data['zipcode']]
+
             data.update(
                 {
-                    "city": place.city,
-                    "state": place.state,
+                    "city": zipdata.city,
+                    "state": zipdata.state,
                     "country": 'US',
                 }
             )
