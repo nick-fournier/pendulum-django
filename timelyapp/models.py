@@ -150,7 +150,7 @@ class Taxes(models.Model):
     city = models.CharField(default=None, null=True, max_length=24)
     state = models.CharField(default=None, null=True, max_length=24, choices=STATES_CHOICES)
     country = CountryField(blank_label='(select country)', default='US')
-    compound = models.BooleanField(default=True)
+    compound = models.BooleanField(default=False)
 
 class Invoice(models.Model):
     id = CustomShortUUIDField(primary_key=True, prefix="inv_")
