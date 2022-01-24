@@ -207,21 +207,22 @@ class TaxRatesViewSet(mixins.ListModelMixin,
     def create(self, request):
         data = request.data.copy()
 
-        # Remove blank elements
-        for place in ['zipcode', 'city', 'state']:
-            if data[place] == "" or data[place] is None:
-                data.pop(place)
-
-        if 'zipcode' in data:
-            zipdata = ZipCodeDatabase()[data['zipcode']]
-
-            data.update(
-                {
-                    "city": zipdata.city,
-                    "state": zipdata.state,
-                    "country": 'US',
-                }
-            )
+        # # Remove blank elements
+        # for place in ['zipcode', 'city', 'state']:
+        #     if data[place] == "" or data[place] is None:
+        #         data.pop(place)
+        #
+        # # Perform lookup
+        # if 'zipcode' in data:
+        #     zipdata = ZipCodeDatabase()[data['zipcode']]
+        #
+        #     data.update(
+        #         {
+        #             "city": zipdata.city,
+        #             "state": zipdata.state,
+        #             "country": 'US',
+        #         }
+        #     )
 
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
