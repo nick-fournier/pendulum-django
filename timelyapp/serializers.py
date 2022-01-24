@@ -349,7 +349,8 @@ class TaxRateSerializer(CountryFieldMixin, serializers.ModelSerializer):
     business = serializers.SerializerMethodField()
     # city = serializers.ReadOnlyField()
     # state = serializers.ReadOnlyField()
-    country = serializers.ReadOnlyField(source='country.code')
+    # country = serializers.ReadOnlyField(source='country.code')
+    deleted_on = serializers.ReadOnlyField()
     compound = serializers.BooleanField(default=True, initial=True)
 
     class Meta:

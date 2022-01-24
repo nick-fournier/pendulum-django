@@ -146,11 +146,19 @@ class Taxes(models.Model):
     display_name = models.CharField(default=None, null=True, max_length=24)
     description = models.CharField(default=None, null=True, max_length=128)
     abbreviation = models.CharField(default=None, null=True, max_length=3)
-    zipcode = models.CharField(default=None, null=True, max_length=10)
-    city = models.CharField(default=None, null=True, max_length=24)
-    state = models.CharField(default=None, null=True, max_length=24, choices=STATES_CHOICES)
-    country = CountryField(blank_label='(select country)', default='US')
+    # zipcode = models.CharField(default=None, null=True, max_length=10)
+    # city = models.CharField(default=None, null=True, max_length=24)
+    # state = models.CharField(default=None, null=True, max_length=24, choices=STATES_CHOICES)
+    # country = CountryField(blank_label='(select country)', default='US')
     compound = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
+    deleted_on = models.DateTimeField(default=None, null=True)
+
+    def save(self):
+        if self.is_deleted==True:
+            self.deleted_on = datetime.datetime.now()
+        super(Taxes, self).save()
+
 
 class Invoice(models.Model):
     id = CustomShortUUIDField(primary_key=True, prefix="inv_")
@@ -172,12 +180,18 @@ class Invoice(models.Model):
     is_scheduled = models.BooleanField(default=False)
     is_paid = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
+    deleted_on = models.DateTimeField(default=None, null=True)
     invoice_only = models.BooleanField(default=False)
     #
     # def __str__(self):
     #     return "%s, $%s, due: %s" %(self.invoice_name,
     #                                 self.invoice_total_price,
     #                                 self.date_due)
+
+    def save(self):
+        if self.is_deleted==True:
+            self.deleted_on = datetime.datetime.now()
+        super(Invoice, self).save()
 
 
 class Order(models.Model):

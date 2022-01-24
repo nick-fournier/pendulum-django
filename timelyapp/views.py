@@ -194,13 +194,15 @@ class NotificationViewSet(mixins.ListModelMixin,
 class TaxRatesViewSet(mixins.ListModelMixin,
                       mixins.RetrieveModelMixin,
                       mixins.CreateModelMixin,
-                      mixins.DestroyModelMixin,
+                      mixins.UpdateModelMixin,
+                      #mixins.DestroyModelMixin,
                       viewsets.GenericViewSet):
 
     serializer_class = TaxRateSerializer
 
     def get_queryset(self):
-        return Taxes.objects.filter(business=self.request.user.business.id)
+        # return Taxes.objects.filter(business=self.request.user.business.id)
+        return Taxes.objects.filter(Q(business=self.request.user.business.id) & Q(is_deleted=False))
 
     def create(self, request):
         data = request.data.copy()
