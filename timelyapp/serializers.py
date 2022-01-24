@@ -335,7 +335,6 @@ class OutreachSerializer(serializers.ModelSerializer):
     #special_key = serializers.CharField(write_only=True)
     class Meta:
         model = Outreach
-        #fields = "__all__"
         exclude = ["date_joined"]
 
     # def validate(self, data):
@@ -355,7 +354,8 @@ class TaxRateSerializer(CountryFieldMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Taxes
-        fields = "__all__"
+        #fields = "__all__"
+        exclude = ['zipcode', 'city', 'state', 'country']
 
     def get_business(self, obj):
         return obj.business.id
