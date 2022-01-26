@@ -149,15 +149,15 @@ class Taxes(models.Model):
     zipcode = models.CharField(default=None, null=True, max_length=10)
     city = models.CharField(default=None, null=True, max_length=24)
     state = models.CharField(default=None, null=True, max_length=24, choices=STATES_CHOICES)
-    country = CountryField(blank_label='(select country)', default='US')
+    country = CountryField(blank_label='(select country)', null=True, default=None)
     compound = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
     deleted_on = models.DateTimeField(default=None, null=True)
 
-    def save(self):
+    def save(self, *args, **kwargs):
         if self.is_deleted==True:
             self.deleted_on = datetime.datetime.now()
-        super(Taxes, self).save()
+        return super(Taxes, self).save(*args, **kwargs)
 
 
 class Invoice(models.Model):
@@ -188,10 +188,11 @@ class Invoice(models.Model):
     #                                 self.invoice_total_price,
     #                                 self.date_due)
 
-    def save(self):
+    def save(self, *args, **kwargs):
         if self.is_deleted==True:
             self.deleted_on = datetime.datetime.now()
-        super(Invoice, self).save()
+        return super(Invoice, self).save(*args, **kwargs)
+
 
 
 class Order(models.Model):
