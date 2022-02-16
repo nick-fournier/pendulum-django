@@ -141,7 +141,27 @@ class InventorySerializer(serializers.ModelSerializer):
         model = Inventory
         fields = '__all__'
 
+# TAX RATE SERIALIZER
+class TaxRateSerializer(CountryFieldMixin, serializers.ModelSerializer):
+    business = serializers.SerializerMethodField()
+    # city = serializers.ReadOnlyField()
+    # state = serializers.ReadOnlyField()
+    # country = serializers.ReadOnlyField(source='country.code')
+    deleted_on = serializers.ReadOnlyField()
+    compound = serializers.BooleanField(default=True, initial=True)
+
+    class Meta:
+        model = Taxes
+        #fields = "__all__"
+        exclude = ['zipcode', 'city', 'state', 'country']
+
+    def get_business(self, obj):
+        return obj.business.id
+
+
 class OrderSerializer(serializers.ModelSerializer):
+    item_tax_rates = TaxRateSerializer(many=True, read_only=True)
+
     class Meta:
         model = Order
         fields = '__all__'
@@ -342,23 +362,6 @@ class OutreachSerializer(serializers.ModelSerializer):
     #     if key != settings.NEWSLETTER_KEY:
     #         raise serializers.ValidationError({'special_key': 'Invalid special key'})
     #     return data
-
-# TAX RATE SERIALIZER
-class TaxRateSerializer(CountryFieldMixin, serializers.ModelSerializer):
-    business = serializers.SerializerMethodField()
-    # city = serializers.ReadOnlyField()
-    # state = serializers.ReadOnlyField()
-    # country = serializers.ReadOnlyField(source='country.code')
-    deleted_on = serializers.ReadOnlyField()
-    compound = serializers.BooleanField(default=True, initial=True)
-
-    class Meta:
-        model = Taxes
-        #fields = "__all__"
-        exclude = ['zipcode', 'city', 'state', 'country']
-
-    def get_business(self, obj):
-        return obj.business.id
 
 class FinancingRequestSerializer(serializers.ModelSerializer):
     invoice_id = serializers.CharField(required=True)
