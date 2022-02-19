@@ -168,6 +168,8 @@ class OrderSerializer(serializers.ModelSerializer):
 
 class NewOrderSerializer(serializers.ModelSerializer):
     is_new = serializers.BooleanField(default=False)
+    item_tax_rates = TaxRateSerializer(many=True)
+
 
     class Meta:
         model = Order

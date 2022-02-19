@@ -70,6 +70,15 @@ class NewPayableViewSet(viewsets.ModelViewSet):
         queryset = None
         return queryset
 
+class NewOrderViewset(viewsets.ModelViewSet):
+    serializer_class = NewOrderSerializer
+
+    def get_queryset(self):
+        business_id = self.request.user.business.id
+        #queryset = Invoice.objects.filter(bill_from__id=business_id).order_by('date_due')
+        queryset = None
+        return queryset
+
 class BusinessViewSet(viewsets.ModelViewSet):
     serializer_class = BusinessSerializer
     queryset = Business.objects.all()
