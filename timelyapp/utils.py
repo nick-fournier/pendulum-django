@@ -173,9 +173,11 @@ def create_invoice(validated_data, business, bill_to_from):
                 Inventory.objects.create(business=business, **new_item)
             item.pop('is_new')
 
-            # Pop out many-to-many payment field. Need to create order before assigning
+            # Pop out many-to-many payment field. Need to create item order before assigning
             if 'item_tax_rates' in item:
                 tax_rates = item.pop('item_tax_rates')
+                # Check if dict or just tax id
+                tax_rates = [x['id'] if type(x) == dict else x for x in tax_rates]
             else:
                 tax_rates = []
             # Create the order
