@@ -136,6 +136,12 @@ class ToBusinessKeyField(serializers.PrimaryKeyRelatedField):
     def get_queryset(self):
         return self.queryset.exclude(business_user__id=self.context['request'].user.id)
 
+class ToTaxesKeyField(serializers.PrimaryKeyRelatedField):
+    queryset = Taxes.objects.all()
+
+    def get_queryset(self):
+        return self.queryset.filter(business_id=self.context['request'].user.business.id)
+
 class InventorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Inventory
@@ -168,8 +174,8 @@ class OrderSerializer(serializers.ModelSerializer):
 
 class NewOrderSerializer(serializers.ModelSerializer):
     is_new = serializers.BooleanField(default=False)
-    item_tax_rates = TaxRateSerializer(many=True)
-
+    #item_tax_rates = TaxRateSerializer(many=True)
+    item_tax_rates = ToTaxesKeyField(many=True)
 
     class Meta:
         model = Order
