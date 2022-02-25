@@ -159,6 +159,8 @@ class Taxes(models.Model):
             self.deleted_on = datetime.datetime.now()
         return super(Taxes, self).save(*args, **kwargs)
 
+    def __str__(self):
+        return "%s [%s, %s]" %(self.id, self.display_name, self.abbreviation)
 
 class Invoice(models.Model):
     id = CustomShortUUIDField(primary_key=True, prefix="inv_")
