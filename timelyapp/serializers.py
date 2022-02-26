@@ -217,6 +217,14 @@ class NewReceivableSerializer(serializers.ModelSerializer):
         business = self.context['request'].user.business
         return create_invoice(validated_data, business, 'bill_from')
 
+    def to_internal_value(self, data):
+        for item in data['items']:
+            item['item_tax_rates'] = [tax['id'] if type(tax) is dict else tax for tax in item['item_tax_rates']]
+            print(item['item_tax_rates'])
+        return super(NewReceivableSerializer, self).to_internal_value(data)
+
+
+
 # CREATE NEW PAYABLE INVOICE SERIALIZER
 class NewPayableSerializer(serializers.ModelSerializer):
     invoice_id = serializers.SerializerMethodField(required=False)
@@ -240,6 +248,12 @@ class NewPayableSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         business = self.context['request'].user.business
         return create_invoice(validated_data, business, 'bill_to')
+
+    def to_internal_value(self, data):
+        for item in data['items']:
+            item['item_tax_rates'] = [tax['id'] if type(tax) is dict else tax for tax in item['item_tax_rates']]
+            print(item['item_tax_rates'])
+        return super(NewPayableSerializer, self).to_internal_value(data)
 
 # SERIALIZER FOR FULL INVOICE DATA
 class FullInvoiceSerializer(serializers.ModelSerializer):
